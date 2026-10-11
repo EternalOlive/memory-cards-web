@@ -1326,6 +1326,12 @@ details.ym-subj>summary small{font-weight:600;color:var(--mute);font-size:12.5px
 .c-copy-btn.copied .ic-check, .c-copy-tag.copied .ic-check{display:inline-block !important;}
 .whine-chip{background:var(--c-fill);color:var(--c-sec);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:3px;cursor:pointer;border:none;flex:0 0 auto;white-space:nowrap;user-select:none;-webkit-user-select:none;transition:transform .1s, background .15s;margin-left:auto;}
 .whine-chip:active{transform:scale(0.92);background:var(--c-fill-hi,rgba(120,120,128,0.22));}
+.last-action-chip{background:var(--c-fill);color:var(--c-label);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:500;display:inline-flex;align-items:center;gap:4px;cursor:pointer;border:none;flex:0 0 auto;white-space:nowrap;user-select:none;-webkit-user-select:none;transition:transform .1s, background .15s;}
+.last-action-chip:active{transform:scale(0.94);background:var(--c-fill-hi,rgba(120,120,128,0.22));}
+.last-action-chip .lac-dot{width:6px;height:6px;border-radius:50%;flex:0 0 auto;}
+.last-action-chip .lac-lbl b{font-weight:700;}
+.last-action-chip .lac-btn{background:var(--c-card);padding:1px 4px;border-radius:4px;font-size:10px;font-weight:700;color:var(--c-sec);box-shadow:0 0.5px 1.5px rgba(0,0,0,.15);line-height:1;}
+.last-action-chip .lac-undo{color:var(--c-sec);font-size:10px;margin-left:1px;}
 #cFront{font-family:var(--font);font-size:var(--t-q);font-weight:500;line-height:1.55;letter-spacing:-.012em;color:var(--c-label);}
 #cFront.is-long{font-size:var(--t-q-long);letter-spacing:0;max-width:72ch;hyphens:auto;}
 #cLine{flex:0 0 auto;height:1px;transform:scaleY(.5);background:var(--c-sep);margin-bottom:8px;}
@@ -1690,6 +1696,7 @@ button.sc-err{background:none;border:0;text-align:left;cursor:pointer;font:inher
   #cHead{gap:4px;}
   .sc-badge{font-size:11px;padding:2px 6px;gap:3px;}
   .whine-chip{padding:2px 6px;font-size:10px;}
+  .last-action-chip{padding:2px 6px;font-size:10px;}
 }
 #scConfetti{position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:99999;display:none;}
 #railSc .rs-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:4px 12px 6px;}
@@ -2269,7 +2276,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
         <!-- 🔴 디자인 이식 09-24: 카드 = 위아래 반반. 답면 내용은 **앞면에서도 미리 채워 visibility:hidden**으로 깔고 가림 면으로 덮는다 →
              앞면↔답면에서 질문·선·버튼이 1px도 안 움직인다(디자인_언어 §1-1 · §7.1). 가림은 visibility라 글자가 선택·낭독되지 않는다. -->
         <div id="card">
-          <div id="cHead"><div class="c-head-top"><div id="cScope"></div><div id="phaseLine"></div></div><div class="c-head-sub" id="cHeadSub"><span id="solveStudyChip" class="sc-badge"></span><button type="button" class="whine-chip" id="btnWhine" title="아 진짜 하기 싫다! (투덜이 로그)">🫠 하기 싫어</button></div></div>
+          <div id="cHead"><div class="c-head-top"><div id="cScope"></div><div id="phaseLine"></div></div><div class="c-head-sub" id="cHeadSub"><span id="lastActionChip" class="last-action-chip" style="display:none;" title="직전 채점 (탭하면 되돌리기)"></span><span id="solveStudyChip" class="sc-badge"></span><button type="button" class="whine-chip" id="btnWhine" title="아 진짜 하기 싫다! (투덜이 로그)">🫠 하기 싫어</button></div></div>
           <div id="cardScroll"><div id="cSplit">
             <div id="cUpper">
               <div class="c-upper-act"><button type="button" class="c-copy-btn" id="btnCopyFront" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button></div>
@@ -8317,6 +8324,7 @@ function playSess(sx){          // 세션 화면의 [이어가기] — 남은 �
   // 🔴 저장된 큐를 이어 풀 때도 한 번 더 건다 — 큐는 조립 뒤에도 「내용 추가」로 뒤에 붙는다
   phase = stOnly(sx.how.status,'new') ? 'new' : 'review';
   sessionDone=0; doneCredited=0; newServed=0; undoSnap=null; undoRun++; updateUndo(); sessReset();
+  lastAction = null;
   go('scrSolve');
   /* 🔴 큐가 비었는데 세션에 카드는 있었다 = 전부 오늘 이미 푼 것이다. 말없이 돌려보내면
      「눌렀는데 아무 일도 안 일어난다」가 된다(동하 2026-08-30). 이유를 말한다. */
@@ -8341,6 +8349,7 @@ function creditDone(){
 }
 function finishSess(){         // 큐 소진 = 세션 화면으로 복귀 (성적표는 거기서)
   clearResume();               // 다 푼 자리로 되돌아갈 일은 없다
+  lastAction = null;
   if(curSess){
     const n=sess.r[1]+sess.r[2]+sess.r[3]+sess.r[4];
     if(n){
@@ -8777,6 +8786,18 @@ function showDiag(c, back){
     + (uri?` <a href="${uri.replace(/&/g,'&amp;')}">회독본 ↗</a>`:'');
   const a=el.querySelector('a'); if(a)a.onclick=(e)=>e.stopPropagation();   // 탭이 카드 되접기로 먹지 않게
 }
+let lastAction = null;
+function renderLastActionChip(){
+  const chip = $('lastActionChip');
+  if(!chip) return;
+  if(!lastAction){
+    chip.style.display = 'none';
+    chip.innerHTML = '';
+    return;
+  }
+  chip.innerHTML = `<span class="lac-dot" style="background:${lastAction.color}"></span><span class="lac-lbl">직전: <b>${lastAction.label}</b></span><span class="lac-btn">${lastAction.btn}</span><span class="lac-undo">↶ 되돌리기</span>`;
+  chip.style.display = 'inline-flex';
+}
 /* 도식이 아닌 카드의 회독본 링크 (동하 2026-08-24 — 「모든 카드에서 회독본으로 갈 수 있게」).
    🔴 뒷면 전용이다: 답을 보기 전에 원문으로 가면 인출 연습이 깨진다. 그래서 #cDiag(앞면 아래)가
    아니라 #cBackWrap 안의 #cHoedok에 그린다 — 공개 전에는 부모가 통째로 숨겨져 있어 새어 나올 길이 없다.
@@ -8836,6 +8857,7 @@ function showCard(){
   requestAnimationFrame(coverFit);
   syncRail(); counts();
   try{ scRenderSolveBadge(); }catch(e){}
+  renderLastActionChip();
   $('cardScroll').scrollTop=0;
   saveResume();                  // 회독본 갔다 돌아올 자리 (앞면 상태)
 }
@@ -9045,6 +9067,10 @@ function rate(num){
   const firstToday = s.d!==tk;
   undoSnap={ k:'rate', run:undoRun, id:c.id, card:c, entry:null, reIns:null, shownAt:shownAt, pausedMs:pausedMs,   // 되돌리면 처음 본 시각을 되살린다(아래 doUndo)
              prev:JSON.parse(JSON.stringify(state.cards[c.id]||null)),
+             action: (num===1 ? { label: '다시', btn: 'A', color: 'var(--c-red, #ff453a)', num: 1 } :
+                      num===2 ? { label: reN ? '통과' : '어려움', btn: 'B', color: reN ? 'var(--c-acc, #30d158)' : 'var(--c-orange, #ff9f0a)', num: 2 } :
+                      num===3 ? { label: reN ? '통과' : '알맞음', btn: 'Y', color: 'var(--c-green, #30d158)', num: 3 } :
+                                { label: reN ? '통과' : '쉬움', btn: 'X', color: reN ? 'var(--c-acc, #30d158)' : 'var(--c-teal, #64d2ff)', num: 4 }),
              sid:curSess?curSess.id:null, phase, sessionDone, newServed,
              sess:{r:sess.r.slice(), ms:sess.ms, streak:sess.streak, best:sess.best, re:sess.re} };
   undoPush(undoSnap);
@@ -9091,6 +9117,10 @@ function rate(num){
   afterRate();   // 채점은 로그가 정본이라 카드 상태로 따로 올릴 것이 없다(옛 `touchRate`는 빈 함수였다 · FX-9)
   if(!reN){ sessionDone++; if(phase==='new')newServed++; }
   qPos++; updateUndo();
+  if(num===1) lastAction = { label: '다시', btn: 'A', color: 'var(--c-red, #ff453a)', num: 1 };
+  else if(num===2) lastAction = { label: reN ? '통과' : '어려움', btn: 'B', color: reN ? 'var(--c-acc, #30d158)' : 'var(--c-orange, #ff9f0a)', num: 2 };
+  else if(num===3) lastAction = { label: reN ? '통과' : '알맞음', btn: 'Y', color: 'var(--c-green, #30d158)', num: 3 };
+  else if(num===4) lastAction = { label: reN ? '통과' : '쉬움', btn: 'X', color: reN ? 'var(--c-acc, #30d158)' : 'var(--c-teal, #64d2ff)', num: 4 };
   /* 🔴 **저장이 먼저다** (전층 감사 F4-7 · 2026-09-06). `showCard()`는 큐가 소진되면 `finishSess()`를 부르는데,
      `curSess`가 고아(병합으로 `sessions` 배열이 통째로 갈린 뒤)면 그 기록이 **허공으로 간다**
      (실측: 고아 done 5,727 · 살아 있는 세션 done 5,725). `syncSessQueue`는 첫 줄에서 id로 산 객체를
@@ -9139,8 +9169,8 @@ let undoStack=[], undoRun=0;       // undoRun = 풀이 런 일련번호. 이어�
 function undoPush(sn){ undoStack.push(sn); if(undoStack.length>UNDO_MAX) undoStack.shift(); }
 function updateUndo(){ $('btnUndo').toggleAttribute('disabled', !undoStack.length); $('ohUndo').toggleAttribute('disabled', !undoStack.length);
   $('btnUndo').title = undoStack.length>1?`되돌리기 (${undoStack.length}단계)`:'되돌리기'; }
-function dropSnap(c){              // 큐에서 빼는 조작(내일로·은퇴·끄기)의 되돌리기 스냅샷 — 조작 전에 떠야 한다
-  return { k:'drop', run:undoRun, id:c.id, card:c,
+function dropSnap(c, act){              // 큐에서 빼는 조작(내일로·은퇴·끄기)의 되돌리기 스냅샷 — 조작 전에 떠야 한다
+  return { k:'drop', run:undoRun, id:c.id, card:c, action:act||null,
            prev:JSON.parse(JSON.stringify(state.cards[c.id]||null)) };
 }
 function reviveAt(card){           // 되돌린 카드를 지금 자리로 데려온다 (큐가 새로 짜였어도)
@@ -9197,6 +9227,8 @@ function doUndo(){
   todayRateIdx=null; lastRevIdx=null; firstRevIdx=null; _prMemo=null;   // 되돌리기는 제자리 splice — 증분 캐시 셋을 전부 비운다(전층 감사 F1-3)
   cacheState(); setDirty(true); updateUndo();
   if(!$('scrSolve').classList.contains('on')) go('scrSolve');  // 세션·홈에서 눌러도 그 카드로 돌아간다
+  const prevUndo = undoStack.length ? undoStack[undoStack.length - 1] : null;
+  lastAction = (prevUndo && prevUndo.action) ? prevUndo.action : null;
   showCard();
   /* 🔴 되돌린 채점을 다시 매길 때 **처음 카드를 본 시각부터** 센다(동하 09-21 「시간이 좀 적게 나온다」 실측 — 다시·어려움 카드마다 평균 4초가 빠졌다 =
      되돌리기 뒤 showCard가 shownAt을 지금으로 갈아 첫 시도 시간이 버려진 몫). 같은 런의 그 카드일 때만. */
@@ -9304,14 +9336,18 @@ const rw=$('rWhine'); if(rw) rw.onclick=(e)=>{ e.stopPropagation(); doWhine(); }
 $('rBury').onclick=()=>{
   if(tooSoon()) return;                       // 카드 바뀐 직후 더블탭
   const c=cur(); if(!c)return;
-  const sn=dropSnap(c);
+  const act = { label: '내일로', btn: 'Bury', color: 'var(--c-sec, #8e8e93)', num: null };
+  const sn=dropSnap(c, act);
+  lastAction = act;
   buryCard(c); dropFromQueue(c.id); removeCurFromQueue(sn);
   toast('내일로 — 오늘 큐에서 빠져요 (되돌리기로 취소)');
 };
 $('rOff').onclick=()=>{ // 끄기 = 이 카드 그만 (2026-08-22 — 은퇴·방향을 여기로 합쳤다)
   const c=cur(); if(!c)return;
   if(tooSoon()) return;                       // 카드 바뀐 직후 더블탭
-  const sn=dropSnap(c);
+  const act = { label: '끄기', btn: 'Off', color: 'var(--c-sec, #8e8e93)', num: null };
+  const sn=dropSnap(c, act);
+  lastAction = act;
   offCard(c,true); dropFromQueue(c.id);   // 큐 뒤에 남은 같은 카드도 함께 정리
   removeCurFromQueue(sn);
   toast('껐어요 — 오늘 밤 루틴이 spec에도 반영해요 (되돌리기 가능)');
@@ -9501,6 +9537,7 @@ $('scrSolve').addEventListener('click',ev=>{ if(Date.now()-zoneUpAt<600)return; 
 $('gAgain').onclick=()=>rate(1); $('gHard').onclick=()=>rate(2);
 $('gGood').onclick=()=>rate(3); $('gEasy').onclick=()=>rate(4);
 $('btnUndo').onclick=()=>{ if(tooSoon()) return; doUndo(); };   // 카드 바뀐 직후 더블탭
+const lac=$('lastActionChip'); if(lac) lac.onclick=(e)=>{ e.stopPropagation(); if(tooSoon()) return; doUndo(); };
 $('btnHome').onclick=()=>{ push(); go('scrHome'); };
 let swipeOn = lsGet(K_SWIPE)==='1';
 /* 스와이프 채점 — 터치(iPad)·마우스(PC) 입력을 하나의 제스처 로직으로.
