@@ -12532,11 +12532,15 @@ function padPoll(){
           padLearn=null; lsSet(K_PAD, JSON.stringify(padMap)); renderPadUI(); padPrev[i]=true; continue; }
         if(i===padMap.mod){ padPrev[i]=true; continue; }
         let act=Object.keys(padMap).find(k=>padMap[k]===i && k!=='mod');
-        /* 8BitDo 하트 버튼(16번 홈/하트 또는 17번) 누르면 찌르기(poke) */
-        if(!act || act==='bury' || act==='poke'){
-          if(i===16 || i===17) act='poke';
+        /* 8BitDo 하트/스타 버튼(10, 11, 16, 17번) 또는 R(5번) 누르면 찌르기(poke) */
+        if(i===10 || i===11 || i===16 || i===17 || i===5 || (padMap.poke!=null && i===padMap.poke)){
+          if(!act || act==='bury' || act==='poke') act='poke';
         }
-        if(act) padSynth(act, mod && ['again','hard','good','easy'].includes(act));
+        if(act==='poke'){
+          try{ triggerStudyPoke(); }catch(e){}
+        } else if(act){
+          padSynth(act, mod && ['again','hard','good','easy'].includes(act));
+        }
         if($('scrInput').classList.contains('on')) renderPadUI();   // 배치 화면에선 「마지막 눌린 #」을 보여 준다
       }
       padPrev[i]=is; }
@@ -12643,6 +12647,7 @@ document.addEventListener('keydown',e=>{
   }
   if(typing||ovl)return;
   let k=keyOf(e);                    // let — 아래 왼손 키가 옛 키로 바꿔 쓴다(09-25)
+  if(k==='j'){ e.preventDefault(); triggerStudyPoke(); return; }
   if(k==='/'){ e.preventDefault(); go('scrList'); $('qSearch').focus(); return; }
   if(k==='h'){ e.preventDefault(); push(); go('scrHome'); return; }
   if(!$('scrSolve').classList.contains('on'))return;
@@ -12706,7 +12711,6 @@ document.addEventListener('keydown',e=>{
   if(k==='o'){ $('rOff').click(); return; }   // 끄기 = 이 카드 그만
   if(k==='p'){ pauseSession(); return; }
   if(k==='w'){ doWhine(); return; }
-  if(k==='j'){ e.preventDefault(); triggerStudyPoke(); return; }
   /* `C` = 초성 힌트 (동하 09-14 「초성 나타내기 단축키」). 답 보기 전, 아직 안 연 칩 중 첫 것을 연다 —
      항목이 여럿이면 누를 때마다 다음 칩. 칩이 없는 카드(범위 밖·표·도식)면 아무 일도 없다. 열면 채점이 「다시」로 잠기는 규칙은 칩과 같다. */
   if(k==='t'){ if(revealed) return; const b=[...document.querySelectorAll('#hintBox.on .hint-chip:not(.on)')][0]; if(b) b.click(); return; }   // 초성 힌트 C→T (09-22 · C가 채점 「알맞음」이 됐다)
