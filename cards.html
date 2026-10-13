@@ -1314,10 +1314,12 @@ details.ym-subj>summary small{font-weight:600;color:var(--mute);font-size:12.5px
 #cardScroll{flex:1 1 auto;min-height:0;display:block;}   /* 🔴 block — flex면 #cSplit이 칸 높이로 줄어들어 긴 문면이 가림 면과 겹쳤다(09-24 아이폰 실측) */
 #cSplit{min-height:100%;display:flex;flex-direction:column;}
 #cUpper{flex:42 1 0;display:flex;flex-direction:column;justify-content:center;padding:12px 0;position:relative;}
-.c-upper-act{position:absolute;top:2px;right:0;display:flex;align-items:center;z-index:2;}
+.c-upper-act{position:absolute;top:2px;right:0;display:flex;align-items:center;gap:4px;z-index:2;}
 .c-copy-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;color:var(--c-sec);background:var(--c-fill);border:0;border-radius:50%;cursor:pointer;transition:all .15s ease;-webkit-user-select:none;user-select:none;}
 .c-copy-btn:hover{color:var(--c-label);background:var(--c-fill-hi,rgba(120,120,128,0.22));}
 .c-copy-btn svg{width:13px;height:13px;}
+.c-gpt-btn{color:var(--c-sec);}
+.c-gpt-tag{color:var(--c-sec);}
 .c-copy-tag{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0 !important;border:0;color:var(--c-sec);border-radius:50% !important;user-select:none;-webkit-user-select:none;}
 .c-copy-tag:hover{color:var(--c-label);background:var(--c-fill-hi,rgba(120,120,128,0.22));}
 .c-copy-tag svg{width:13px;height:13px;}
@@ -2279,7 +2281,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
           <div id="cHead"><div class="c-head-top"><div id="cScope"></div><div id="phaseLine"></div></div><div class="c-head-sub" id="cHeadSub"><span id="lastActionChip" class="last-action-chip" style="display:none;" title="직전 채점 (탭하면 되돌리기)"></span><span id="solveStudyChip" class="sc-badge"></span><button type="button" class="whine-chip" id="btnWhine" title="아 진짜 하기 싫다! (투덜이 로그)">🫠 하기 싫어</button></div></div>
           <div id="cardScroll"><div id="cSplit">
             <div id="cUpper">
-              <div class="c-upper-act"><button type="button" class="c-copy-btn" id="btnCopyFront" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button></div>
+              <div class="c-upper-act"><button type="button" class="c-copy-btn c-gpt-btn" id="btnGptFront" title="ChatGPT 앱 열기" aria-label="ChatGPT 앱 열기"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1683a.071.071 0 0 1 .038.052v5.5826a4.5045 4.5045 0 0 1-4.4945 4.4947zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4998 4.4998 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1683a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.0993 3.8558L12.5973 8.3829l2.02-1.1636a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.402-.6862zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L8.909 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4998 4.4998 0 0 1 6.6802 4.6604v.0001zm-4.4664 4.3713L10.1504 9.7348 12.0142 8.66l5.834 3.3685-1.8638 1.0709zm-2.006 1.1541L12 15.3401l-5.834-3.3685 1.8638-1.0709 3.834 2.2132v2.1378z"/></svg></button><button type="button" class="c-copy-btn" id="btnCopyFront" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button></div>
               <div class="c-imgs front" id="cImgF"></div>
               <div id="cFront"></div>
               <div id="cDiag"></div>
@@ -2300,7 +2302,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
                   <!-- 가림 면 = 답과 같은 격자 칸에 겹친다 → 칸 높이 = 둘 중 큰 쪽(힌트 칩이 많아도 넘치지 않는다) · 답면에선 visibility로만 치운다(높이 그대로) -->
                   <div id="cCover"><div id="revealHint">카드를 누르면 정답이 보여요</div><div id="hintBox"></div></div>
                 </div>
-                <div id="cMeta"><span class="typ-tag" id="cTyp"></span><span class="typ-tag" id="cDir">역방향</span><span id="cHint"></span><span id="cTags"></span><button class="typ-tag" id="cTagAdd">＋태그</button><input id="cTagInput" type="text" maxlength="16" placeholder="태그"><button type="button" class="typ-tag c-copy-tag" id="btnCopyBack" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button><div id="cHoedok"></div></div>
+                <div id="cMeta"><span class="typ-tag" id="cTyp"></span><span class="typ-tag" id="cDir">역방향</span><span id="cHint"></span><span id="cTags"></span><button class="typ-tag" id="cTagAdd">＋태그</button><input id="cTagInput" type="text" maxlength="16" placeholder="태그"><button type="button" class="typ-tag c-copy-tag c-gpt-tag" id="btnGptBack" title="ChatGPT 앱 열기" aria-label="ChatGPT 앱 열기"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1683a.071.071 0 0 1 .038.052v5.5826a4.5045 4.5045 0 0 1-4.4945 4.4947zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4998 4.4998 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1683a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.0993 3.8558L12.5973 8.3829l2.02-1.1636a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.402-.6862zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L8.909 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4998 4.4998 0 0 1 6.6802 4.6604v.0001zm-4.4664 4.3713L10.1504 9.7348 12.0142 8.66l5.834 3.3685-1.8638 1.0709zm-2.006 1.1541L12 15.3401l-5.834-3.3685 1.8638-1.0709 3.834 2.2132v2.1378z"/></svg></button><button type="button" class="typ-tag c-copy-tag" id="btnCopyBack" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button><div id="cHoedok"></div></div>
               </div>
             </div>
           </div></div>
@@ -9435,6 +9437,24 @@ function flashCopyBtn(btn){
   btn.classList.add('copied');
   setTimeout(()=>btn.classList.remove('copied'), 1200);
 }
+function openChatGpt(c){
+  if(!c) c = cur();
+  if(!c) return;
+  copyCardToClipboard(c, false);
+  toast('카드 내용 복사 완료 📋 ChatGPT 열기');
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if(isMobile){
+    const t0 = Date.now();
+    setTimeout(() => {
+      if(!document.hidden && Date.now() - t0 < 2500){
+        window.open('https://chatgpt.com/', '_blank');
+      }
+    }, 1200);
+    window.location.href = 'chatgpt://';
+  } else {
+    window.open('https://chatgpt.com/', '_blank');
+  }
+}
 const rCopyEl = $('rCopy');
 if(rCopyEl) rCopyEl.onclick = () => {
   const c = cur();
@@ -9443,6 +9463,22 @@ if(rCopyEl) rCopyEl.onclick = () => {
   $('rail').classList.remove('open');
   $('railScrim').classList.remove('show');
 };
+const btnGptF = $('btnGptFront');
+if(btnGptF){
+  ['click','pointerdown','pointerup'].forEach(ev => btnGptF.addEventListener(ev, e => e.stopPropagation()));
+  btnGptF.onclick = (e) => {
+    e.stopPropagation();
+    openChatGpt(cur());
+  };
+}
+const btnGptB = $('btnGptBack');
+if(btnGptB){
+  ['click','pointerdown','pointerup'].forEach(ev => btnGptB.addEventListener(ev, e => e.stopPropagation()));
+  btnGptB.onclick = (e) => {
+    e.stopPropagation();
+    openChatGpt(cur());
+  };
+}
 const btnCopyF = $('btnCopyFront');
 if(btnCopyF){
   ['click','pointerdown','pointerup'].forEach(ev => btnCopyF.addEventListener(ev, e => e.stopPropagation()));
@@ -10304,7 +10340,7 @@ function scMyBuckets(){ const {D, ev}=scEvents(), m={};
   for(const x of ev){ if(x.d!==D) continue; const sl=scSlot(x.t); const b=m[sl]=m[sl]||{slot:sl, answer_count:0, time_ms:0}; b.answer_count++; b.time_ms+=x.ms; }
   return Object.values(m).sort((a,b)=>a.slot-b.slot); }
 function scDetFriend(m){ const L=[];
-  if(Date.now()>=scPokeOff){ const cool=(scPokeCool[m.user_id]||0)>Date.now(); L.push(`<div class="sc-pokerow"><button class="btn-ghost sc-poke" data-uid="${esc(m.user_id)}"${cool?' disabled':''}>${cool?'찔렀어요':'찌르기'}</button></div>`); }   // 찌르기(10-07 · 애드온 PR #7 머지)
+  if(Date.now()>=scPokeOff){ L.push(`<div class="sc-pokerow"><button class="btn-ghost sc-poke" data-uid="${esc(m.user_id)}">찌르기</button></div>`); }   // 찌르기(10-07 · 애드온 PR #7 머지)
   if(m.current_deck_name) L.push(`<div class="sc-line">지금 <b>${esc(m.current_deck_name)}</b></div>`);
   const tg=m.time_goal_minutes||0, cg=m.card_goal||0; if(tg||cg) L.push(`<div class="sc-line">목표 ${[tg?tg+'분':'', cg?cg.toLocaleString()+'장':''].filter(Boolean).join(' · ')}</div>`);
   L.push(scPaceCard(m));
@@ -10793,13 +10829,13 @@ $('railSc').addEventListener('pointerup', e=>{ const p=e.target.closest('.rs-p[d
   else scDbl={uid, t:now, x:e.clientX, y:e.clientY}; });
 async function scRailPoke(p, uid){ const m=(SC.members||[]).find(x=>x.user_id===uid), nm=(m&&m.display_name)||'친구';
   if(Date.now()<scPokeOff){ toast('아직 친구 서버에 없는 기능이에요'); return; }
-  if((scPokeCool[uid]||0)>Date.now() || scPokeFly.has(uid)){ toast('같은 사람은 1분에 한 번 찌를 수 있어요'); return; }
+  if(scPokeFly.has(uid)) return;
   p.style.setProperty('--pk', scColor(uid)); p.classList.remove('rs-pk'); void p.offsetWidth; p.classList.add('rs-pk');   // 그 사람 색으로 한 번 반짝
   scPokeFly.add(uid);
   try{ await scPoke(uid); toast(`${nm}님을 콕 찔렀어요`); }
   catch(er){ if(scPokeGone(er)){ scPokeOff=Date.now()+30*60000; toast('아직 친구 서버에 없는 기능이에요'); } else toast(scErrKo(er)); }
   finally{ scPokeFly.delete(uid); } }
-let scConfettiTimer=null, scLast1stSlot=null, scConfettiInited=false;
+let scConfettiTimer=null, scActiveTrackedSlot=null, scActiveSlotLeader=null, scFinishedCelebratedSlots=new Set();
 function scTriggerConfetti(msg){
   if(msg){
     try{ toast(msg); }catch(e){}
@@ -10935,42 +10971,57 @@ function scRenderSolveBadge(){
     const myCount=myBucket ? (myBucket.answer_count||0) : 0;
     myCntText=`나 ${myCount}개`;
 
-    if(keys.length){
-      const latestSl=Math.max(...keys);
-      const arr=L.slots[latestSl]||[];
-      if(arr.length){
-        const isTie=arr.length>1 && arr[0].n===arr[1].n;
-        const myEntry=arr.find(x=>x.uid===me);
-        if(isTie){
-          leadText=`1위 공동 ${arr[0].n}개`;
-          if(myEntry && myEntry.n===arr[0].n && myEntry.n>0 && latestSl===nowSl){
-            if(!scConfettiInited){
-              scConfettiInited=true;
-              scLast1stSlot=nowSl;
-            } else if(scLast1stSlot!==nowSl){
-              scLast1stSlot=nowSl;
-              try{ scTriggerConfetti(`10분 구간 공동 1등 달성! (${myEntry.n}회)`); }catch(e){}
-            }
-          } else if(!scConfettiInited){
-            scConfettiInited=true;
-          }
-        } else {
-          const top=arr[0];
-          leadUid=top.uid;
-          leadText=top.uid===me ? `1위 나 ${top.n}개` : `1위 ${top.name} ${top.n}개`;
-          // 10분 1등 달성 시 해당 10분 슬롯에서 딱 1번만 축포 (초기 로딩 제외)
-          if(top.uid===me && top.n>0 && latestSl===nowSl){
-            if(!scConfettiInited){
-              scConfettiInited=true;
-              scLast1stSlot=nowSl;
-            } else if(scLast1stSlot!==nowSl){
-              scLast1stSlot=nowSl;
-              try{ scTriggerConfetti(`10분 구간 1등 달성! (${top.n}회)`); }catch(e){}
-            }
-          } else if(!scConfettiInited){
-            scConfettiInited=true;
+    // 1) 10분 구간이 끝났을 때(직전 슬롯) 내가 1등으로 마감했는지 체크
+    const prevSl=(nowSl - 1 + SC_SLOTS) % SC_SLOTS;
+    if(!scFinishedCelebratedSlots.size){
+      scFinishedCelebratedSlots.add(prevSl);
+    } else if(!scFinishedCelebratedSlots.has(prevSl)){
+      scFinishedCelebratedSlots.add(prevSl);
+      const prevArr=L.slots[prevSl]||[];
+      if(prevArr.length){
+        const prevTop=prevArr[0];
+        const isPrevTie=prevArr.length>1 && prevArr[0].n===prevArr[1].n;
+        if(prevTop.uid===me && prevTop.n>0){
+          if(isPrevTie){
+            try{ scTriggerConfetti(`10분 구간 공동 1등 완주! 🏆 (${prevTop.n}장)`); }catch(e){}
+          } else {
+            try{ scTriggerConfetti(`10분 구간 1등 완주! 🏆 (${prevTop.n}장)`); }catch(e){}
           }
         }
+      }
+    }
+
+    // 2) 현재 진행 중인 10분 슬롯에서 다른 사람을 '역전'했는지 체크
+    const currArr=L.slots[nowSl]||[];
+    if(scActiveTrackedSlot!==nowSl){
+      scActiveTrackedSlot=nowSl;
+      if(currArr.length){
+        const isTie=currArr.length>1 && currArr[0].n===currArr[1].n;
+        scActiveSlotLeader=isTie ? 'tie' : currArr[0].uid;
+      } else {
+        scActiveSlotLeader=null;
+      }
+    } else if(currArr.length){
+      const isTie=currArr.length>1 && currArr[0].n===currArr[1].n;
+      const top=currArr[0];
+      const newLeader=isTie ? 'tie' : top.uid;
+      // 이전 리더가 내가 아닌 다른 사람(또는 동점)이었는데, 내가 단독 1위로 올라섰을 때 (역전!)
+      if(scActiveSlotLeader && scActiveSlotLeader!==me && newLeader===me && top.n>0){
+        try{ scTriggerConfetti(`1등으로 역전했어요! 🔥 (${top.n}장)`); }catch(e){}
+      }
+      scActiveSlotLeader=newLeader;
+    }
+
+    const displaySl=(currArr.length) ? nowSl : (keys.length ? Math.max(...keys) : null);
+    const arr=displaySl!=null ? (L.slots[displaySl]||[]) : [];
+    if(arr.length){
+      const isTie=arr.length>1 && arr[0].n===arr[1].n;
+      if(isTie){
+        leadText=`1위 공동 ${arr[0].n}개`;
+      } else {
+        const top=arr[0];
+        leadUid=top.uid;
+        leadText=top.uid===me ? `1위 나 ${top.n}개` : `1위 ${top.name} ${top.n}개`;
       }
     }
   }
@@ -10994,22 +11045,10 @@ async function triggerStudyPoke(){
     if(!offList.length){ toast('찌를 친구가 없어요'); return; }
     candidates.push(...offList);
   }
-  const now=Date.now();
-  const ready=candidates.filter(m=>(scPokeCool[m.user_id]||0)<=now && !scPokeFly.has(m.user_id));
-  let target=null;
-  if(ready.length){
-    target=ready[0];
-  } else {
-    candidates.sort((a,b)=>(scPokeCool[a.user_id]||0)-(scPokeCool[b.user_id]||0));
-    target=candidates[0];
-  }
+  const target=candidates.find(m=>!scPokeFly.has(m.user_id)) || candidates[0];
   const uid=target.user_id;
   const nm=target.display_name||'친구';
-  if((scPokeCool[uid]||0)>now || scPokeFly.has(uid)){
-    const remSec=Math.max(1, Math.ceil(((scPokeCool[uid]||0)-now)/1000));
-    toast(`모두 찔렀어요 (${remSec}초 뒤 가능)`);
-    return;
-  }
+  if(scPokeFly.has(uid)) return;
   const badge=$('solveStudyChip');
   if(badge){
     badge.style.setProperty('--pk', scColor(uid));
@@ -11146,8 +11185,9 @@ function scRenderStudy(){ const b=$('studyBody'); if(!b || !$('scrStudy').classL
     try{ if(block) await scModerate(k.dataset.uid, true); else await scRemove(k.dataset.uid); scRender(); toast(block?'내보내고 차단했어요':'내보냈어요'); }catch(e){ const m2=$('scMsgS'); if(m2) m2.textContent=scErrKo(e); } });
   b.querySelectorAll('.sc-unban').forEach(k=>k.onclick=async()=>{ try{ await scModerate(k.dataset.uid, false); scRenderStudy(); toast('차단을 풀었어요'); }catch(e){ const m2=$('scMsgS'); if(m2) m2.textContent=scErrKo(e); } });
   b.querySelectorAll('.sc-poke').forEach(k=>k.onclick=async e=>{ e.stopPropagation(); k.disabled=true;
-    try{ await scPoke(k.dataset.uid); const m=(SC.members||[]).find(x=>x.user_id===k.dataset.uid); toast(`${(m&&m.display_name)||'친구'}님을 콕 찔렀어요`); scRenderStudy(); setTimeout(()=>scRenderStudy(), 61000); }
-    catch(er){ if(scPokeGone(er)){ scPokeOff=Date.now()+30*60000; toast('아직 친구 서버에 없는 기능이에요'); scRenderStudy(); } else { toast(scErrKo(er)); k.disabled=false; } } });
+    try{ await scPoke(k.dataset.uid); const m=(SC.members||[]).find(x=>x.user_id===k.dataset.uid); toast(`${(m&&m.display_name)||'친구'}님을 콕 찔렀어요`); scRenderStudy(); }
+    catch(er){ if(scPokeGone(er)){ scPokeOff=Date.now()+30*60000; toast('아직 친구 서버에 없는 기능이에요'); scRenderStudy(); } else { toast(scErrKo(er)); } }
+    finally{ k.disabled=false; } });
   /* 방 관리(10-06 · 애드온 bc81ba9) — 방장 넘기기 · 오래 안 온 사람 정리 · 방 시간대 · 공개 방 둘러보기 */
   b.querySelectorAll('.sc-owner').forEach(k=>k.onclick=async()=>{ const m=(SC.members||[]).find(x=>x.user_id===k.dataset.uid), nm=(m&&m.display_name)||'이 사람';
     if(!confirm(`${nm}에게 방장을 넘길까요? 넘긴 뒤엔 멤버 관리·초대 코드 바꾸기를 그 사람이 해요.`)) return;
@@ -11162,7 +11202,7 @@ function scBtn(id, f, msgId){ const btn=$(id); if(!btn) return; msgId=msgId||'sc
 function scErrKo(e){ const m=(e&&e.message)||String(e);
   const T=[[/Username is unavailable/i,'이미 쓰는 아이디예요'], [/Invalid username or password/i,'아이디나 비밀번호가 틀렸어요'], [/Username must be/i,'아이디는 영문 소문자·숫자·_로 4~24자예요'],
     [/Password must be/i,'비밀번호는 10자 이상(72바이트 이하)이에요'], [/Current password is incorrect/i,'지금 비밀번호가 틀렸어요'], [/already linked|BIND_REQUIRES_GUEST/i,'이 계정엔 이미 아이디가 있어요'], [/recovery/i,'복구 코드가 맞지 않아요'],
-    [/invalid group name/i,'방 이름은 1~50자예요'], [/invalid room time zone/i,'시간대를 다시 골라 주세요'], [/only the group owner|only room owner/i,'방장만 할 수 있어요'], [/new owner must be a member/i,'방에 있는 사람에게만 넘길 수 있어요'], [/poke too soon/i,'같은 사람은 1분에 한 번 찌를 수 있어요'], [/too many pokes/i,'찌르기는 한 시간에 30번까지예요'], [/target is not in this group/i,'그 사람은 이제 방에 없어요'], [/cannot poke yourself/i,'자기는 못 찔러요'], [/profiles_display_name_format_check/i,'이름은 영문·숫자 2~16자예요'], [/cannot kick themselves/i,'방장은 자기를 내보낼 수 없어요'], [/day boundary is immutable/i,'방 하루 경계(새벽 4시)는 못 바꿔요'], [/temporarily unavailable|rate|too many/i,'잠시 뒤에 다시 해 주세요']];
+    [/invalid group name/i,'방 이름은 1~50자예요'], [/invalid room time zone/i,'시간대를 다시 골라 주세요'], [/only the group owner|only room owner/i,'방장만 할 수 있어요'], [/new owner must be a member/i,'방에 있는 사람에게만 넘길 수 있어요'], [/poke too soon/i,'잠시 뒤에 다시 찔러 주세요'], [/too many pokes/i,'잠시 뒤에 다시 찔러 주세요'], [/target is not in this group/i,'그 사람은 이제 방에 없어요'], [/cannot poke yourself/i,'자기는 못 찔러요'], [/profiles_display_name_format_check/i,'이름은 영문·숫자 2~16자예요'], [/cannot kick themselves/i,'방장은 자기를 내보낼 수 없어요'], [/day boundary is immutable/i,'방 하루 경계(새벽 4시)는 못 바꿔요'], [/temporarily unavailable|rate|too many/i,'잠시 뒤에 다시 해 주세요']];
   for(const [r,k] of T) if(r.test(m)) return k; return m; }
 const scRow=(inner,top)=>`<div style="display:flex;gap:8px;align-items:center;margin-top:${top==null?8:top}px">${inner}</div>`;
 const scIn=(id,type,ph,ac)=>`<input id="${id}" type="${type}" ${type==='password'?`autocomplete="${ac||'current-password'}"`:'autocomplete="off" autocapitalize="none" spellcheck="false"'} placeholder="${ph}" style="flex:1 1 150px;min-width:0">`;
@@ -11198,7 +11238,7 @@ async function scModerate(uid, blocked){ const g=SC.group; await scAuthed(tok=>s
    서버에 없으면(404 · PGRST202) 버튼을 숨기고 30분 뒤 다시 본다. */
 let scPokeOff=0, scPokeCool={}, scPokeBusy=false;
 function scPokeGone(e){ return !!e && (e.status===404 || /PGRST202|Could not find the function/i.test(e.message||'')); }
-async function scPoke(uid){ const g=SC.group; await scAuthed(tok=>scReq('POST','/rest/v1/rpc/poke_room_member',{token:tok, body:{target_group:g.id, target_user:uid}})); scPokeCool[uid]=Date.now()+60000; }
+async function scPoke(uid){ const g=SC.group; await scAuthed(tok=>scReq('POST','/rest/v1/rpc/poke_room_member',{token:tok, body:{target_group:g.id, target_user:uid}})); scPokeCool[uid]=0; }
 async function scPokeFetch(){ if(!SC.auth || !SC.group || scPokeBusy || Date.now()<scPokeOff) return; scPokeBusy=true;
   try{ const r=await scAuthed(tok=>scReq('POST','/rest/v1/rpc/fetch_my_pokes',{token:tok, body:{target_group:SC.group.id}}))||[];
     if(Array.isArray(r) && r.length){ const c={}; r.forEach(x=>{ if(x && x.from_user) c[x.from_user]=(c[x.from_user]||0)+1; });
