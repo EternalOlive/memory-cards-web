@@ -8797,7 +8797,7 @@ function renderLastActionChip(){
     chip.innerHTML = '';
     return;
   }
-  chip.innerHTML = `<span class="lac-dot" style="background:${lastAction.color}"></span><span class="lac-lbl">직전: <b>${lastAction.label}</b></span><span class="lac-btn">${lastAction.btn}</span><span class="lac-undo">↶ 되돌리기</span>`;
+  chip.innerHTML = `<span class="lac-dot" style="background:${lastAction.color}"></span><span class="lac-lbl">직전: <b>${lastAction.label}</b></span><span class="lac-undo">↶ 되돌리기</span>`;
   chip.style.display = 'inline-flex';
 }
 /* 도식이 아닌 카드의 회독본 링크 (동하 2026-08-24 — 「모든 카드에서 회독본으로 갈 수 있게」).
