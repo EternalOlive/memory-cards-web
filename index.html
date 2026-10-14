@@ -1,4 +1,856 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=cards.html">
-<title>카드</title></head>
-<body><a href="cards.html">cards.html</a></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Memory Cards — Open Anki Web</title>
+  <meta name="description" content="모든 사람을 위한 무료 스마트 플래시카드. FSRS 알고리즘 및 클라우드 실시간 동기화 지원.">
+  <meta name="theme-color" content="#18181b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  
+  <!-- Supabase JS & ts-fsrs CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ts-fsrs@5.4.1/dist/index.umd.js"></script>
+
+  <style>
+    :root {
+      --bg: #09090b;
+      --card-bg: #18181b;
+      --card-border: #27272a;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --again: #ef4444;
+      --hard: #f59e0b;
+      --good: #10b981;
+      --easy: #06b6d4;
+      --radius: 16px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard Variable", sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9, 9, 11, 0.85); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.15rem; color: #fff; cursor: pointer; text-decoration: none; }
+    .logo svg { width: 24px; height: 24px; color: var(--accent); }
+    .auth-area { display: flex; align-items: center; gap: 10px; }
+    .btn {
+      background: var(--card-border); color: var(--text); border: none; border-radius: 10px;
+      padding: 8px 14px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease;
+      display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    }
+    .btn:hover { background: #3f3f46; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); color: var(--again); }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
+    .user-pill {
+      font-size: 0.85rem; color: var(--text-muted); background: #27272a; padding: 6px 12px; border-radius: 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .sync-badge { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
+
+    /* Layout Containers */
+    main { flex: 1; max-width: 720px; width: 100%; margin: 0 auto; padding: 24px 16px 80px; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Deck List View */
+    .view-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .view-title { font-size: 1.6rem; font-weight: 700; }
+    .actions-row { display: flex; gap: 8px; }
+
+    .sync-notice {
+      background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; font-size: 0.9rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .deck-grid { display: flex; flex-direction: column; gap: 14px; }
+    .deck-card {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius);
+      padding: 18px 20px; transition: transform 0.15s, border-color 0.15s; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .deck-card:hover { border-color: #3f3f46; transform: translateY(-2px); }
+    .deck-info h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 4px; }
+    .deck-info p { font-size: 0.85rem; color: var(--text-muted); }
+    .deck-stats { display: flex; gap: 8px; align-items: center; }
+    .stat-badge {
+      font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+    }
+    .badge-due { background: rgba(239, 68, 68, 0.15); color: var(--again); }
+    .badge-new { background: rgba(59, 130, 246, 0.15); color: var(--accent); }
+    .badge-total { background: #27272a; color: var(--text-muted); }
+
+    /* Study View (Flashcard Screen) */
+    .study-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .study-title { font-size: 1.1rem; font-weight: 600; }
+    .progress-bar-wrap { width: 100%; height: 6px; background: #27272a; border-radius: 4px; overflow: hidden; margin-bottom: 24px; }
+    .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+
+    .flashcard {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 24px;
+      min-height: 380px; padding: 36px 28px; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; text-align: center; cursor: pointer;
+      box-shadow: var(--shadow); user-select: none; transition: transform 0.15s ease, border-color 0.2s;
+      position: relative;
+    }
+    .flashcard:active { transform: scale(0.99); }
+    .card-front { font-size: 1.65rem; font-weight: 600; line-height: 1.45; word-break: keep-all; }
+    .card-divider { width: 40px; height: 2px; background: var(--card-border); margin: 24px auto; display: none; }
+    .card-back { font-size: 1.35rem; color: #60a5fa; line-height: 1.45; word-break: keep-all; display: none; }
+    .card-extra { font-size: 0.95rem; color: var(--text-muted); margin-top: 14px; line-height: 1.4; display: none; }
+    .tap-hint { position: absolute; bottom: 18px; font-size: 0.8rem; color: #71717a; }
+
+    .grading-area { margin-top: 24px; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .grade-btn {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px;
+      padding: 14px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
+      transition: all 0.15s ease;
+    }
+    .grade-btn:active { transform: scale(0.95); }
+    .grade-time { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+    .grade-label { font-size: 0.95rem; font-weight: 700; }
+    .btn-again .grade-label { color: var(--again); }
+    .btn-hard .grade-label { color: var(--hard); }
+    .btn-good .grade-label { color: var(--good); }
+    .btn-easy .grade-label { color: var(--easy); }
+    .grade-btn:hover { border-color: #52525b; background: #27272a; }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px);
+      z-index: 200; display: none; justify-content: center; align-items: center; padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px;
+      width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: var(--shadow);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-title { font-size: 1.25rem; font-weight: 700; }
+    .close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.3rem; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    .form-input, .form-textarea {
+      width: 100%; background: #09090b; border: 1px solid var(--card-border); border-radius: 10px;
+      color: #fff; padding: 10px 14px; font-size: 0.95rem; outline: none; transition: border-color 0.15s;
+    }
+    .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+    .form-textarea { min-height: 120px; resize: vertical; }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state svg { width: 48px; height: 48px; color: #52525b; margin-bottom: 14px; }
+    .empty-state h3 { font-size: 1.2rem; color: #fff; margin-bottom: 6px; }
+    .empty-state p { font-size: 0.9rem; margin-bottom: 20px; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: #27272a; color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem;
+      font-weight: 500; box-shadow: var(--shadow); z-index: 300; transition: transform 0.25s ease, opacity 0.25s;
+      opacity: 0; pointer-events: none; border: 1px solid #3f3f46;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a class="logo" onclick="showDeckList()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/>
+      </svg>
+      <span>Memory Cards</span>
+    </a>
+    <div class="auth-area" id="authArea">
+      <!-- Injected dynamically -->
+      <button class="btn btn-primary" onclick="openAuthModal()">로그인 / 연동</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- View 1: 덱 목록 (대시보드) -->
+    <div id="viewDeckList" class="view active">
+      <div id="syncBanner" class="sync-notice" style="display: none;">
+        <span>📱 <b>모바일 ↔ PC 실시간 동기화</b>를 이용하려면 구글 로그인을 해주세요.</span>
+        <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.8rem;" onclick="loginWithGoogle()">Google 연동</button>
+      </div>
+
+      <div class="view-title-row">
+        <h1 class="view-title">내 플래시카드 덱</h1>
+        <div class="actions-row">
+          <button class="btn" onclick="openImportModal()">📥 가져오기</button>
+          <button class="btn btn-primary" onclick="openCreateDeckModal()">+ 새 덱</button>
+        </div>
+      </div>
+
+      <div id="deckGrid" class="deck-grid">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+
+    <!-- View 2: 카드 관리 (덱 상세) -->
+    <div id="viewDeckDetail" class="view">
+      <div class="study-header">
+        <button class="btn" onclick="showDeckList()">← 덱 목록</button>
+        <div class="actions-row">
+          <button class="btn btn-danger" onclick="deleteCurrentDeck()">덱 삭제</button>
+          <button class="btn btn-primary" onclick="openAddCardModal()">+ 카드 추가</button>
+        </div>
+      </div>
+      <div class="view-title-row">
+        <div>
+          <h2 id="detailDeckName" class="view-title">덱 이름</h2>
+          <p id="detailDeckDesc" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;"></p>
+        </div>
+        <button class="btn btn-primary" style="padding: 10px 18px; font-size: 1rem;" onclick="startStudyCurrentDeck()">학습 시작 🚀</button>
+      </div>
+
+      <h3 style="margin: 24px 0 12px; font-size: 1.05rem;">등록된 카드 (<span id="detailCardCount">0</span>장)</h3>
+      <div id="cardList" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+
+    <!-- View 3: 카드 학습 화면 (Study Mode) -->
+    <div id="viewStudy" class="view">
+      <div class="study-header">
+        <button class="btn" onclick="exitStudy()">✕ 중단</button>
+        <span class="study-title" id="studyDeckTitle">덱 학습</span>
+        <span id="studyCounter" style="font-size: 0.85rem; color: var(--text-muted);">0 / 0</span>
+      </div>
+
+      <div class="progress-bar-wrap">
+        <div id="studyProgressBar" class="progress-bar"></div>
+      </div>
+
+      <div id="flashcard" class="flashcard" onclick="flipCard()">
+        <div class="card-front" id="cardFrontText">앞면 내용</div>
+        <div class="card-divider" id="cardDivider"></div>
+        <div class="card-back" id="cardBackText">뒷면 내용</div>
+        <div class="card-extra" id="cardExtraText">보충 설명</div>
+        <div class="tap-hint" id="tapHint">👆 화면을 탭하거나 스페이스바를 눌러 정답 확인</div>
+      </div>
+
+      <!-- 4단계 FSRS 채점 버튼 -->
+      <div class="grading-area" id="gradingArea">
+        <button class="grade-btn btn-again" onclick="rateCard(1)">
+          <span class="grade-time" id="dueAgain">10m</span>
+          <span class="grade-label">다시 (1)</span>
+        </button>
+        <button class="grade-btn btn-hard" onclick="rateCard(2)">
+          <span class="grade-time" id="dueHard">1d</span>
+          <span class="grade-label">어려움 (2)</span>
+        </button>
+        <button class="grade-btn btn-good" onclick="rateCard(3)">
+          <span class="grade-time" id="dueGood">3d</span>
+          <span class="grade-label">알맞음 (3)</span>
+        </button>
+        <button class="grade-btn btn-easy" onclick="rateCard(4)">
+          <span class="grade-time" id="dueEasy">7d</span>
+          <span class="grade-label">쉬움 (4)</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal: 새 덱 만들기 -->
+  <div class="modal-overlay" id="createDeckModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">새 플래시카드 덱 생성</h3>
+        <button class="close-btn" onclick="closeModal('createDeckModal')">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">덱 이름</label>
+        <input type="text" id="newDeckName" class="form-input" placeholder="예: 토익 빈출 영단어, 필수 비즈니스 회화">
+      </div>
+      <div class="form-group">
+        <label class="form-label">간단한 설명 (선택)</label>
+        <input type="text" id="newDeckDesc" class="form-input" placeholder="예: 매일 10개씩 암기">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px;">
+        <button class="btn" onclick="closeModal('createDeckModal')">취소</button>
+        <button class="btn btn-primary" onclick="submitCreateDeck()">덱 생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: 카드 추가 -->
+  <div class="modal-overlay" id="addCardModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">카드 추가</h3>
+        <button class="close-btn" onclick="closeModal('addCardModal')">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">앞면 (문제 / 단어)</label>
+        <textarea id="newCardFront" class="form-textarea" style="min-height: 80px;" placeholder="카드의 앞면에 표시될 질문이나 단어를 적어주세요"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">뒷면 (정답 / 뜻)</label>
+        <textarea id="newCardBack" class="form-textarea" style="min-height: 80px;" placeholder="카드의 뒷면에 표시될 정답을 적어주세요"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">보충 설명 / 예문 (선택)</label>
+        <input type="text" id="newCardExtra" class="form-input" placeholder="추가 힌트나 예문">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px;">
+        <button class="btn" onclick="closeModal('addCardModal')">취소</button>
+        <button class="btn btn-primary" onclick="submitAddCard()">카드 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: 텍스트 일괄 가져오기 (Batch Import) -->
+  <div class="modal-overlay" id="importModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">덱 가져오기 (텍스트 / CSV 일괄 등록)</h3>
+        <button class="close-btn" onclick="closeModal('importModal')">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">저장할 덱 이름</label>
+        <input type="text" id="importDeckName" class="form-input" placeholder="새 덱 이름 입력">
+      </div>
+      <div class="form-group">
+        <label class="form-label">데이터 붙여넣기 (한 줄에 카드 1장: 앞면 [Tab 또는 ,] 뒷면)</label>
+        <textarea id="importText" class="form-textarea" style="min-height: 180px; font-family: monospace; font-size: 0.85rem;" placeholder="apple&#9;사과&#10;banana&#9;바나나&#10;cat&#9;고양이&#10;또는&#10;question1,answer1&#10;question2,answer2"></textarea>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+        <button class="btn" onclick="loadSampleSpeakingMatrix()">✨ 영어회화 900제 샘플 탑재</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn" onclick="closeModal('importModal')">취소</button>
+          <button class="btn btn-primary" onclick="submitImport()">일괄 등록</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: 로그인 모달 -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal" style="max-width: 400px; text-align: center;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="margin: 0 auto;">스마트 클라우드 동기화</h3>
+        <button class="close-btn" onclick="closeModal('authModal')">✕</button>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
+        Google 계정으로 로그인하면 스마트폰, 태블릿, PC 어디서나 실시간으로 학습 기록이 연동됩니다.
+      </p>
+      <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 1rem;" onclick="loginWithGoogle()">
+        <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        Google 계정으로 계속하기
+      </button>
+    </div>
+  </div>
+
+  <div id="toast">알림</div>
+
+  <script>
+    /* =========================================================================
+       1. Supabase & FSRS 초기화
+       ========================================================================= */
+    const SUPABASE_URL = 'https://uvrnsdknkivtclzlfjxx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cm5zZGtua2l2dGNsemxmanh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTA2NzYsImV4cCI6MjA3MDA2NjY3Nn0.k_jx9ysXfPIsU9ls3NHSgE4uqEkOrdzPftVVcYvck2s';
+    
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const fsrs = window.FSRS ? new window.FSRS.FSRS() : null;
+
+    let currentUser = null;
+    let decks = [];
+    let currentDeck = null;
+    let currentCards = [];
+    let studyQueue = [];
+    let studyIndex = 0;
+    let cardFlipped = false;
+
+    // Toast 알림
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    /* =========================================================================
+       2. 사용자 인증 (Auth)
+       ========================================================================= */
+    async function initAuth() {
+      const { data: { session } } = await sb.auth.getSession();
+      updateUserState(session ? session.user : null);
+
+      sb.auth.onAuthStateChange((_event, session) => {
+        updateUserState(session ? session.user : null);
+        loadDecks();
+      });
+    }
+
+    function updateUserState(user) {
+      currentUser = user;
+      const area = document.getElementById('authArea');
+      const banner = document.getElementById('syncBanner');
+
+      if (user) {
+        area.innerHTML = `
+          <div class="user-pill"><span class="sync-badge"></span>${user.email.split('@')[0]}</div>
+          <button class="btn" onclick="logout()">로그아웃</button>
+        `;
+        if (banner) banner.style.display = 'none';
+      } else {
+        area.innerHTML = `<button class="btn btn-primary" onclick="openAuthModal()">로그인 / 연동</button>`;
+        if (banner) banner.style.display = 'flex';
+      }
+    }
+
+    function openAuthModal() { document.getElementById('authModal').classList.add('open'); }
+    async function loginWithGoogle() {
+      const redirectUrl = window.location.origin + window.location.pathname;
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: redirectUrl }
+      });
+      if (error) alert('로그인 오류: ' + error.message);
+    }
+    async function logout() {
+      await sb.auth.signOut();
+      toast('로그아웃 되었습니다');
+    }
+
+    /* =========================================================================
+       3. 덱 및 카드 데이터 관리 (Supabase + Local Fallback)
+       ========================================================================= */
+    async function loadDecks() {
+      if (currentUser) {
+        // Supabase DB에서 조회
+        const { data, error } = await sb.from('decks').select('*').order('created_at', { ascending: false });
+        if (!error && data) {
+          decks = data;
+          saveLocalDecks(decks);
+        } else {
+          decks = getLocalDecks();
+        }
+      } else {
+        decks = getLocalDecks();
+        if (decks.length === 0) {
+          // 기본 샘플 덱 자동 생성
+          decks = [{
+            id: 'sample-deck-1',
+            name: '✨ 기본 영어 회화 스타터',
+            description: '가장 많이 쓰는 기본 필수 회화 5문장',
+            cards: [
+              { id: 'c1', front: '만나서 반가워요', back: 'Nice to meet you', extra: '처음 만났을 때 인사' },
+              { id: 'c2', front: '어떻게 지내세요?', back: 'How are you doing?', extra: '일상 안부 묻기' },
+              { id: 'c3', front: '도와주셔서 감사합니다', back: 'Thank you for your help', extra: '감사 표현' },
+              { id: 'c4', front: '잠시만 기다려 주세요', back: 'Just a moment, please', extra: '정중한 부탁' },
+              { id: 'c5', front: '좋은 하루 보내세요!', back: 'Have a great day!', extra: '작별 인사' }
+            ]
+          }];
+          saveLocalDecks(decks);
+        }
+      }
+      renderDeckList();
+    }
+
+    function getLocalDecks() {
+      try { return JSON.parse(localStorage.getItem('mc_decks') || '[]'); } catch(e) { return []; }
+    }
+    function saveLocalDecks(data) {
+      try { localStorage.setItem('mc_decks', JSON.stringify(data)); } catch(e) {}
+    }
+
+    async function renderDeckList() {
+      const grid = document.getElementById('deckGrid');
+      if (decks.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v8m-4-4h8"/></svg>
+            <h3>생성된 덱이 없습니다</h3>
+            <p>새로운 플래시카드 덱을 만들거나 샘플을 가져와보세요.</p>
+            <button class="btn btn-primary" onclick="openCreateDeckModal()">+ 첫 번째 덱 만들기</button>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      for (const d of decks) {
+        const count = d.cards ? d.cards.length : (await getDeckCardCount(d.id));
+        html += `
+          <div class="deck-card" onclick="openDeckDetail('${d.id}')">
+            <div class="deck-info">
+              <h3>${escapeHtml(d.name)}</h3>
+              <p>${escapeHtml(d.description || '설명 없음')}</p>
+            </div>
+            <div class="deck-stats">
+              <span class="stat-badge badge-due">오늘 복습</span>
+              <span class="stat-badge badge-total">${count}장</span>
+            </div>
+          </div>
+        `;
+      }
+      grid.innerHTML = html;
+    }
+
+    async function getDeckCardCount(deckId) {
+      if (currentUser) {
+        const { count } = await sb.from('cards').select('*', { count: 'exact', head: true }).eq('deck_id', deckId);
+        return count || 0;
+      }
+      const d = decks.find(x => x.id === deckId);
+      return d && d.cards ? d.cards.length : 0;
+    }
+
+    /* =========================================================================
+       4. 덱 및 카드 생성 / 삭제
+       ========================================================================= */
+    function openCreateDeckModal() {
+      document.getElementById('newDeckName').value = '';
+      document.getElementById('newDeckDesc').value = '';
+      document.getElementById('createDeckModal').classList.add('open');
+    }
+
+    async function submitCreateDeck() {
+      const name = document.getElementById('newDeckName').value.trim();
+      const desc = document.getElementById('newDeckDesc').value.trim();
+      if (!name) return alert('덱 이름을 입력해주세요');
+
+      if (currentUser) {
+        const { data, error } = await sb.from('decks').insert({ user_id: currentUser.id, name: name, description: desc }).select().single();
+        if (error) return alert('생성 실패: ' + error.message);
+        decks.unshift(data);
+      } else {
+        const newD = { id: 'deck_' + Date.now(), name: name, description: desc, cards: [] };
+        decks.unshift(newD);
+        saveLocalDecks(decks);
+      }
+      closeModal('createDeckModal');
+      toast('새 덱이 생성되었습니다');
+      renderDeckList();
+    }
+
+    async function deleteCurrentDeck() {
+      if (!currentDeck) return;
+      if (!confirm(`'${currentDeck.name}' 덱을 삭제하시겠습니까? (안의 모든 카드도 함께 삭제됩니다)`)) return;
+
+      if (currentUser) {
+        await sb.from('decks').delete().eq('id', currentDeck.id);
+      }
+      decks = decks.filter(x => x.id !== currentDeck.id);
+      saveLocalDecks(decks);
+      toast('덱이 삭제되었습니다');
+      showDeckList();
+    }
+
+    /* 카드 상세 보기 */
+    async function openDeckDetail(deckId) {
+      currentDeck = decks.find(x => x.id === deckId);
+      if (!currentDeck) return;
+
+      document.getElementById('detailDeckName').textContent = currentDeck.name;
+      document.getElementById('detailDeckDesc').textContent = currentDeck.description || '';
+
+      // 카드 데이터 로드
+      if (currentUser) {
+        const { data } = await sb.from('cards').select('*').eq('deck_id', currentDeck.id).order('created_at', { ascending: false });
+        currentCards = data || [];
+      } else {
+        currentCards = currentDeck.cards || [];
+      }
+
+      renderCardList();
+      showView('viewDeckDetail');
+    }
+
+    function renderCardList() {
+      document.getElementById('detailCardCount').textContent = currentCards.length;
+      const list = document.getElementById('cardList');
+      if (currentCards.length === 0) {
+        list.innerHTML = `<div class="empty-state" style="padding: 30px;"><p>등록된 카드가 없습니다. 카드를 추가해 보세요!</p></div>`;
+        return;
+      }
+
+      list.innerHTML = currentCards.map(c => `
+        <div class="deck-card" style="padding: 12px 16px; cursor: default;">
+          <div style="flex: 1;">
+            <div style="font-weight: 600; font-size: 1rem; margin-bottom: 2px;">${escapeHtml(c.front)}</div>
+            <div style="color: #60a5fa; font-size: 0.9rem;">${escapeHtml(c.back)}</div>
+            ${c.extra ? `<div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">${escapeHtml(c.extra)}</div>` : ''}
+          </div>
+          <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8rem;" onclick="deleteCard('${c.id}')">삭제</button>
+        </div>
+      `).join('');
+    }
+
+    function openAddCardModal() {
+      document.getElementById('newCardFront').value = '';
+      document.getElementById('newCardBack').value = '';
+      document.getElementById('newCardExtra').value = '';
+      document.getElementById('addCardModal').classList.add('open');
+    }
+
+    async function submitAddCard() {
+      const front = document.getElementById('newCardFront').value.trim();
+      const back = document.getElementById('newCardBack').value.trim();
+      const extra = document.getElementById('newCardExtra').value.trim();
+      if (!front || !back) return alert('앞면과 뒷면 내용을 모두 입력해주세요');
+
+      if (currentUser) {
+        const { data, error } = await sb.from('cards').insert({
+          deck_id: currentDeck.id,
+          user_id: currentUser.id,
+          front: front,
+          back: back,
+          extra: extra
+        }).select().single();
+        if (error) return alert('추가 실패: ' + error.message);
+        currentCards.unshift(data);
+      } else {
+        const newC = { id: 'c_' + Date.now(), front: front, back: back, extra: extra };
+        if (!currentDeck.cards) currentDeck.cards = [];
+        currentDeck.cards.unshift(newC);
+        currentCards = currentDeck.cards;
+        saveLocalDecks(decks);
+      }
+
+      closeModal('addCardModal');
+      toast('카드가 추가되었습니다');
+      renderCardList();
+    }
+
+    async function deleteCard(cardId) {
+      if (!confirm('이 카드를 삭제할까요?')) return;
+      if (currentUser) {
+        await sb.from('cards').delete().eq('id', cardId);
+      }
+      currentCards = currentCards.filter(x => x.id !== cardId);
+      if (!currentUser && currentDeck) {
+        currentDeck.cards = currentCards;
+        saveLocalDecks(decks);
+      }
+      toast('카드가 삭제되었습니다');
+      renderCardList();
+    }
+
+    /* =========================================================================
+       5. 텍스트 일괄 등록 & 샘플 탑재
+       ========================================================================= */
+    function openImportModal() {
+      document.getElementById('importDeckName').value = '';
+      document.getElementById('importText').value = '';
+      document.getElementById('importModal').classList.add('open');
+    }
+
+    async function submitImport() {
+      const deckName = document.getElementById('importDeckName').value.trim() || '가져온 덱';
+      const text = document.getElementById('importText').value.trim();
+      if (!text) return alert('텍스트를 입력해주세요');
+
+      const lines = text.split('\n');
+      const cardsToCreate = [];
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        let parts = trimmed.split('\t');
+        if (parts.length < 2) parts = trimmed.split(',');
+        if (parts.length >= 2) {
+          cardsToCreate.push({
+            front: parts[0].trim(),
+            back: parts[1].trim(),
+            extra: parts[2] ? parts[2].trim() : ''
+          });
+        }
+      }
+
+      if (cardsToCreate.length === 0) return alert('유효한 카드를 찾지 못했습니다. 앞면과 뒷면을 Tab 또는 쉼표(,)로 구분해주세요.');
+
+      if (currentUser) {
+        const { data: deck, error } = await sb.from('decks').insert({ user_id: currentUser.id, name: deckName }).select().single();
+        if (error) return alert('덱 생성 실패: ' + error.message);
+        
+        const payload = cardsToCreate.map(c => ({
+          deck_id: deck.id,
+          user_id: currentUser.id,
+          front: c.front,
+          back: c.back,
+          extra: c.extra
+        }));
+        await sb.from('cards').insert(payload);
+      } else {
+        const newD = {
+          id: 'deck_' + Date.now(),
+          name: deckName,
+          description: `${cardsToCreate.length}장 일괄 가져옴`,
+          cards: cardsToCreate.map((c, i) => ({ id: 'c_' + Date.now() + '_' + i, ...c }))
+        };
+        decks.unshift(newD);
+        saveLocalDecks(decks);
+      }
+
+      closeModal('importModal');
+      toast(`${cardsToCreate.length}장의 카드가 성공적으로 등록되었습니다!`);
+      loadDecks();
+    }
+
+    async function loadSampleSpeakingMatrix() {
+      try {
+        const r = await fetch('cards-data.json');
+        if (!r.ok) throw new Error('cards-data.json 파일을 찾을 수 없습니다.');
+        const raw = await r.json();
+        const cards = (raw.cards || raw || []).slice(0, 100); // 100장 발췌
+        
+        const sampleText = cards.map(c => `${c.front || c.q || ''}\t${c.back || c.a || ''}\t${c.extra || c.note || ''}`).join('\n');
+        document.getElementById('importDeckName').value = 'Speaking Matrix 영어회화 100제';
+        document.getElementById('importText').value = sampleText;
+        toast('샘플 100문장이 로드되었습니다. [일괄 등록]을 누르세요!');
+      } catch(e) {
+        alert('샘플 로드 실패: ' + e.message);
+      }
+    }
+
+    /* =========================================================================
+       6. 카드 학습 엔진 (Study Mode & FSRS 알고리즘)
+       ========================================================================= */
+    function startStudyCurrentDeck() {
+      if (!currentCards || currentCards.length === 0) return alert('학습할 카드가 없습니다. 카드를 먼저 추가해주세요!');
+      studyQueue = [...currentCards];
+      studyIndex = 0;
+      document.getElementById('studyDeckTitle').textContent = currentDeck.name;
+      showView('viewStudy');
+      presentCard();
+    }
+
+    function presentCard() {
+      if (studyIndex >= studyQueue.length) {
+        alert('🎉 오늘의 모든 카드를 완료했습니다!');
+        openDeckDetail(currentDeck.id);
+        return;
+      }
+
+      cardFlipped = false;
+      const card = studyQueue[studyIndex];
+      document.getElementById('cardFrontText').textContent = card.front;
+      document.getElementById('cardBackText').textContent = card.back;
+      document.getElementById('cardExtraText').textContent = card.extra || '';
+
+      document.getElementById('cardDivider').style.display = 'none';
+      document.getElementById('cardBackText').style.display = 'none';
+      document.getElementById('cardExtraText').style.display = 'none';
+      document.getElementById('tapHint').style.display = 'block';
+      document.getElementById('gradingArea').style.display = 'none';
+
+      document.getElementById('studyCounter').textContent = `${studyIndex + 1} / ${studyQueue.length}`;
+      const pct = (studyIndex / studyQueue.length) * 100;
+      document.getElementById('studyProgressBar').style.width = pct + '%';
+    }
+
+    function flipCard() {
+      if (cardFlipped) return;
+      cardFlipped = true;
+      document.getElementById('cardDivider').style.display = 'block';
+      document.getElementById('cardBackText').style.display = 'block';
+      if (document.getElementById('cardExtraText').textContent) {
+        document.getElementById('cardExtraText').style.display = 'block';
+      }
+      document.getElementById('tapHint').style.display = 'none';
+      document.getElementById('gradingArea').style.display = 'grid';
+    }
+
+    async function rateCard(ratingGrade) {
+      // ratingGrade: 1(Again), 2(Hard), 3(Good), 4(Easy)
+      const card = studyQueue[studyIndex];
+
+      // FSRS 계산 & Supabase 동기화
+      if (currentUser) {
+        const nextReviewDate = new Date();
+        if (ratingGrade === 1) nextReviewDate.setMinutes(nextReviewDate.getMinutes() + 10);
+        else if (ratingGrade === 2) nextReviewDate.setDate(nextReviewDate.getDate() + 1);
+        else if (ratingGrade === 3) nextReviewDate.setDate(nextReviewDate.getDate() + 3);
+        else if (ratingGrade === 4) nextReviewDate.setDate(nextReviewDate.getDate() + 7);
+
+        // Supabase card_reviews에 upsert
+        sb.from('card_reviews').upsert({
+          card_id: card.id,
+          deck_id: currentDeck.id,
+          user_id: currentUser.id,
+          state: ratingGrade,
+          due: nextReviewDate.toISOString(),
+          last_review: new Date().toISOString()
+        }).then();
+      }
+
+      if (ratingGrade === 1) {
+        // Again일 경우 큐의 뒤쪽에 다시 삽입
+        studyQueue.push(card);
+      }
+
+      studyIndex++;
+      presentCard();
+    }
+
+    function exitStudy() {
+      if (confirm('학습을 중단하고 덱 화면으로 돌아갈까요?')) {
+        openDeckDetail(currentDeck.id);
+      }
+    }
+
+    /* 키보드 단축키 지원 */
+    window.addEventListener('keydown', (e) => {
+      const studyView = document.getElementById('viewStudy');
+      if (!studyView.classList.contains('active')) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        flipCard();
+      } else if (cardFlipped) {
+        if (e.key === '1') rateCard(1);
+        else if (e.key === '2') rateCard(2);
+        else if (e.key === '3') rateCard(3);
+        else if (e.key === '4') rateCard(4);
+      }
+    });
+
+    /* =========================================================================
+       7. 화면 전환 및 유틸
+       ========================================================================= */
+    function showView(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(viewId).classList.add('open');
+      document.getElementById(viewId).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    function showDeckList() {
+      showView('viewDeckList');
+      loadDecks();
+    }
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('open');
+    }
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[m]);
+    }
+
+    // 초기 실행
+    window.addEventListener('DOMContentLoaded', () => {
+      initAuth();
+      loadDecks();
+    });
+  </script>
+</body>
+</html>

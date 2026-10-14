@@ -9,3 +9,10 @@ __pycache__/
 # OS 임시 파일
 .DS_Store
 Thumbs.db
+
+# 개인 학습 로그 및 임용 전용 데이터
+cards-log-*.json
+cards-sessions.json
+cards-feedback.json
+cards-marks.json
+yeonmun-*.json
