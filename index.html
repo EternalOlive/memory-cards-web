@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="paper">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Memory Cards — Open Anki Web</title>
-  <meta name="description" content="모든 사람을 위한 무료 스마트 플래시카드. FSRS 알고리즘 및 클라우드 실시간 동기화 지원.">
-  <meta name="theme-color" content="#18181b">
+  <meta name="theme-color" content="#F2EEE6">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="apple-touch-icon" href="icon-180.png">
   
   <!-- Supabase JS & ts-fsrs CDN -->
@@ -15,350 +14,517 @@
   <script src="https://cdn.jsdelivr.net/npm/ts-fsrs@5.4.1/dist/index.umd.js"></script>
 
   <style>
+    /* ════════════════════════════════════════════════════════════════════════
+       DESIGN.md 기반 디자인 시스템 토큰
+       ════════════════════════════════════════════════════════════════════════ */
     :root {
-      --bg: #09090b;
-      --card-bg: #18181b;
-      --card-border: #27272a;
-      --text: #f4f4f5;
-      --text-muted: #a1a1aa;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --again: #ef4444;
-      --hard: #f59e0b;
-      --good: #10b981;
-      --easy: #06b6d4;
-      --radius: 16px;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+
+      /* 모서리 (동심: 안쪽 = 바깥 - 여백) */
+      --r-card: 30px;     /* 주인공 카드 */
+      --r-panel: 26px;    /* 시트 · 패널 */
+      --r-group: 22px;    /* inset grouped 목록 */
+      --r-tile: 16px;     /* 채점 버튼 · 타일 */
+      --r-cell: 12px;     /* 셀 */
+      --r-pill: 999px;    /* 캡슐 */
+
+      /* 여백 & 규격 */
+      --sp-m: 20px;
+      --sp-top: 40px;
+      --sp-bot: 28px;
+      --grade-h: 56px;
+      --read-max: 720px;
+
+      /* 기본 테마: 페이퍼(Paper) — 따뜻한 미색 */
+      color-scheme: light;
+      --c-bg: #F2EEE6;
+      --c-card: #FBF9F4;
+      --c-fill: #ECE7DD;
+      --c-tile: #FBF9F4;
+      --c-label: #2B2824;
+      --c-sec: #6E6860;
+      --c-ter: #8E877C;
+      --c-sep: #E2DCD0;
+      --c-chev: #C7BFB2;
+      --c-glass: rgba(251, 249, 244, 0.78);
+      --c-glass-ring: rgba(0, 0, 0, 0.06);
+      --c-glass-shadow: rgba(0, 0, 0, 0.08);
+      --sh-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+      --sh-big: 0 1px 3px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.05);
+
+      /* 강조색 */
+      --c-acc: #007AFF;
+      --c-acc-fill: #007AFF;
+      --c-acc-tint: rgba(0, 122, 255, 0.10);
+      --c-green: #34C759;
+      --c-orange: #FF9500;
+      --c-red: #FF3B30;
+
+      /* 채점 4색: 글자 & 옅은 면 (버튼 = 면 + 글자 + 바닥 inset 0 -3px 0 글자색) */
+      --c-again: #D1453B; --c-again-bg: rgba(209, 69, 59, 0.11);
+      --c-hard:  #C7731A; --c-hard-bg:  rgba(199, 115, 26, 0.13);
+      --c-good:  #2A8A52; --c-good-bg:  rgba(42, 138, 82, 0.13);
+      --c-easy:  #2A6AD8; --c-easy-bg:  rgba(42, 106, 216, 0.11);
+      --c-toast: rgba(30, 30, 32, 0.92);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard Variable", sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+    /* 화이트 테마 */
+    :root[data-theme="white"] {
+      color-scheme: light;
+      --c-bg: #F2F2F7;
+      --c-card: #FFFFFF;
+      --c-fill: #EFEFF4;
+      --c-tile: #FFFFFF;
+      --c-label: #1D1D1F;
+      --c-sec: #6E6E73;
+      --c-ter: #8E8E93;
+      --c-sep: #E3E3E8;
+      --c-chev: #C4C4C9;
+      --c-glass: rgba(255, 255, 255, 0.78);
+    }
 
-    /* Header */
-    header {
+    /* 다크 테마 */
+    :root[data-theme="dark"], @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="paper"]):not([data-theme="white"]) {
+        color-scheme: dark;
+        --c-bg: #000000;
+        --c-card: #1C1C1E;
+        --c-fill: #2C2C2E;
+        --c-tile: #2C2C2E;
+        --c-label: #F5F5F7;
+        --c-sec: #98989F;
+        --c-ter: #8D8D93;
+        --c-sep: #38383A;
+        --c-chev: #5A5A5F;
+        --c-glass: rgba(36, 36, 38, 0.75);
+        --c-glass-ring: rgba(255, 255, 255, 0.10);
+        --c-glass-shadow: rgba(0, 0, 0, 0.55);
+        --sh-card: 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+        --sh-big: 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+
+        --c-acc: #0A84FF;
+        --c-acc-fill: #0A84FF;
+        --c-acc-tint: rgba(10, 132, 255, 0.20);
+        --c-green: #30D158;
+        --c-again: #FF7F74; --c-again-bg: rgba(255, 127, 116, 0.20);
+        --c-hard:  #F4AA55; --c-hard-bg:  rgba(244, 170, 85, 0.20);
+        --c-good:  #62CC88; --c-good-bg:  rgba(98, 204, 136, 0.18);
+        --c-easy:  #79AEFF; --c-easy-bg:  rgba(121, 174, 255, 0.22);
+        --c-toast: rgba(58, 58, 60, 0.95);
+      }
+    }
+
+    /* 풀이 화면: 중간 톤 (§2.2) */
+    [data-screen="solve"] {
+      --c-acc: #2A6AD8;
+      --c-acc-fill: #2A6AD8;
+      --c-acc-tint: rgba(42, 106, 216, 0.10);
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       기본 스타일 & 애플 인터페이스 규격
+       ════════════════════════════════════════════════════════════════════════ */
+    * {
+      box-sizing: border-box; margin: 0; padding: 0;
+      font-family: var(--font); -webkit-tap-highlight-color: transparent;
+      word-break: keep-all; overflow-wrap: anywhere; text-wrap: pretty;
+    }
+    body {
+      background-color: var(--c-bg); color: var(--c-label);
+      min-height: 100vh; display: flex; flex-direction: column;
+      -webkit-font-smoothing: antialiased; -webkit-user-select: none; user-select: none;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* ── 상단 유리 막대 (Glass Topbar) ── */
+    #topbar {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(9, 9, 11, 0.85); backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--card-border);
-      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+      height: 52px; padding: 0 16px;
+      background: var(--c-glass);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      box-shadow: 0 0 0 0.5px var(--c-glass-ring), 0 4px 16px var(--c-glass-shadow);
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.15rem; color: #fff; cursor: pointer; text-decoration: none; }
-    .logo svg { width: 24px; height: 24px; color: var(--accent); }
-    .auth-area { display: flex; align-items: center; gap: 10px; }
-    .btn {
-      background: var(--card-border); color: var(--text); border: none; border-radius: 10px;
-      padding: 8px 14px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease;
-      display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
-    }
-    .btn:hover { background: #3f3f46; }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn-danger { background: rgba(239, 68, 68, 0.15); color: var(--again); }
-    .btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
-    .user-pill {
-      font-size: 0.85rem; color: var(--text-muted); background: #27272a; padding: 6px 12px; border-radius: 20px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .sync-badge { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
+    .tb-left, .tb-right { display: flex; align-items: center; gap: 8px; }
+    .tb-title { font-size: 17px; font-weight: 600; color: var(--c-label); letter-spacing: -0.01em; }
 
-    /* Layout Containers */
-    main { flex: 1; max-width: 720px; width: 100%; margin: 0 auto; padding: 24px 16px 80px; }
+    /* 애플 버튼 규격 (§6) */
+    .btn-circle {
+      width: 36px; height: 36px; border-radius: var(--r-pill);
+      background: var(--c-fill); color: var(--c-label);
+      display: inline-flex; align-items: center; justify-content: center;
+      border: none; cursor: pointer; transition: opacity 0.12s, transform 0.08s;
+    }
+    .btn-circle:active { transform: scale(0.95); opacity: 0.8; }
+    .btn-circle svg { width: 19px; height: 19px; }
+
+    .capsule-btn {
+      height: 36px; padding: 0 14px; border-radius: var(--r-pill);
+      font-size: 14px; font-weight: 600; border: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: opacity 0.12s, transform 0.08s;
+    }
+    .capsule-btn:active { transform: scale(0.96); }
+    .capsule-tint { background: var(--c-acc-tint); color: var(--c-acc); }
+    .capsule-plain { background: var(--c-fill); color: var(--c-label); }
+    .capsule-primary { background: var(--c-acc-fill); color: #fff; }
+    .capsule-danger { background: rgba(209, 69, 59, 0.12); color: var(--c-again); }
+
+    /* 메인 컨테이너 */
+    main { flex: 1; max-width: var(--read-max); width: 100%; margin: 0 auto; padding: 20px 16px 80px; }
     .view { display: none; }
     .view.active { display: block; }
 
-    /* Deck List View */
-    .view-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .view-title { font-size: 1.6rem; font-weight: 700; }
-    .actions-row { display: flex; gap: 8px; }
-
-    .sync-notice {
-      background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25);
-      border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; font-size: 0.9rem;
+    /* ── Inset Grouped 목록 (§6, §7.1) ── */
+    .section-head {
+      font-size: 13px; font-weight: 600; color: var(--c-sec);
+      padding: 0 16px 6px; letter-spacing: -0.01em;
       display: flex; justify-content: space-between; align-items: center;
     }
-
-    .deck-grid { display: flex; flex-direction: column; gap: 14px; }
-    .deck-card {
-      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius);
-      padding: 18px 20px; transition: transform 0.15s, border-color 0.15s; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center;
+    .inset-group {
+      background: var(--c-card); border-radius: var(--r-group);
+      box-shadow: var(--sh-card); overflow: hidden; margin-bottom: 24px;
     }
-    .deck-card:hover { border-color: #3f3f46; transform: translateY(-2px); }
-    .deck-info h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 4px; }
-    .deck-info p { font-size: 0.85rem; color: var(--text-muted); }
-    .deck-stats { display: flex; gap: 8px; align-items: center; }
-    .stat-badge {
-      font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+    .inset-row {
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 56px; padding: 12px 16px; cursor: pointer;
+      position: relative; transition: background 0.12s;
     }
-    .badge-due { background: rgba(239, 68, 68, 0.15); color: var(--again); }
-    .badge-new { background: rgba(59, 130, 246, 0.15); color: var(--accent); }
-    .badge-total { background: #27272a; color: var(--text-muted); }
-
-    /* Study View (Flashcard Screen) */
-    .study-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .study-title { font-size: 1.1rem; font-weight: 600; }
-    .progress-bar-wrap { width: 100%; height: 6px; background: #27272a; border-radius: 4px; overflow: hidden; margin-bottom: 24px; }
-    .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
-
-    .flashcard {
-      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 24px;
-      min-height: 380px; padding: 36px 28px; display: flex; flex-direction: column;
-      justify-content: center; align-items: center; text-align: center; cursor: pointer;
-      box-shadow: var(--shadow); user-select: none; transition: transform 0.15s ease, border-color 0.2s;
-      position: relative;
+    .inset-row:active { background: var(--c-fill); }
+    .inset-row + .inset-row::before {
+      content: ''; position: absolute; top: 0; left: 16px; right: 16px;
+      height: 0.5px; background: var(--c-sep);
     }
-    .flashcard:active { transform: scale(0.99); }
-    .card-front { font-size: 1.65rem; font-weight: 600; line-height: 1.45; word-break: keep-all; }
-    .card-divider { width: 40px; height: 2px; background: var(--card-border); margin: 24px auto; display: none; }
-    .card-back { font-size: 1.35rem; color: #60a5fa; line-height: 1.45; word-break: keep-all; display: none; }
-    .card-extra { font-size: 0.95rem; color: var(--text-muted); margin-top: 14px; line-height: 1.4; display: none; }
-    .tap-hint { position: absolute; bottom: 18px; font-size: 0.8rem; color: #71717a; }
-
-    .grading-area { margin-top: 24px; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .grade-btn {
-      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px;
-      padding: 14px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
-      transition: all 0.15s ease;
+    .row-info { flex: 1; min-width: 0; padding-right: 12px; }
+    .row-title { font-size: 17px; font-weight: 600; color: var(--c-label); margin-bottom: 2px; }
+    .row-sub { font-size: 13px; color: var(--c-sec); line-height: 1.35; }
+    .row-meta { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+    .due-badge {
+      font-size: 13px; font-weight: 700; color: var(--c-again);
+      background: var(--c-again-bg); padding: 3px 8px; border-radius: var(--r-pill);
+      font-variant-numeric: tabular-nums;
     }
-    .grade-btn:active { transform: scale(0.95); }
-    .grade-time { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
-    .grade-label { font-size: 0.95rem; font-weight: 700; }
-    .btn-again .grade-label { color: var(--again); }
-    .btn-hard .grade-label { color: var(--hard); }
-    .btn-good .grade-label { color: var(--good); }
-    .btn-easy .grade-label { color: var(--easy); }
-    .grade-btn:hover { border-color: #52525b; background: #27272a; }
+    .count-badge {
+      font-size: 13px; color: var(--c-sec); font-variant-numeric: tabular-nums;
+    }
+    .chevron-icon { width: 8px; height: 14px; color: var(--c-chev); margin-left: 2px; }
 
-    /* Modals */
+    /* ── 주인공 카드 (§5, §6) ── */
+    .card-wrap {
+      perspective: 1000px; max-width: 660px; width: 100%; margin: 10px auto 20px;
+    }
+    .hero-card {
+      background: var(--c-card); border-radius: var(--r-card);
+      box-shadow: var(--sh-big); min-height: 380px; padding: 32px 24px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      cursor: pointer; position: relative; transition: transform 0.1s, box-shadow 0.15s;
+    }
+    .hero-card:active { transform: scale(0.995); }
+    .card-upper {
+      flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+    }
+    .card-q {
+      font-size: 24px; font-weight: 700; line-height: 1.45; color: var(--c-label);
+      letter-spacing: -0.015em;
+    }
+    .card-split-line {
+      width: 100%; height: 0.5px; background: var(--c-sep); margin: 24px 0; display: none;
+    }
+    .card-lower {
+      display: none; text-align: center; flex: 1; flex-direction: column; justify-content: center;
+    }
+    .card-ans {
+      font-size: 26px; font-weight: 700; color: var(--c-acc); line-height: 1.4;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", serif;
+    }
+    .card-note {
+      font-size: 15px; color: var(--c-sec); line-height: 1.5; margin-top: 10px;
+    }
+    .card-hint-text {
+      text-align: center; font-size: 13px; color: var(--c-ter); margin-top: 14px;
+    }
+
+    /* ── 채점 바 (§2.3, §6) ── */
+    #gradeBar {
+      display: none; grid-template-columns: repeat(4, 1fr); gap: 8px;
+      max-width: 660px; width: 100%; margin: 0 auto;
+    }
+    #gradeBar.show { display: grid; }
+    .gbtn {
+      height: var(--grade-h); border-radius: var(--r-tile); border: none; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      font-weight: 700; transition: transform 0.08s, opacity 0.1s;
+      box-shadow: inset 0 -3px 0 currentColor; /* 규격: 바닥 원색 띠 */
+    }
+    .gbtn:active { transform: scale(0.97); }
+    .gbtn-iv { font-size: 12px; font-weight: 600; opacity: 0.75; font-variant-numeric: tabular-nums; }
+    .gbtn-lbl { font-size: 15px; letter-spacing: -0.01em; }
+
+    #gAgain { background: var(--c-again-bg); color: var(--c-again); }
+    #gHard  { background: var(--c-hard-bg);  color: var(--c-hard);  }
+    #gGood  { background: var(--c-good-bg);  color: var(--c-good);  }
+    #gEasy  { background: var(--c-easy-bg);  color: var(--c-easy);  }
+
+    /* 진행 막대 (§6) */
+    .progress-track {
+      width: 100%; height: 5px; background: var(--c-fill); border-radius: var(--r-pill);
+      overflow: hidden; margin-bottom: 20px;
+    }
+    .progress-fill {
+      height: 100%; background: var(--c-green); width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    /* ── 시트 / 모달 (§5, §6) ── */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px);
-      z-index: 200; display: none; justify-content: center; align-items: center; padding: 16px;
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      z-index: 200; display: none; justify-content: center; align-items: flex-end;
+    }
+    @media (min-width: 600px) {
+      .modal-overlay { align-items: center; padding: 20px; }
     }
     .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px;
-      width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: var(--shadow);
+    .sheet {
+      background: var(--c-card); border-radius: var(--r-panel) var(--r-panel) 0 0;
+      width: 100%; max-width: 540px; max-height: 85vh; overflow-y: auto; padding: 24px;
+      box-shadow: var(--sh-big); animation: slideUp 0.22s ease-out;
     }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-title { font-size: 1.25rem; font-weight: 700; }
-    .close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.3rem; }
-    .form-group { margin-bottom: 16px; }
-    .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-    .form-input, .form-textarea {
-      width: 100%; background: #09090b; border: 1px solid var(--card-border); border-radius: 10px;
-      color: #fff; padding: 10px 14px; font-size: 0.95rem; outline: none; transition: border-color 0.15s;
+    @media (min-width: 600px) {
+      .sheet { border-radius: var(--r-panel); }
     }
-    .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
-    .form-textarea { min-height: 120px; resize: vertical; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .sheet-title { font-size: 19px; font-weight: 700; color: var(--c-label); }
+    
+    .field-group { margin-bottom: 16px; }
+    .field-label { display: block; font-size: 13px; font-weight: 600; color: var(--c-sec); margin-bottom: 6px; }
+    .field-input, .field-textarea {
+      width: 100%; background: var(--c-fill); border: none; border-radius: var(--r-cell);
+      padding: 12px 14px; font-size: 16px; color: var(--c-label); outline: none;
+      transition: box-shadow 0.15s;
+    }
+    .field-input:focus, .field-textarea:focus { box-shadow: 0 0 0 2px var(--c-acc); }
 
-    /* Empty state */
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-    .empty-state svg { width: 48px; height: 48px; color: #52525b; margin-bottom: 14px; }
-    .empty-state h3 { font-size: 1.2rem; color: #fff; margin-bottom: 6px; }
-    .empty-state p { font-size: 0.9rem; margin-bottom: 20px; }
-
-    /* Toast */
+    /* ── 토스트 (§6, §7.4) ── */
     #toast {
-      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-      background: #27272a; color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem;
-      font-weight: 500; box-shadow: var(--shadow); z-index: 300; transition: transform 0.25s ease, opacity 0.25s;
-      opacity: 0; pointer-events: none; border: 1px solid #3f3f46;
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(30px);
+      background: var(--c-toast); color: #fff; padding: 10px 18px; border-radius: var(--r-pill);
+      font-size: 13px; font-weight: 600; z-index: 300; opacity: 0; pointer-events: none;
+      transition: transform 0.22s ease, opacity 0.22s; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
     }
     #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* 빈 상태 (§8) */
+    .empty-block { text-align: center; padding: 48px 16px; color: var(--c-sec); }
+    .empty-block h3 { font-size: 17px; font-weight: 600; color: var(--c-label); margin-bottom: 4px; }
+    .empty-block p { font-size: 14px; margin-bottom: 16px; }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <a class="logo" onclick="showDeckList()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/>
-      </svg>
-      <span>Memory Cards</span>
-    </a>
-    <div class="auth-area" id="authArea">
-      <!-- Injected dynamically -->
-      <button class="btn btn-primary" onclick="openAuthModal()">로그인 / 연동</button>
+  <!-- 상단 유리 막대 -->
+  <header id="topbar">
+    <div class="tb-left">
+      <button class="btn-circle" id="navBackBtn" style="display: none;" onclick="showDeckList()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <span class="tb-title" id="pageTitle">플래시카드</span>
+    </div>
+    <div class="tb-right" id="tbRight">
+      <!-- 테마 변경 토글 & 계정 버튼 -->
+      <button class="capsule-btn capsule-plain" onclick="cycleTheme()" title="테마 변경">
+        <span id="themeLabel">페이퍼</span>
+      </button>
+      <div id="authSlot">
+        <button class="capsule-btn capsule-tint" onclick="openAuthModal()">Google 연동</button>
+      </div>
     </div>
   </header>
 
   <main>
-    <!-- View 1: 덱 목록 (대시보드) -->
+    <!-- View 1: 덱 목록 (Inset Grouped) -->
     <div id="viewDeckList" class="view active">
-      <div id="syncBanner" class="sync-notice" style="display: none;">
-        <span>📱 <b>모바일 ↔ PC 실시간 동기화</b>를 이용하려면 구글 로그인을 해주세요.</span>
-        <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.8rem;" onclick="loginWithGoogle()">Google 연동</button>
-      </div>
-
-      <div class="view-title-row">
-        <h1 class="view-title">내 플래시카드 덱</h1>
-        <div class="actions-row">
-          <button class="btn" onclick="openImportModal()">📥 가져오기</button>
-          <button class="btn btn-primary" onclick="openCreateDeckModal()">+ 새 덱</button>
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; padding: 0 4px;">
+        <h1 style="font-size: 28px; font-weight: 700; letter-spacing: -0.02em;">내 서재</h1>
+        <div style="display: flex; gap: 8px;">
+          <button class="capsule-btn capsule-plain" onclick="openImportModal()">가져오기</button>
+          <button class="capsule-btn capsule-primary" onclick="openCreateDeckModal()">+ 새 덱</button>
         </div>
       </div>
 
-      <div id="deckGrid" class="deck-grid">
-        <!-- Injected dynamically -->
+      <div class="section-head">
+        <span>보유 중인 덱</span>
+        <span id="totalDeckStat">0개</span>
+      </div>
+
+      <div class="inset-group" id="deckInsetList">
+        <!-- 동적 렌더링 -->
       </div>
     </div>
 
-    <!-- View 2: 카드 관리 (덱 상세) -->
+    <!-- View 2: 덱 상세 (카드 목록 관리) -->
     <div id="viewDeckDetail" class="view">
-      <div class="study-header">
-        <button class="btn" onclick="showDeckList()">← 덱 목록</button>
-        <div class="actions-row">
-          <button class="btn btn-danger" onclick="deleteCurrentDeck()">덱 삭제</button>
-          <button class="btn btn-primary" onclick="openAddCardModal()">+ 카드 추가</button>
-        </div>
-      </div>
-      <div class="view-title-row">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div>
-          <h2 id="detailDeckName" class="view-title">덱 이름</h2>
-          <p id="detailDeckDesc" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;"></p>
+          <h2 id="deckDetailTitle" style="font-size: 24px; font-weight: 700; margin-bottom: 2px;">덱 제목</h2>
+          <p id="deckDetailDesc" style="font-size: 14px; color: var(--c-sec);"></p>
         </div>
-        <button class="btn btn-primary" style="padding: 10px 18px; font-size: 1rem;" onclick="startStudyCurrentDeck()">학습 시작 🚀</button>
+        <button class="capsule-btn capsule-primary" style="height: 44px; padding: 0 20px; font-size: 16px;" onclick="startStudyCurrentDeck()">학습 시작</button>
       </div>
 
-      <h3 style="margin: 24px 0 12px; font-size: 1.05rem;">등록된 카드 (<span id="detailCardCount">0</span>장)</h3>
-      <div id="cardList" style="display: flex; flex-direction: column; gap: 10px;">
-        <!-- Injected dynamically -->
+      <div class="section-head">
+        <span>등록된 카드</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="capsule-btn capsule-tint" style="height: 30px; padding: 0 10px; font-size: 13px;" onclick="openAddCardModal()">+ 카드 추가</button>
+          <button class="capsule-btn capsule-danger" style="height: 30px; padding: 0 10px; font-size: 13px;" onclick="deleteCurrentDeck()">덱 삭제</button>
+        </div>
+      </div>
+
+      <div class="inset-group" id="cardInsetList">
+        <!-- 동적 렌더링 -->
       </div>
     </div>
 
-    <!-- View 3: 카드 학습 화면 (Study Mode) -->
-    <div id="viewStudy" class="view">
-      <div class="study-header">
-        <button class="btn" onclick="exitStudy()">✕ 중단</button>
-        <span class="study-title" id="studyDeckTitle">덱 학습</span>
-        <span id="studyCounter" style="font-size: 0.85rem; color: var(--text-muted);">0 / 0</span>
+    <!-- View 3: 풀이 화면 (Study View) -->
+    <div id="viewStudy" class="view" data-screen="solve">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; color: var(--c-sec); font-weight: 600;">
+        <span id="studyDeckName">덱 이름</span>
+        <span id="studyCounter" style="font-variant-numeric: tabular-nums;">0 / 0</span>
       </div>
 
-      <div class="progress-bar-wrap">
-        <div id="studyProgressBar" class="progress-bar"></div>
+      <div class="progress-track">
+        <div class="progress-fill" id="studyProgFill"></div>
       </div>
 
-      <div id="flashcard" class="flashcard" onclick="flipCard()">
-        <div class="card-front" id="cardFrontText">앞면 내용</div>
-        <div class="card-divider" id="cardDivider"></div>
-        <div class="card-back" id="cardBackText">뒷면 내용</div>
-        <div class="card-extra" id="cardExtraText">보충 설명</div>
-        <div class="tap-hint" id="tapHint">👆 화면을 탭하거나 스페이스바를 눌러 정답 확인</div>
+      <div class="card-wrap">
+        <div class="hero-card" id="heroCard" onclick="flipCard()">
+          <div class="card-upper">
+            <div class="card-q" id="cardQ">앞면 질문</div>
+          </div>
+          <div class="card-split-line" id="cardSplit"></div>
+          <div class="card-lower" id="cardLower">
+            <div class="card-ans" id="cardA">정답</div>
+            <div class="card-note" id="cardN">보충 설명</div>
+          </div>
+          <div class="card-hint-text" id="cardHint">스페이스바 또는 카드를 탭하여 정답 확인</div>
+        </div>
       </div>
 
-      <!-- 4단계 FSRS 채점 버튼 -->
-      <div class="grading-area" id="gradingArea">
-        <button class="grade-btn btn-again" onclick="rateCard(1)">
-          <span class="grade-time" id="dueAgain">10m</span>
-          <span class="grade-label">다시 (1)</span>
+      <!-- 채점 4버튼 (바닥 띠 & FSRS 간격 표시) -->
+      <div id="gradeBar">
+        <button class="gbtn" id="gAgain" onclick="rateCard(1)">
+          <span class="gbtn-iv">10분</span>
+          <span class="gbtn-lbl">다시 (1)</span>
         </button>
-        <button class="grade-btn btn-hard" onclick="rateCard(2)">
-          <span class="grade-time" id="dueHard">1d</span>
-          <span class="grade-label">어려움 (2)</span>
+        <button class="gbtn" id="gHard" onclick="rateCard(2)">
+          <span class="gbtn-iv">1일</span>
+          <span class="gbtn-lbl">어려움 (2)</span>
         </button>
-        <button class="grade-btn btn-good" onclick="rateCard(3)">
-          <span class="grade-time" id="dueGood">3d</span>
-          <span class="grade-label">알맞음 (3)</span>
+        <button class="gbtn" id="gGood" onclick="rateCard(3)">
+          <span class="gbtn-iv">3일</span>
+          <span class="gbtn-lbl">알맞음 (3)</span>
         </button>
-        <button class="grade-btn btn-easy" onclick="rateCard(4)">
-          <span class="grade-time" id="dueEasy">7d</span>
-          <span class="grade-label">쉬움 (4)</span>
+        <button class="gbtn" id="gEasy" onclick="rateCard(4)">
+          <span class="gbtn-iv">7일</span>
+          <span class="gbtn-lbl">쉬움 (4)</span>
         </button>
       </div>
     </div>
   </main>
 
-  <!-- Modal: 새 덱 만들기 -->
+  <!-- Sheet: 새 덱 만들기 -->
   <div class="modal-overlay" id="createDeckModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 class="modal-title">새 플래시카드 덱 생성</h3>
-        <button class="close-btn" onclick="closeModal('createDeckModal')">✕</button>
+    <div class="sheet">
+      <div class="sheet-head">
+        <h3 class="sheet-title">새 덱 만들기</h3>
+        <button class="btn-circle" onclick="closeModal('createDeckModal')">✕</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">덱 이름</label>
-        <input type="text" id="newDeckName" class="form-input" placeholder="예: 토익 빈출 영단어, 필수 비즈니스 회화">
+      <div class="field-group">
+        <label class="field-label">덱 이름</label>
+        <input type="text" id="newDeckName" class="field-input" placeholder="예: 영어 회화 핵심 100문장">
       </div>
-      <div class="form-group">
-        <label class="form-label">간단한 설명 (선택)</label>
-        <input type="text" id="newDeckDesc" class="form-input" placeholder="예: 매일 10개씩 암기">
+      <div class="field-group">
+        <label class="field-label">설명 (선택)</label>
+        <input type="text" id="newDeckDesc" class="field-input" placeholder="예: 출퇴근길 매일 복습">
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px;">
-        <button class="btn" onclick="closeModal('createDeckModal')">취소</button>
-        <button class="btn btn-primary" onclick="submitCreateDeck()">덱 생성</button>
+        <button class="capsule-btn capsule-plain" onclick="closeModal('createDeckModal')">취소</button>
+        <button class="capsule-btn capsule-primary" onclick="submitCreateDeck()">생성</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal: 카드 추가 -->
+  <!-- Sheet: 카드 추가 -->
   <div class="modal-overlay" id="addCardModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 class="modal-title">카드 추가</h3>
-        <button class="close-btn" onclick="closeModal('addCardModal')">✕</button>
+    <div class="sheet">
+      <div class="sheet-head">
+        <h3 class="sheet-title">카드 추가</h3>
+        <button class="btn-circle" onclick="closeModal('addCardModal')">✕</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">앞면 (문제 / 단어)</label>
-        <textarea id="newCardFront" class="form-textarea" style="min-height: 80px;" placeholder="카드의 앞면에 표시될 질문이나 단어를 적어주세요"></textarea>
+      <div class="field-group">
+        <label class="field-label">앞면 (질문 / 단어)</label>
+        <textarea id="newCardFront" class="field-textarea" style="height: 80px;" placeholder="카드의 앞면에 적힐 질문"></textarea>
       </div>
-      <div class="form-group">
-        <label class="form-label">뒷면 (정답 / 뜻)</label>
-        <textarea id="newCardBack" class="form-textarea" style="min-height: 80px;" placeholder="카드의 뒷면에 표시될 정답을 적어주세요"></textarea>
+      <div class="field-group">
+        <label class="field-label">뒷면 (정답 / 뜻)</label>
+        <textarea id="newCardBack" class="field-textarea" style="height: 80px;" placeholder="카드의 뒷면에 적힐 정답"></textarea>
       </div>
-      <div class="form-group">
-        <label class="form-label">보충 설명 / 예문 (선택)</label>
-        <input type="text" id="newCardExtra" class="form-input" placeholder="추가 힌트나 예문">
+      <div class="field-group">
+        <label class="field-label">보충 메모 (선택)</label>
+        <input type="text" id="newCardExtra" class="field-input" placeholder="힌트 또는 예문">
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px;">
-        <button class="btn" onclick="closeModal('addCardModal')">취소</button>
-        <button class="btn btn-primary" onclick="submitAddCard()">카드 추가</button>
+        <button class="capsule-btn capsule-plain" onclick="closeModal('addCardModal')">취소</button>
+        <button class="capsule-btn capsule-primary" onclick="submitAddCard()">추가</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal: 텍스트 일괄 가져오기 (Batch Import) -->
+  <!-- Sheet: 덱 가져오기 -->
   <div class="modal-overlay" id="importModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 class="modal-title">덱 가져오기 (텍스트 / CSV 일괄 등록)</h3>
-        <button class="close-btn" onclick="closeModal('importModal')">✕</button>
+    <div class="sheet">
+      <div class="sheet-head">
+        <h3 class="sheet-title">텍스트로 덱 일괄 등록</h3>
+        <button class="btn-circle" onclick="closeModal('importModal')">✕</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">저장할 덱 이름</label>
-        <input type="text" id="importDeckName" class="form-input" placeholder="새 덱 이름 입력">
+      <div class="field-group">
+        <label class="field-label">생성할 덱 이름</label>
+        <input type="text" id="importDeckName" class="field-input" placeholder="새 덱 이름">
       </div>
-      <div class="form-group">
-        <label class="form-label">데이터 붙여넣기 (한 줄에 카드 1장: 앞면 [Tab 또는 ,] 뒷면)</label>
-        <textarea id="importText" class="form-textarea" style="min-height: 180px; font-family: monospace; font-size: 0.85rem;" placeholder="apple&#9;사과&#10;banana&#9;바나나&#10;cat&#9;고양이&#10;또는&#10;question1,answer1&#10;question2,answer2"></textarea>
+      <div class="field-group">
+        <label class="field-label">데이터 붙여넣기 (한 줄에 한 장: 앞면 [Tab 또는 ,] 뒷면)</label>
+        <textarea id="importText" class="field-textarea" style="height: 160px; font-size: 14px; font-family: monospace;" placeholder="apple&#9;사과&#10;banana&#9;바나나"></textarea>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-        <button class="btn" onclick="loadSampleSpeakingMatrix()">✨ 영어회화 900제 샘플 탑재</button>
+        <button class="capsule-btn capsule-tint" onclick="loadSampleSpeakingMatrix()">회화 100제 샘플</button>
         <div style="display: flex; gap: 8px;">
-          <button class="btn" onclick="closeModal('importModal')">취소</button>
-          <button class="btn btn-primary" onclick="submitImport()">일괄 등록</button>
+          <button class="capsule-btn capsule-plain" onclick="closeModal('importModal')">취소</button>
+          <button class="capsule-btn capsule-primary" onclick="submitImport()">등록하기</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal: 로그인 모달 -->
+  <!-- Sheet: 로그인 모달 -->
   <div class="modal-overlay" id="authModal">
-    <div class="modal" style="max-width: 400px; text-align: center;">
-      <div class="modal-header">
-        <h3 class="modal-title" style="margin: 0 auto;">스마트 클라우드 동기화</h3>
-        <button class="close-btn" onclick="closeModal('authModal')">✕</button>
+    <div class="sheet" style="text-align: center;">
+      <div class="sheet-head">
+        <h3 class="sheet-title" style="margin: 0 auto;">Google 클라우드 연동</h3>
+        <button class="btn-circle" onclick="closeModal('authModal')">✕</button>
       </div>
-      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
-        Google 계정으로 로그인하면 스마트폰, 태블릿, PC 어디서나 실시간으로 학습 기록이 연동됩니다.
+      <p style="color: var(--c-sec); font-size: 14px; line-height: 1.5; margin-bottom: 24px;">
+        Google 계정으로 로그인하면 스마트폰과 PC 어디서나 실시간으로 학습 기록이 안전하게 이어집니다.
       </p>
-      <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 1rem;" onclick="loginWithGoogle()">
-        <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+      <button class="capsule-btn capsule-primary" style="width: 100%; height: 48px; justify-content: center; font-size: 16px;" onclick="loginWithGoogle()">
         Google 계정으로 계속하기
       </button>
     </div>
   </div>
 
+  <!-- 토스트 알림 -->
   <div id="toast">알림</div>
 
   <script>
@@ -369,8 +535,6 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cm5zZGtua2l2dGNsemxmanh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTA2NzYsImV4cCI6MjA3MDA2NjY3Nn0.k_jx9ysXfPIsU9ls3NHSgE4uqEkOrdzPftVVcYvck2s';
     
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const fsrs = window.FSRS ? new window.FSRS.FSRS() : null;
-
     let currentUser = null;
     let decks = [];
     let currentDeck = null;
@@ -379,13 +543,27 @@
     let studyIndex = 0;
     let cardFlipped = false;
 
-    // Toast 알림
+    // Toast 안내
     function toast(msg) {
       const t = document.getElementById('toast');
       t.textContent = msg;
       t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2500);
+      setTimeout(() => t.classList.remove('show'), 2200);
     }
+
+    // 테마 순환 (§2.1: paper -> white -> dark)
+    const THEMES = ['paper', 'white', 'dark'];
+    const THEME_NAMES = { paper: '페이퍼', white: '화이트', dark: '다크' };
+    function cycleTheme() {
+      const cur = document.documentElement.getAttribute('data-theme') || 'paper';
+      const next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mc_theme', next);
+      document.getElementById('themeLabel').textContent = THEME_NAMES[next];
+    }
+    const savedTheme = localStorage.getItem('mc_theme') || 'paper';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeLabel').textContent = THEME_NAMES[savedTheme];
 
     /* =========================================================================
        2. 사용자 인증 (Auth)
@@ -402,18 +580,15 @@
 
     function updateUserState(user) {
       currentUser = user;
-      const area = document.getElementById('authArea');
-      const banner = document.getElementById('syncBanner');
-
+      const slot = document.getElementById('authSlot');
       if (user) {
-        area.innerHTML = `
-          <div class="user-pill"><span class="sync-badge"></span>${user.email.split('@')[0]}</div>
-          <button class="btn" onclick="logout()">로그아웃</button>
+        slot.innerHTML = `
+          <button class="capsule-btn capsule-plain" onclick="logout()" title="로그아웃">
+            <span>${user.email.split('@')[0]}</span>
+          </button>
         `;
-        if (banner) banner.style.display = 'none';
       } else {
-        area.innerHTML = `<button class="btn btn-primary" onclick="openAuthModal()">로그인 / 연동</button>`;
-        if (banner) banner.style.display = 'flex';
+        slot.innerHTML = `<button class="capsule-btn capsule-tint" onclick="openAuthModal()">Google 연동</button>`;
       }
     }
 
@@ -432,11 +607,10 @@
     }
 
     /* =========================================================================
-       3. 덱 및 카드 데이터 관리 (Supabase + Local Fallback)
+       3. 덱 및 카드 데이터 관리
        ========================================================================= */
     async function loadDecks() {
       if (currentUser) {
-        // Supabase DB에서 조회
         const { data, error } = await sb.from('decks').select('*').order('created_at', { ascending: false });
         if (!error && data) {
           decks = data;
@@ -447,10 +621,9 @@
       } else {
         decks = getLocalDecks();
         if (decks.length === 0) {
-          // 기본 샘플 덱 자동 생성
           decks = [{
             id: 'sample-deck-1',
-            name: '✨ 기본 영어 회화 스타터',
+            name: '기본 회화 스타터',
             description: '가장 많이 쓰는 기본 필수 회화 5문장',
             cards: [
               { id: 'c1', front: '만나서 반가워요', back: 'Nice to meet you', extra: '처음 만났을 때 인사' },
@@ -474,14 +647,15 @@
     }
 
     async function renderDeckList() {
-      const grid = document.getElementById('deckGrid');
+      const list = document.getElementById('deckInsetList');
+      document.getElementById('totalDeckStat').textContent = decks.length + '개';
+
       if (decks.length === 0) {
-        grid.innerHTML = `
-          <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v8m-4-4h8"/></svg>
-            <h3>생성된 덱이 없습니다</h3>
-            <p>새로운 플래시카드 덱을 만들거나 샘플을 가져와보세요.</p>
-            <button class="btn btn-primary" onclick="openCreateDeckModal()">+ 첫 번째 덱 만들기</button>
+        list.innerHTML = `
+          <div class="empty-block">
+            <h3>등록된 덱이 없습니다</h3>
+            <p>새 덱을 만들거나 샘플을 가져와 공부를 시작해 보세요.</p>
+            <button class="capsule-btn capsule-primary" onclick="openCreateDeckModal()">+ 첫 덱 만들기</button>
           </div>
         `;
         return;
@@ -491,19 +665,19 @@
       for (const d of decks) {
         const count = d.cards ? d.cards.length : (await getDeckCardCount(d.id));
         html += `
-          <div class="deck-card" onclick="openDeckDetail('${d.id}')">
-            <div class="deck-info">
-              <h3>${escapeHtml(d.name)}</h3>
-              <p>${escapeHtml(d.description || '설명 없음')}</p>
+          <div class="inset-row" onclick="openDeckDetail('${d.id}')">
+            <div class="row-info">
+              <div class="row-title">${escapeHtml(d.name)}</div>
+              <div class="row-sub">${escapeHtml(d.description || '설명 없음')}</div>
             </div>
-            <div class="deck-stats">
-              <span class="stat-badge badge-due">오늘 복습</span>
-              <span class="stat-badge badge-total">${count}장</span>
+            <div class="row-meta">
+              <span class="count-badge">${count}장</span>
+              <svg class="chevron-icon" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m1 1 6 6-6 6"/></svg>
             </div>
           </div>
         `;
       }
-      grid.innerHTML = html;
+      list.innerHTML = html;
     }
 
     async function getDeckCardCount(deckId) {
@@ -515,9 +689,47 @@
       return d && d.cards ? d.cards.length : 0;
     }
 
-    /* =========================================================================
-       4. 덱 및 카드 생성 / 삭제
-       ========================================================================= */
+    /* 덱 상세 화면 */
+    async function openDeckDetail(deckId) {
+      currentDeck = decks.find(x => x.id === deckId);
+      if (!currentDeck) return;
+
+      document.getElementById('deckDetailTitle').textContent = currentDeck.name;
+      document.getElementById('deckDetailDesc').textContent = currentDeck.description || '';
+      document.getElementById('pageTitle').textContent = currentDeck.name;
+      document.getElementById('navBackBtn').style.display = 'inline-flex';
+
+      if (currentUser) {
+        const { data } = await sb.from('cards').select('*').eq('deck_id', currentDeck.id).order('created_at', { ascending: false });
+        currentCards = data || [];
+      } else {
+        currentCards = currentDeck.cards || [];
+      }
+
+      renderCardList();
+      showView('viewDeckDetail');
+    }
+
+    function renderCardList() {
+      const list = document.getElementById('cardInsetList');
+      if (currentCards.length === 0) {
+        list.innerHTML = `<div class="empty-block"><p>등록된 카드가 없습니다.</p></div>`;
+        return;
+      }
+
+      list.innerHTML = currentCards.map(c => `
+        <div class="inset-row" style="cursor: default;">
+          <div class="row-info">
+            <div class="row-title" style="font-size: 16px;">${escapeHtml(c.front)}</div>
+            <div style="font-size: 14px; color: var(--c-acc); margin-top: 2px;">${escapeHtml(c.back)}</div>
+            ${c.extra ? `<div class="row-sub" style="margin-top: 2px;">${escapeHtml(c.extra)}</div>` : ''}
+          </div>
+          <button class="capsule-btn capsule-danger" style="height: 28px; padding: 0 10px; font-size: 12px;" onclick="deleteCard('${c.id}')">삭제</button>
+        </div>
+      `).join('');
+    }
+
+    /* 덱 생성 & 삭제 */
     function openCreateDeckModal() {
       document.getElementById('newDeckName').value = '';
       document.getElementById('newDeckDesc').value = '';
@@ -539,63 +751,24 @@
         saveLocalDecks(decks);
       }
       closeModal('createDeckModal');
-      toast('새 덱이 생성되었습니다');
+      toast('새 덱을 만들었어요');
       renderDeckList();
     }
 
     async function deleteCurrentDeck() {
       if (!currentDeck) return;
-      if (!confirm(`'${currentDeck.name}' 덱을 삭제하시겠습니까? (안의 모든 카드도 함께 삭제됩니다)`)) return;
+      if (!confirm(`'${currentDeck.name}' 덱을 삭제할까요?`)) return;
 
       if (currentUser) {
         await sb.from('decks').delete().eq('id', currentDeck.id);
       }
       decks = decks.filter(x => x.id !== currentDeck.id);
       saveLocalDecks(decks);
-      toast('덱이 삭제되었습니다');
+      toast('덱을 삭제했어요');
       showDeckList();
     }
 
-    /* 카드 상세 보기 */
-    async function openDeckDetail(deckId) {
-      currentDeck = decks.find(x => x.id === deckId);
-      if (!currentDeck) return;
-
-      document.getElementById('detailDeckName').textContent = currentDeck.name;
-      document.getElementById('detailDeckDesc').textContent = currentDeck.description || '';
-
-      // 카드 데이터 로드
-      if (currentUser) {
-        const { data } = await sb.from('cards').select('*').eq('deck_id', currentDeck.id).order('created_at', { ascending: false });
-        currentCards = data || [];
-      } else {
-        currentCards = currentDeck.cards || [];
-      }
-
-      renderCardList();
-      showView('viewDeckDetail');
-    }
-
-    function renderCardList() {
-      document.getElementById('detailCardCount').textContent = currentCards.length;
-      const list = document.getElementById('cardList');
-      if (currentCards.length === 0) {
-        list.innerHTML = `<div class="empty-state" style="padding: 30px;"><p>등록된 카드가 없습니다. 카드를 추가해 보세요!</p></div>`;
-        return;
-      }
-
-      list.innerHTML = currentCards.map(c => `
-        <div class="deck-card" style="padding: 12px 16px; cursor: default;">
-          <div style="flex: 1;">
-            <div style="font-weight: 600; font-size: 1rem; margin-bottom: 2px;">${escapeHtml(c.front)}</div>
-            <div style="color: #60a5fa; font-size: 0.9rem;">${escapeHtml(c.back)}</div>
-            ${c.extra ? `<div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">${escapeHtml(c.extra)}</div>` : ''}
-          </div>
-          <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8rem;" onclick="deleteCard('${c.id}')">삭제</button>
-        </div>
-      `).join('');
-    }
-
+    /* 카드 추가 & 삭제 */
     function openAddCardModal() {
       document.getElementById('newCardFront').value = '';
       document.getElementById('newCardBack').value = '';
@@ -607,7 +780,7 @@
       const front = document.getElementById('newCardFront').value.trim();
       const back = document.getElementById('newCardBack').value.trim();
       const extra = document.getElementById('newCardExtra').value.trim();
-      if (!front || !back) return alert('앞면과 뒷면 내용을 모두 입력해주세요');
+      if (!front || !back) return alert('앞면과 뒷면을 모두 입력해주세요');
 
       if (currentUser) {
         const { data, error } = await sb.from('cards').insert({
@@ -628,7 +801,7 @@
       }
 
       closeModal('addCardModal');
-      toast('카드가 추가되었습니다');
+      toast('카드를 추가했어요');
       renderCardList();
     }
 
@@ -642,13 +815,11 @@
         currentDeck.cards = currentCards;
         saveLocalDecks(decks);
       }
-      toast('카드가 삭제되었습니다');
+      toast('카드를 삭제했어요');
       renderCardList();
     }
 
-    /* =========================================================================
-       5. 텍스트 일괄 등록 & 샘플 탑재
-       ========================================================================= */
+    /* 텍스트 일괄 가져오기 */
     function openImportModal() {
       document.getElementById('importDeckName').value = '';
       document.getElementById('importText').value = '';
@@ -677,7 +848,7 @@
         }
       }
 
-      if (cardsToCreate.length === 0) return alert('유효한 카드를 찾지 못했습니다. 앞면과 뒷면을 Tab 또는 쉼표(,)로 구분해주세요.');
+      if (cardsToCreate.length === 0) return alert('앞면과 뒷면을 Tab 또는 쉼표로 구분해주세요.');
 
       if (currentUser) {
         const { data: deck, error } = await sb.from('decks').insert({ user_id: currentUser.id, name: deckName }).select().single();
@@ -703,79 +874,72 @@
       }
 
       closeModal('importModal');
-      toast(`${cardsToCreate.length}장의 카드가 성공적으로 등록되었습니다!`);
+      toast(`${cardsToCreate.length}장의 카드를 등록했어요`);
       loadDecks();
     }
 
     async function loadSampleSpeakingMatrix() {
       try {
         const r = await fetch('cards-data.json');
-        if (!r.ok) throw new Error('cards-data.json 파일을 찾을 수 없습니다.');
+        if (!r.ok) throw new Error('cards-data.json 누락');
         const raw = await r.json();
-        const cards = (raw.cards || raw || []).slice(0, 100); // 100장 발췌
-        
-        const sampleText = cards.map(c => `${c.front || c.q || ''}\t${c.back || c.a || ''}\t${c.extra || c.note || ''}`).join('\n');
+        const cards = (raw.cards || raw || []).slice(0, 100);
         document.getElementById('importDeckName').value = 'Speaking Matrix 영어회화 100제';
-        document.getElementById('importText').value = sampleText;
-        toast('샘플 100문장이 로드되었습니다. [일괄 등록]을 누르세요!');
+        document.getElementById('importText').value = cards.map(c => `${c.front || c.q || ''}\t${c.back || c.a || ''}\t${c.extra || c.note || ''}`).join('\n');
+        toast('샘플 문장이 로드되었어요');
       } catch(e) {
         alert('샘플 로드 실패: ' + e.message);
       }
     }
 
     /* =========================================================================
-       6. 카드 학습 엔진 (Study Mode & FSRS 알고리즘)
+       4. 풀이 화면 (Study Mode & FSRS 채점)
        ========================================================================= */
     function startStudyCurrentDeck() {
-      if (!currentCards || currentCards.length === 0) return alert('학습할 카드가 없습니다. 카드를 먼저 추가해주세요!');
+      if (!currentCards || currentCards.length === 0) return alert('학습할 카드가 없습니다.');
       studyQueue = [...currentCards];
       studyIndex = 0;
-      document.getElementById('studyDeckTitle').textContent = currentDeck.name;
+      document.getElementById('studyDeckName').textContent = currentDeck.name;
+      document.getElementById('pageTitle').textContent = '학습 중';
       showView('viewStudy');
       presentCard();
     }
 
     function presentCard() {
       if (studyIndex >= studyQueue.length) {
-        alert('🎉 오늘의 모든 카드를 완료했습니다!');
+        alert('🎉 오늘 분량의 학습을 마쳤습니다!');
         openDeckDetail(currentDeck.id);
         return;
       }
 
       cardFlipped = false;
       const card = studyQueue[studyIndex];
-      document.getElementById('cardFrontText').textContent = card.front;
-      document.getElementById('cardBackText').textContent = card.back;
-      document.getElementById('cardExtraText').textContent = card.extra || '';
+      document.getElementById('cardQ').textContent = card.front;
+      document.getElementById('cardA').textContent = card.back;
+      document.getElementById('cardN').textContent = card.extra || '';
 
-      document.getElementById('cardDivider').style.display = 'none';
-      document.getElementById('cardBackText').style.display = 'none';
-      document.getElementById('cardExtraText').style.display = 'none';
-      document.getElementById('tapHint').style.display = 'block';
-      document.getElementById('gradingArea').style.display = 'none';
+      document.getElementById('cardSplit').style.display = 'none';
+      document.getElementById('cardLower').style.display = 'none';
+      document.getElementById('cardHint').style.display = 'block';
+      document.getElementById('gradeBar').classList.remove('show');
 
-      document.getElementById('studyCounter').textContent = `${studyIndex + 1} / ${studyQueue.length}`;
+      document.getElementById('studyCounter').textContent = `${studyIndex + 1} / ${studyQueue.length}장`;
       const pct = (studyIndex / studyQueue.length) * 100;
-      document.getElementById('studyProgressBar').style.width = pct + '%';
+      document.getElementById('studyProgFill').style.width = pct + '%';
     }
 
     function flipCard() {
       if (cardFlipped) return;
       cardFlipped = true;
-      document.getElementById('cardDivider').style.display = 'block';
-      document.getElementById('cardBackText').style.display = 'block';
-      if (document.getElementById('cardExtraText').textContent) {
-        document.getElementById('cardExtraText').style.display = 'block';
-      }
-      document.getElementById('tapHint').style.display = 'none';
-      document.getElementById('gradingArea').style.display = 'grid';
+      document.getElementById('cardSplit').style.display = 'block';
+      document.getElementById('cardLower').style.display = 'flex';
+      document.getElementById('cardHint').style.display = 'none';
+      document.getElementById('gradeBar').classList.add('show');
     }
 
     async function rateCard(ratingGrade) {
-      // ratingGrade: 1(Again), 2(Hard), 3(Good), 4(Easy)
       const card = studyQueue[studyIndex];
 
-      // FSRS 계산 & Supabase 동기화
       if (currentUser) {
         const nextReviewDate = new Date();
         if (ratingGrade === 1) nextReviewDate.setMinutes(nextReviewDate.getMinutes() + 10);
@@ -783,7 +947,6 @@
         else if (ratingGrade === 3) nextReviewDate.setDate(nextReviewDate.getDate() + 3);
         else if (ratingGrade === 4) nextReviewDate.setDate(nextReviewDate.getDate() + 7);
 
-        // Supabase card_reviews에 upsert
         sb.from('card_reviews').upsert({
           card_id: card.id,
           deck_id: currentDeck.id,
@@ -795,7 +958,6 @@
       }
 
       if (ratingGrade === 1) {
-        // Again일 경우 큐의 뒤쪽에 다시 삽입
         studyQueue.push(card);
       }
 
@@ -803,13 +965,7 @@
       presentCard();
     }
 
-    function exitStudy() {
-      if (confirm('학습을 중단하고 덱 화면으로 돌아갈까요?')) {
-        openDeckDetail(currentDeck.id);
-      }
-    }
-
-    /* 키보드 단축키 지원 */
+    /* 키보드 단축키 (스페이스바: 정답 / 1,2,3,4: 채점) */
     window.addEventListener('keydown', (e) => {
       const studyView = document.getElementById('viewStudy');
       if (!studyView.classList.contains('active')) return;
@@ -826,27 +982,25 @@
     });
 
     /* =========================================================================
-       7. 화면 전환 및 유틸
+       5. 뷰 전환 유틸
        ========================================================================= */
     function showView(viewId) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      document.getElementById(viewId).classList.add('open');
       document.getElementById(viewId).classList.add('active');
       window.scrollTo(0, 0);
     }
     function showDeckList() {
+      document.getElementById('pageTitle').textContent = '플래시카드';
+      document.getElementById('navBackBtn').style.display = 'none';
       showView('viewDeckList');
       loadDecks();
     }
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('open');
-    }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[m]);
     }
 
-    // 초기 실행
     window.addEventListener('DOMContentLoaded', () => {
       initAuth();
       loadDecks();
