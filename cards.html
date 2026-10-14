@@ -11087,6 +11087,7 @@ function scRenderSolveBadge(){
   badge.title=pokeTarget ? '클릭하면 찌르기 (패드 R · 하트 ♥)' : '스터디 참여 중';
   badge.style.display='inline-flex';
 }
+let scPokeIdx = 0;
 async function triggerStudyPoke(){
   if(!SC.group){ toast('스터디 참여 중이 아니에요'); return; }
   if(Date.now()<scPokeOff){ toast('아직 친구 서버에 없는 기능이에요'); return; }
@@ -11097,7 +11098,18 @@ async function triggerStudyPoke(){
     if(!offList.length){ toast('찌를 친구가 없어요'); return; }
     candidates.push(...offList);
   }
-  const target=candidates.find(m=>!scPokeFly.has(m.user_id)) || candidates[0];
+  // 순환(Round-Robin): 누를 때마다 다음 후보를 고른다 (현재 전송 중인 사람은 건너뜀)
+  const len = candidates.length;
+  let target = null;
+  for(let i=0; i<len; i++){
+    const cand = candidates[(scPokeIdx + i) % len];
+    if(!scPokeFly.has(cand.user_id)){
+      target = cand;
+      scPokeIdx = (scPokeIdx + i + 1) % len;
+      break;
+    }
+  }
+  if(!target) target = candidates[scPokeIdx % len];
   const uid=target.user_id;
   const nm=target.display_name||'친구';
   if(scPokeFly.has(uid)) return;
