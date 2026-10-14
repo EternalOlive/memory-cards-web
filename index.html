@@ -12459,24 +12459,26 @@ $('restSkip').onclick=()=>{ const d=$('restDate').value; if(!d) return;
      오늘 큐에 이미 담긴 그 카드들은 resyncQueues가 빼 주고, 그날이 오면 그날 몫으로 나온다. */
   const q=resyncQueues();
   renderRestUI(); renderHome(); toast(d+' 은 공부하는 날 — '+RDOW[rest.dow]+'요일 휴식 예외'+(q.add||q.del?` · 오늘 목록 ${q.add?`+${q.add}`:''}${q.add&&q.del?' ':''}${q.del?`−${q.del}`:''}`:'')); };
-$('restToday').onclick=()=>addRestDay(todayKey());
-$('setClose').onclick=()=>$('ovlSettings').classList.remove('show');
-$('setCloseX').onclick=()=>$('ovlSettings').classList.remove('show');
+if($('restToday')) $('restToday').onclick=()=>addRestDay(todayKey());
+if($('setClose')) $('setClose').onclick=()=>$('ovlSettings')?.classList.remove('show');
+if($('setCloseX')) $('setCloseX').onclick=()=>$('ovlSettings')?.classList.remove('show');
 /* 페이지로 열린 설정은 사이드바의 다른 목적지를 누르면 닫힌다(그 목적지로 간다) · 닫히면 설정 줄 강조를 푼다 */
-{ const sd=$('hSide'); if(sd) sd.addEventListener('click',e=>{ if(e.target.closest('#btnSettings')) return; $('ovlSettings').classList.remove('show'); },true);
-  new MutationObserver(()=>{ if(!$('ovlSettings').classList.contains('show')){ $('btnSettings').classList.remove('on'); if(sd) sd.classList.remove('set-on'); } }).observe($('ovlSettings'),{attributes:true,attributeFilter:['class']}); }
+{ const sd=$('hSide'), os=$('ovlSettings'), bs=$('btnSettings');
+  if(sd && os) sd.addEventListener('click',e=>{ if(e.target.closest('#btnSettings')) return; os.classList.remove('show'); },true);
+  if(os && bs) new MutationObserver(()=>{ if(!os.classList.contains('show')){ bs.classList.remove('on'); if(sd) sd.classList.remove('set-on'); } }).observe(os,{attributes:true,attributeFilter:['class']}); }
 document.addEventListener('click', e=>{ const row=e.target.closest('.tgl-row'); if(!row || e.target.closest('.tgl,button,a,input,select')) return;
   const t=row.querySelector('.tgl'); if(t) t.click(); });   // 토글 줄 어디를 눌러도(UI 리뷰 🟡)
-$('ctOpen').onclick=()=>openHoedok('tools/curric-table.html','내용 체계표');   // 가리고 쓰기 페이지(동하 09-23 「앱에 올려줘 · 음악도」 · 메타 인계) — 회독본 창에서 연다(앱 테마를 따라간다)
-$('ovlSettings').onclick=(e)=>{ if(e.target===$('ovlSettings'))$('ovlSettings').classList.remove('show'); };
-$('btnNewSess').onclick=()=>openSessEditor(null,null);
-$('btnSettingsP').onclick=()=>$('btnSettings').click();
-$('ctOpenP').onclick=()=>$('ctOpen').click();
-$('tabToday').onclick=()=>{ const w=document.querySelector('#scrHome .home-wrap'); if(w) w.scrollTop=0; };
-$('tabYm').onclick=()=>ymEnter();
-$('hsHd').onclick=()=>hdBrowse(); $('tabHd').onclick=()=>hdBrowse();
-$('ssEdit').onclick=()=>{ if(viewSess)openSessEditor(viewSess,null); };
-$('btnSync').onclick=async()=>{ if(!cfg||!cfg.token){openSetup();return;} await push(true); if(!dirty)toast('저장 완료'); };
+if($('ctOpen')) $('ctOpen').onclick=()=>openHoedok('tools/curric-table.html','내용 체계표');
+if($('ovlSettings')) $('ovlSettings').onclick=(e)=>{ if(e.target===$('ovlSettings'))$('ovlSettings').classList.remove('show'); };
+if($('btnNewSess')) $('btnNewSess').onclick=()=>openSessEditor(null,null);
+if($('btnSettingsP')) $('btnSettingsP').onclick=()=>$('btnSettings')?.click();
+if($('ctOpenP')) $('ctOpenP').onclick=()=>$('ctOpen')?.click();
+if($('tabToday')) $('tabToday').onclick=()=>{ const w=document.querySelector('#scrHome .home-wrap'); if(w) w.scrollTop=0; };
+if($('tabYm')) $('tabYm').onclick=()=>ymEnter();
+if($('hsHd')) $('hsHd').onclick=()=>hdBrowse();
+if($('tabHd')) $('tabHd').onclick=()=>hdBrowse();
+if($('ssEdit')) $('ssEdit').onclick=()=>{ if(viewSess)openSessEditor(viewSess,null); };
+if($('btnSync')) $('btnSync').onclick=async()=>{ if(!cfg||!cfg.token){openSetup();return;} await push(true); if(!dirty)toast('저장 완료'); };
 $('btnBackup').onclick=()=>{   // 파일이 나뉜 뒤로는 한 덩어리로 묶어 내려받는다
   const parts=splitState();
   const bundle={v:2, at:new Date().toISOString(), marks:parts.marks, feedback:parts.fb,
@@ -14718,18 +14720,19 @@ function hdDock(on){
     $('tabToday').classList.toggle('on', id==='scrHome'); }
 }
 /* 강조 = 창에 뜬 것 — 내용 체계표면 그 줄, 판이면 회독본 줄·탭(동하 09-30 「내체표 누르면 하이라이트가 회독본으로」) */
-function hdNavHi(){ if(!$('ovlHd').classList.contains('dock')) return; const ct=/curric-table/.test(_hdSrc);
-  $('hsHd').classList.toggle('on', !ct); $('tabHd').classList.toggle('on', !ct); $('ctOpen').classList.toggle('on', ct); }
+function hdNavHi(){ if(!$('ovlHd')?.classList.contains('dock')) return; const ct=/curric-table/.test(_hdSrc);
+  $('hsHd')?.classList.toggle('on', !ct); $('tabHd')?.classList.toggle('on', !ct); $('ctOpen')?.classList.toggle('on', ct); }
 /* 도킹 중 사이드바·탭을 누르면 = 그 화면으로 가는 것 — 창을 먼저 닫는다(회독본 줄·탭은 과목 시트) */
 function hdNavCapture(ev){
-  if(!$('ovlHd').classList.contains('show') || !$('ovlHd').classList.contains('dock')) return;
+  if(!$('ovlHd')?.classList.contains('show') || !$('ovlHd')?.classList.contains('dock')) return;
   const b=ev.target.closest && ev.target.closest('button'); if(!b) return;
   if(b.id==='hsTocRow' || b.closest('#hsToc')) return;     // 사이드바 목차·「목차」 줄 = 창 안에서 처리(10-05)
   if(b.id==='hsHd' || b.id==='tabHd'){ ev.stopPropagation(); ev.preventDefault(); if(hdIsPan()) hdSubjPop(); else hdBrowse(); return; }   // 판을 보는 중 = 과목 시트 · 내용 체계표 등 다른 페이지면 회독본을 연다(동하 09-30 「내용체계표 들어갔다가 회독본으로 가면 이상하게 동작」)
   if(b.id==='ctOpen'){ setTimeout(hdNavHi,0); return; }       // 내용 체계표도 이 창에서 연다(강조는 열린 뒤 그 줄로)
   closeHoedok();
 }
-$('hSide').addEventListener('click', hdNavCapture, true); $('tabBar').addEventListener('click', hdNavCapture, true);
+if($('hSide')) $('hSide').addEventListener('click', hdNavCapture, true);
+if($('tabBar')) $('tabBar').addEventListener('click', hdNavCapture, true);
 /* 판 안의 자체 길 찾기(떠 있는 목차 단추 · 서랍 · 「← 목록」 · 「카드앱 ↗」)는 앱 안에서 숨긴다 — 길은 앱 머리 하나.
    판 파일은 안 고친다(조판 몫) · 문서에 in-app 표시와 숨김 규칙만 얹는다(같은 오리진). 서랍이 펴진 채 저장돼 있으면 접는다(본문을 미는 폭 복원). */
 function hdEmbed(){
@@ -14747,7 +14750,7 @@ function hdEmbed(){
 }
 function hdPopClose(){ $('hdPop').classList.remove('on','toc'); $('hdPopScrim').classList.remove('on'); $('hdSubj').classList.remove('on'); }
 function hdPopOpen(html, toc){ const p=$('hdPop'); p.innerHTML=html; p.classList.toggle('toc', !!toc); p.classList.add('on'); $('hdPopScrim').classList.add('on'); p.scrollTop=0; return p; }
-$('hdPopScrim').onclick=hdPopClose;
+if($('hdPopScrim')) $('hdPopScrim').onclick=hdPopClose;
 function hdSubjPop(){
   if($('hdPop').classList.contains('on') && !$('hdPop').classList.contains('toc')){ hdPopClose(); return; }
   const cur=hdCurFile();
@@ -14764,9 +14767,10 @@ function hdGoSubj(f){
   $('hdTtl').textContent=f.replace(/\.html$/,'');
   hdNewFrame(sp ? sp.p : PAN_DIR+f);
 }
-$('hdSubj').onclick=hdSubjPop;
+if($('hdSubj')) $('hdSubj').onclick=hdSubjPop;
 /* 목차 = 판의 목차(aside.sidebar .toc-view)를 앱 시트로 다시 그린다 · 지금 읽는 절을 표시 · 누르면 그 자리(해시 replace → 판이 접힌 절을 편다 · 히스토리 안 쌓음) */
 function hdTocPop(){
+  if(!$('hdPop')) return;
   if($('hdPop').classList.contains('on') && $('hdPop').classList.contains('toc')){ hdPopClose(); return; }
   let d, w; try{ w=$('hdFrame').contentWindow; d=w.document; }catch(e){ return; }
   const tv=d.querySelector('aside.sidebar .toc-view'); if(!tv){ toast('이 페이지엔 목차가 없어요'); return; }
@@ -14788,7 +14792,7 @@ function hdTocPop(){
   p.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{ hdPopClose(); hdTocJump(b.dataset.id); });
   const c=p.querySelector('.cur'); if(c) c.scrollIntoView({block:'center'});
 }
-$('hdTocBtn').onclick=hdTocPop;
+if($('hdTocBtn')) $('hdTocBtn').onclick=hdTocPop;
 function hdTocIdOf(a){ try{ return decodeURIComponent((a.getAttribute('href')||'').replace(/^#/,'')); }catch(e){ return ''; } }
 /* 지금 절 = 목차가 가리키는 자리 중 화면 위쪽을 지난 마지막 것(제목 태그·id 붙는 자리가 판마다 달라 목차 링크 기준으로 잰다) */
 function hdTocCur(tv, w, d){ let curId='', best=-1e9; const y=w.scrollY+80;
@@ -14833,11 +14837,11 @@ function hsTocHi(center){
   if(g && g!==_hsTocG){ _hsTocG=g; $('hsToc').querySelectorAll('.ht-grp').forEach(x=>x.classList.toggle('shut', x!==g)); }
   if(hit) hit.scrollIntoView({block:center?'center':'nearest'});
 }
-function hsTocMode(on){ const ok=!!on && hsTocRender(); $('hSide').classList.toggle('toc-on', ok); if(ok) hsTocHi(true); }
-$('hsTocRow').onclick=()=>hsTocMode(true);
-function hdSideSet(on){ $('ovlHd').classList.toggle('side', on); document.body.classList.toggle('hd-side', on); }
-$('hdSideBtn').onclick=()=>{ hdPopClose(); const open=!document.body.classList.contains('hd-side'); if(open) hsTocMode(hdIsPan()); hdSideSet(open); };   // 사이드바 = 회독본 위로 덮어 펴기/접기(연 동안만) · 판을 보는 중이면 목차로 연다(10-05)
-$('hdSideScrim').onclick=()=>hdSideSet(false);   // 사이드바 펴기/접기 — 연 동안만(닫으면 다음엔 다시 접힘)
+function hsTocMode(on){ const ok=!!on && hsTocRender(); $('hSide')?.classList.toggle('toc-on', ok); if(ok) hsTocHi(true); }
+if($('hsTocRow')) $('hsTocRow').onclick=()=>hsTocMode(true);
+function hdSideSet(on){ $('ovlHd')?.classList.toggle('side', on); document.body.classList.toggle('hd-side', on); }
+if($('hdSideBtn')) $('hdSideBtn').onclick=()=>{ hdPopClose(); const open=!document.body.classList.contains('hd-side'); if(open) hsTocMode(hdIsPan()); hdSideSet(open); };
+if($('hdSideScrim')) $('hdSideScrim').onclick=()=>hdSideSet(false);
 /* 🔴 **프래그먼트 스크롤을 직접 해 준다**(`hdOnLoad`). iframe은 숨은 채로 로드가 끝나는 일이 있어
    브라우저가 `#앵커`로 안 옮겨 준다(실측: 앵커는 있는데 스크롤 0 · 그 자리는 68,959px 아래였다).
    착지 정확도가 이 기능의 전부라 그냥 두면 안 된다. 글꼴이 늦게 붙어 자리가 밀리므로 한 번 더 맞춘다. */
@@ -15722,8 +15726,8 @@ function ymRenderUnit(id){
   };
 }
 /* ── 배선 ───────────────────────────────────────────────────────────────────── */
-$('ymBack').onclick=ymLeave;
-$('ymUnitBack').onclick=()=>{ go('scrYmToday'); ymRenderToday(); };
+if($('ymBack')) $('ymBack').onclick=ymLeave;
+if($('ymUnitBack')) $('ymUnitBack').onclick=()=>{ go('scrYmToday'); ymRenderToday(); };
 /* 홈 머리의 알약 둘 — 「회독본」(둘러보기 · 동하 09-12 「회독본을 그냥 보러 들어갈 수가 없어」) · 「연문 →」 */
 { const hh=null;   // 09-24 디자인 이식: 알약 은퇴(사이드바 「보기」 회독본 · 「문풀」 타일 · 아이폰 탭 막대)
   if(hh){ const g=hh.querySelector('.gear');
