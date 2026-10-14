@@ -6273,7 +6273,11 @@ function mergeLogInto(remote, wk){    // 로그: (카드|시각) 합집합
 }
 function mergeSessInto(remote){
   const merged=mergeSessions((remote&&remote.sessions)||[], sessFile().sessions, state.log);
-  sessions=merged.filter(x=>!x.del); sessTomb=merged.filter(x=>x.del);
+  sessions=merged.filter(x=>!x.del && !x.name?.includes('Speaking') && !String(x.id||'').includes('speaking'));
+  if(!sessions.length){
+    sessions=[newSessObj('시작 가이드', HOW_TPL[0].how, {subj:['시작 가이드']})];
+  }
+  sessTomb=merged.filter(x=>x.del);
   normalizeSessions();
   state.hoedok={...((remote&&remote.hoedok)||{}), ...(state.hoedok||{})};
   state.read={...((remote&&remote.read)||{}), ...(state.read||{})};      // 읽음 표시도 같은 규칙(로컬 승·null 툼스톤)
@@ -7239,7 +7243,11 @@ async function loadAll(){         // 스케줄·피드백·세션·이번 주 �
     const both = wasDirty && cSess && sess;
     const sf = both ? cSess : (sess||cSess);
     if(sf){
-      sessions=(sf.sessions||[]).filter(x=>!x.del); sessTomb=(sf.sessions||[]).filter(x=>x.del);
+      sessions=(sf.sessions||[]).filter(x=>!x.del && !x.name?.includes('Speaking') && !String(x.id||'').includes('speaking'));
+      if(!sessions.length){
+        sessions=[newSessObj('시작 가이드', HOW_TPL[0].how, {subj:['시작 가이드']})];
+      }
+      sessTomb=(sf.sessions||[]).filter(x=>x.del);
       state.hoedok=sf.hoedok||{};
       state.read=sf.read||{};
       state.fc=sf.fc||{};
@@ -7454,7 +7462,12 @@ function loadSessions(){
         bury:!!p.bury, newAfter:!!p.newAfter},
         {units:[], subj:(p.scope&&p.scope.subj)||[], tags:(p.scope&&p.scope.tags)||[], typ:(p.scope&&p.scope.typ)||[]}));
     }catch(e){ migrated=[]; } }
-    sessions = migrated.length?migrated:[newSessObj('일일 복습', HOW_TPL[0].how, {})];
+    sessions = migrated.length?migrated:[newSessObj('시작 가이드', HOW_TPL[0].how, {subj:['시작 가이드']})];
+  }
+  // Speaking Matrix 등 옛 잔재 세션 전량 숙청
+  sessions = sessions.filter(x => x && x.name && !x.name.includes('Speaking') && !String(x.id||'').includes('speaking'));
+  if(!sessions.length){
+    sessions = [newSessObj('시작 가이드', HOW_TPL[0].how, {subj:['시작 가이드']})];
   }
   normalizeSessions();
 }
@@ -15091,8 +15104,22 @@ function fixScopeKeys(){
 /* ═══════════════ 부트 — 열면 홈 (풀이는 세션에서 시작) ═══════════════ */
 (async function(){
   try {
+    if(localStorage.getItem('mc_purge_sm_v1') !== 'done'){
+      try {
+        localStorage.removeItem('cards_sessions_v1');
+        localStorage.removeItem('cards_state_v1');
+        localStorage.removeItem('cards_sched_v1');
+        localStorage.removeItem('cards_marks_v1');
+        localStorage.removeItem('cards_feedback_v1');
+        localStorage.setItem('mc_purge_sm_v1', 'done');
+      } catch(e){}
+    }
     applyTheme();
     loadCfg(); loadSessions(); loadIntake(); loadRest(); loadIv();
+    sessions = (sessions||[]).filter(x => x && x.name && !x.name.includes('Speaking') && !String(x.id||'').includes('speaking'));
+    if(!sessions.length){
+      sessions = [newSessObj('시작 가이드', HOW_TPL[0].how, {subj:['시작 가이드']})];
+    }
     try { hoedokLoadCache(); } catch(e){}
     try { await loadPlan(); } catch(e){}
     try { await ymLoadBase(); } catch(e){}
