@@ -15093,30 +15093,30 @@ function fixScopeKeys(){
 
 /* ═══════════════ 부트 — 열면 홈 (풀이는 세션에서 시작) ═══════════════ */
 (async function(){
-  applyTheme();
-  loadCfg(); loadSessions(); loadIntake(); loadRest(); loadIv();
-  hoedokLoadCache();         // 회독본 제목 색인 — 캐시부터 써서 pill이 처음부터 맞게 뜬다
-  await loadPlan();          // tagKey·투입 순서가 계획에 의존하므로 데이터보다 먼저
-  await ymLoadBase();        // 옛 카드 ID 집합 — 신규 순서 네 층(newTier)·연문 준비도가 쓴다(09-15)
-  await loadData();
-  if(!DATA.length){
-    { const s=document.querySelector('#loading .ld-s'); if(s) s.textContent='카드 데이터를 못 불러왔어요 — 네트워크 확인 후 새로고침'; else $('loading').textContent='카드 데이터를 못 불러왔어요 — 네트워크 확인 후 새로고침'; }
-    return;
+  try {
+    applyTheme();
+    loadCfg(); loadSessions(); loadIntake(); loadRest(); loadIv();
+    try { hoedokLoadCache(); } catch(e){}
+    try { await loadPlan(); } catch(e){}
+    try { await ymLoadBase(); } catch(e){}
+    await loadData();
+    if(DATA && DATA.length){
+      try { await loadAll(); } catch(e){}
+      try { fixScopeKeys(); } catch(e){}
+    }
+  } catch(bootErr) {
+    console.warn('[부트 경고]', bootErr);
+  } finally {
+    const ld = $('loading');
+    if(ld) ld.style.display = 'none';
+    go('scrHome');
+    try { renderHome(); } catch(e){}
   }
-  await loadAll();
-  /* 🔴 원격 병합 **뒤에** 돈다 — 낡은 사본이 합집합으로 들여온 옛 키까지 같이 잡아야 한다 */
-  try{ fixScopeKeys(); }catch(e){ console.warn('[범위 복구] 실패 — 그냥 진행', e); }
-  $('loading').style.display='none';
-  if(cfg===null||!cfg.token) openSetup();
-  /* 세션은 홈에서 골라 들어간다 (즉시 시작 폐지 — 동하 확정 2026-08-20).
-     🔴 **예외 하나 — 회독본 갔다 돌아온 경우**(동하 2026-09-01). 조판본을 같은 탭에서 열므로
-     돌아오면 페이지가 새로 뜬다. 그때만 풀던 카드(답면까지)로 복귀한다. 「즉시 시작」이 아니라
-     **떠나기 전 자리로 되돌리는 것**이라 위 확정과 어긋나지 않는다. 조건이 하나라도 안 맞으면 홈이다. */
-  go('scrHome');
-  try{ tryResume(); }catch(e){ console.warn('[복귀] 실패 — 홈으로', e); }
-  loadFsrsParams();          // 맞춤값 파일은 있으면 읽고 없으면 조용히 넘어간다 (설정에서만 쓴다)
-  checkNewVersion();         // 지금 돌고 있는 판의 해시를 기억해 둔다(새 버전 띠의 기준)
-  loadIndexes();    // 회독본·판 색인 갱신은 뒤에서 — 실패하면 재시도하고, 올 때마다 보고 있던 화면을 고친다(F6-1)
+
+  try { tryResume(); } catch(e){}
+  try { loadFsrsParams(); } catch(e){}
+  try { checkNewVersion(); } catch(e){}
+  try { loadIndexes(); } catch(e){}
 })();
 
 /* ═══════════════════════════════════════════════════════════════════════════════════════
@@ -15734,6 +15734,8 @@ $('ovlImg').onclick=closeImg;
     const padT=parseFloat(getComputedStyle(Z).paddingTop)||0, off=Math.max(0, ct-zt-padT);
     if(C.getBoundingClientRect().height + off + padT <= Z.clientHeight - 10){ Z.classList.add('anchored'); C.style.marginTop=off+'px'; }
     requestAnimationFrame(fitCard); return r; };
+  const _s2=showCard; showCard=function(){ const Z=$('cardZone'); Z.classList.remove('anchored'); $('card').style.marginTop=''; return _s2.apply(this,arguments); }; }
+
 /* ═══════════════ Supabase 클라우드 실시간 동기화 & 덱 가져오기 확장 ═══════════════ */
 const SB_URL = 'https://uvrnsdknkivtclzlfjxx.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cm5zZGtua2l2dGNsemxmanh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTA2NzYsImV4cCI6MjA3MDA2NjY3Nn0.k_jx9ysXfPIsU9ls3NHSgE4uqEkOrdzPftVVcYvck2s';
