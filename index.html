@@ -13075,7 +13075,14 @@ if($('tabYm')) $('tabYm').onclick=()=>ymEnter();
 if($('hsHd')) $('hsHd').onclick=()=>hdBrowse();
 if($('tabHd')) $('tabHd').onclick=()=>hdBrowse();
 if($('ssEdit')) $('ssEdit').onclick=()=>{ if(viewSess)openSessEditor(viewSess,null); };
-if($('btnSync')) $('btnSync').onclick=async()=>{ if(!cfg||!cfg.token){openSetup();return;} await push(true); if(!dirty)toast('저장 완료'); };
+if($('btnSync')) $('btnSync').onclick=async()=>{
+  const gistCfg = (typeof getGistConfig === 'function') ? getGistConfig() : null;
+  if(gistCfg && gistCfg.token && gistCfg.gistId && typeof executeGistSync === 'function'){
+    await executeGistSync(true);
+    return;
+  }
+  openSetup();
+};
 $('btnBackup').onclick=()=>{   // 파일이 나뉜 뒤로는 한 덩어리로 묶어 내려받는다
   const parts=splitState();
   const bundle={v:2, at:new Date().toISOString(), marks:parts.marks, feedback:parts.fb,
@@ -15324,12 +15331,8 @@ function renderFlags(){
 
 /* ═══════════════ 셋업 ═══════════════ */
 function openSetup(){
-  const curRepo = (cfg&&cfg.owner&&cfg.repo) ? `${cfg.owner}/${cfg.repo}` : (BUILTIN.owner&&BUILTIN.repo ? `${BUILTIN.owner}/${BUILTIN.repo}` : '');
-  if($('cfgRepo')) $('cfgRepo').value = curRepo;
-  if($('cfgToken')) $('cfgToken').value=(cfg&&cfg.token)||'';
-  if($('cfgErr')) $('cfgErr').style.display='none';
+  if(typeof updateGistSyncUI === 'function') updateGistSyncUI();
   if($('ovlAuth')) $('ovlAuth').classList.add('show');
-  else if($('ovlSetup')) $('ovlSetup').classList.add('show');
 }
 if($('setupClose')) $('setupClose').onclick=()=>{
   if($('ovlSetup')) $('ovlSetup').classList.remove('show');
