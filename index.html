@@ -2319,7 +2319,18 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
 </style>
 </head>
 <body>
-<div id="loading"><img class="ld-ic" src="icon-180.png" alt=""><div class="ld-t">카드</div><div class="ld-bar"><i></i></div><div class="ld-s">여는 중…</div></div>
+<div id="loading" onclick="this.style.display='none'"><img class="ld-ic" src="icon-180.png" alt=""><div class="ld-t">카드</div><div class="ld-bar"><i></i></div><div class="ld-s">여는 중…</div><div style="font-size:12px;opacity:0.65;margin-top:8px;cursor:pointer;">화면이 멈춘 경우 터치하여 즉시 시작</div></div>
+<script>
+// 전역 비상 안전 가드 (2초 초과 시 로딩 강제 해제)
+setTimeout(function(){
+  var ld = document.getElementById('loading');
+  if(ld && ld.style.display !== 'none'){
+    ld.style.display = 'none';
+    if(typeof go === 'function') try { go('scrHome'); } catch(e){}
+    if(typeof renderHome === 'function') try { renderHome(); } catch(e){}
+  }
+}, 2000);
+</script>
 <div id="app">
   <aside id="hSide">
     <div class="hs-head"><span class="hs-title">카드</span><span class="hs-dday" id="hDday"></span></div>
@@ -7276,7 +7287,12 @@ async function dataChanged(){
   return true; }
 async function loadData(){
   try{
-    const r=await fetch(DATA_PATH+'?t='+Date.now(),{cache:'no-store'});
+    let r;
+    if(typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function'){
+      r = await fetch(DATA_PATH+'?t='+Date.now(),{cache:'no-store', signal: AbortSignal.timeout(3500)});
+    } else {
+      r = await fetch(DATA_PATH+'?t='+Date.now(),{cache:'no-store'});
+    }
     if(!r.ok)throw 0;
     dataEtag=r.headers.get('ETag')||'';
     const j=await r.json();
@@ -7384,7 +7400,13 @@ async function rawGet(path, ref){
   const url = (ref && cfg && cfg.owner && cfg.repo)
     ? `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${encodeURIComponent(ref)}/${path}`
     : path;
-  try{ const r=await fetch(url+'?t='+Date.now(),{cache:'no-store'});
+  try{
+    let r;
+    if(typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function'){
+      r = await fetch(url+'?t='+Date.now(),{cache:'no-store', signal: AbortSignal.timeout(2500)});
+    } else {
+      r = await fetch(url+'?t='+Date.now(),{cache:'no-store'});
+    }
     if(r.status===404) return null;
     if(!r.ok){ rawNetFail=true; return null; }
     const t=await r.text(); return t.trim()?JSON.parse(t):null;
@@ -15645,9 +15667,11 @@ function fixScopeKeys(){
   } catch(bootErr) {
     console.warn('[부트 경고]', bootErr);
   } finally {
-    const ld = $('loading');
-    if(ld) ld.style.display = 'none';
-    go('scrHome');
+    try {
+      const ld = $('loading') || document.getElementById('loading');
+      if(ld) ld.style.display = 'none';
+    } catch(e){}
+    try { go('scrHome'); } catch(e){}
     try { renderHome(); } catch(e){}
   }
 
@@ -16324,13 +16348,16 @@ function loadUserDecks(){
     else DECKS = [];
   } catch(e){ DECKS = []; }
 
+  // 덱 객체 정제 (유효하지 않은 항목 제거)
+  DECKS = (Array.isArray(DECKS) ? DECKS : []).filter(d => d && typeof d === 'object' && typeof d.name === 'string');
+
   // 덱이 전혀 없는 경우: DATA에 있는 카드의 과목(subj)들로부터 덱 자동 생성
   if(!DECKS.length){
     const subjs = new Set();
-    DATA.forEach(c => { if(c.subj) subjs.add(c.subj); });
+    DATA.forEach(c => { if(c && c.subj) subjs.add(c.subj); });
     if(subjs.size){
-      DECKS = [...subjs].map(s => ({
-        id: 'deck_' + Mash()(s).toString(36),
+      DECKS = [...subjs].map((s, idx) => ({
+        id: 'deck_' + Date.now() + '_' + idx + '_' + Math.random().toString(36).substr(2, 4),
         name: s,
         desc: `${s} 학습 덱`,
         createdAt: Date.now()
@@ -16355,11 +16382,12 @@ function saveUserDecks(){
 }
 
 function ensureDeckAncestors(deckName){
+  if(!deckName || typeof deckName !== 'string') return;
   const parts = deckName.split('::');
   if(parts.length <= 1) return;
   for(let i = 1; i < parts.length; i++){
     const ancestorName = parts.slice(0, i).join('::');
-    if(!DECKS.some(d => d.name === ancestorName)){
+    if(!DECKS.some(d => d && d.name === ancestorName)){
       DECKS.push({
         id: 'deck_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
         name: ancestorName,
@@ -16371,13 +16399,13 @@ function ensureDeckAncestors(deckName){
 }
 
 function getDeckCards(deck, includeChildren = true){
-  if(!deck) return [];
+  if(!deck || !deck.name) return [];
   if(includeChildren){
     const prefix = deck.name + '::';
-    const subdeckIds = new Set(DECKS.filter(d => d.name.startsWith(prefix)).map(d => d.id));
-    return DATA.filter(c => c.deckId === deck.id || c.subj === deck.name || subdeckIds.has(c.deckId) || (c.subj && c.subj.startsWith(prefix)));
+    const subdeckIds = new Set(DECKS.filter(d => d && d.name && d.name.startsWith(prefix)).map(d => d.id));
+    return DATA.filter(c => c && (c.deckId === deck.id || c.subj === deck.name || subdeckIds.has(c.deckId) || (typeof c.subj === 'string' && c.subj.startsWith(prefix))));
   }
-  return DATA.filter(c => c.deckId === deck.id || c.subj === deck.name);
+  return DATA.filter(c => c && (c.deckId === deck.id || c.subj === deck.name));
 }
 
 function getDeckStats(deck, includeChildren = true){
@@ -16402,7 +16430,9 @@ function renderDeckHub(){
   if(countBadge) countBadge.textContent = `${DECKS.length}개 덱`;
   area.innerHTML = '';
 
-  if(!DECKS.length){
+  const validDecks = (Array.isArray(DECKS) ? DECKS : []).filter(d => d && typeof d.name === 'string');
+
+  if(!validDecks.length){
     area.innerHTML = `
       <div style="padding:24px 16px;text-align:center;background:var(--c-fill);border-radius:14px;color:var(--c-sec);">
         <div style="font-size:15px;font-weight:600;color:var(--c-label);margin-bottom:4px;">등록된 덱이 없어요</div>
@@ -16419,12 +16449,13 @@ function renderDeckHub(){
   } catch(e){}
 
   // 이름순(자연 계층순)으로 정렬
-  const sorted = [...DECKS].sort((a,b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+  const sorted = [...validDecks].sort((a,b) => (a.name||'').localeCompare(b.name||'', undefined, { numeric: true, sensitivity: 'base' }));
 
   sorted.forEach(deck => {
-    const parts = deck.name.split('::');
-    const depth = parts.length - 1;
-    const leafName = parts[parts.length - 1];
+    const deckName = deck.name || '이름 없음';
+    const parts = deckName.split('::');
+    const depth = Math.max(0, parts.length - 1);
+    const leafName = parts[parts.length - 1] || deckName;
 
     // 상위 덱 중 하나라도 접혀있으면 화면에 렌더링하지 않음
     let isHiddenByAncestor = false;
@@ -16437,10 +16468,10 @@ function renderDeckHub(){
     }
     if(isHiddenByAncestor) return;
 
-    const prefix = deck.name + '::';
-    const subdecks = DECKS.filter(d => d.name.startsWith(prefix));
+    const prefix = deckName + '::';
+    const subdecks = validDecks.filter(d => d && d.name && d.name.startsWith(prefix));
     const hasChildren = subdecks.length > 0;
-    const isCollapsed = collapsedSet.has(deck.name);
+    const isCollapsed = collapsedSet.has(deckName);
 
     const stats = getDeckStats(deck, true);
     const directStats = getDeckStats(deck, false);
@@ -16778,7 +16809,8 @@ function editDeckInfo(deck){
 // 5. 드롭다운 동기화 (계층형 들여쓰기 ↳ 표시)
 function syncDeckDropdowns(){
   const selects = ['listDeckFilter', 'importDeckSelect', 'addCardDeckSelect', 'newDeckParentSelect'];
-  const sorted = [...DECKS].sort((a,b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+  const validDecks = (Array.isArray(DECKS) ? DECKS : []).filter(d => d && typeof d.name === 'string');
+  const sorted = [...validDecks].sort((a,b) => (a.name||'').localeCompare(b.name||'', undefined, { numeric: true, sensitivity: 'base' }));
 
   selects.forEach(sid => {
     const el = $(sid);
@@ -16795,10 +16827,11 @@ function syncDeckDropdowns(){
     sorted.forEach(d => {
       const opt = document.createElement('option');
       opt.value = sid === 'newDeckParentSelect' ? d.name : d.id;
-      const parts = d.name.split('::');
-      const depth = parts.length - 1;
+      const dName = d.name || '';
+      const parts = dName.split('::');
+      const depth = Math.max(0, parts.length - 1);
       const prefix = depth > 0 ? ('　'.repeat(depth) + '↳ ') : '';
-      opt.textContent = prefix + parts[parts.length - 1] + (depth > 0 ? ` (${d.name})` : '');
+      opt.textContent = prefix + (parts[parts.length - 1] || dName) + (depth > 0 ? ` (${dName})` : '');
       el.appendChild(opt);
     });
     if(curVal) el.value = curVal;
@@ -17313,43 +17346,64 @@ async function syncFromSupabase(){
   };
 }
 
-// 초기화
-window.addEventListener('DOMContentLoaded', () => {
-  loadUserDecks();
-  restoreUserCards();
-
-  // 휴식일 강제 기본값 해제 (기본 목요일 자동 휴식 해제 -> 오늘 카드 학습 즉시 가능)
-  if(typeof rest !== 'undefined' && rest && rest.dow === 4 && (!rest.at || rest.at === 0)){
-    rest.dow = null;
-    if(typeof restReset === 'function') restReset();
-  }
-  // 깃허브 토큰 미사용 시 불필요한 상단 붉은 경고 띠 제거
-  if(!cfg || !cfg.token){
-    if(typeof hideBanner === 'function') hideBanner();
-  }
-
-  initAuthSystem();
-  initUniversalImporter();
-  initCardBrowserFilters();
-  renderDeckHub();
-  renderTodayAgainSection();
-
-  // 탭바 바인딩
-  if($('tabToday')) $('tabToday').onclick = () => go('scrHome');
-  if($('tabCards')) $('tabCards').onclick = () => go('scrList');
-  if($('tabStats')) $('tabStats').onclick = () => go('scrStats');
-  if($('tabSetup')) $('tabSetup').onclick = () => $('ovlAuth').classList.add('show');
-
-  // 로딩 화면 안전 자동 해제 가드
-  setTimeout(() => {
-    const ld = $('loading');
+// 초기화 및 로딩 화면 해제 안전 가드
+function safeHideLoading(){
+  try {
+    const ld = document.getElementById('loading');
     if(ld && ld.style.display !== 'none'){
       ld.style.display = 'none';
-      if(typeof go === 'function') go('scrHome');
+      if(typeof go === 'function') try { go('scrHome'); } catch(e){}
       if(typeof renderHome === 'function') try { renderHome(); } catch(e){}
     }
-  }, 1200);
-});
+  } catch(e){}
+}
+
+function initApp(){
+  try { loadUserDecks(); } catch(e){ console.warn('[덱 로드 경고]', e); }
+  try { restoreUserCards(); } catch(e){}
+
+  // 휴식일 강제 기본값 해제 (기본 목요일 자동 휴식 해제 -> 오늘 카드 학습 즉시 가능)
+  try {
+    if(typeof rest !== 'undefined' && rest && rest.dow === 4 && (!rest.at || rest.at === 0)){
+      rest.dow = null;
+      if(typeof restReset === 'function') restReset();
+    }
+  } catch(e){}
+
+  // 깃허브 토큰 미사용 시 불필요한 상단 붉은 경고 띠 제거
+  try {
+    if(!cfg || !cfg.token){
+      if(typeof hideBanner === 'function') hideBanner();
+    }
+  } catch(e){}
+
+  try { initAuthSystem(); } catch(e){}
+  try { initUniversalImporter(); } catch(e){}
+  try { initCardBrowserFilters(); } catch(e){}
+  try { renderDeckHub(); } catch(e){}
+  try { renderTodayAgainSection(); } catch(e){}
+
+  // 탭바 바인딩
+  try {
+    if($('tabToday')) $('tabToday').onclick = () => go('scrHome');
+    if($('tabCards')) $('tabCards').onclick = () => go('scrList');
+    if($('tabStats')) $('tabStats').onclick = () => go('scrStats');
+    if($('tabSetup')) $('tabSetup').onclick = () => $('ovlAuth').classList.add('show');
+  } catch(e){}
+
+  safeHideLoading();
+  setTimeout(safeHideLoading, 300);
+  setTimeout(safeHideLoading, 800);
+}
+
+if(document.readyState === 'loading'){
+  window.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+// 비상 안전 가드: 1.5초 후 강제 해제
+setTimeout(safeHideLoading, 1500);
 
 </script>
 </body>
