@@ -2435,6 +2435,21 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
 .account-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:none;background:var(--c-fill);color:var(--c-label);cursor:pointer;font-size:13px;font-weight:600;}
 .account-btn:hover{background:var(--c-fill-hi);}
 
+.deck-act-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 34px; padding: 0 13px; border-radius: 17px;
+  font-size: 13px; font-weight: 600; font-family: inherit;
+  border: none; background: var(--c-fill); color: var(--c-label);
+  cursor: pointer; transition: background .12s, opacity .12s, transform .12s;
+  white-space: nowrap; -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+.deck-act-btn:hover { background: var(--c-fill-hi, rgba(120,120,128,0.16)); }
+.deck-act-btn:active { transform: scale(0.97); opacity: .85; }
+.deck-act-btn svg { width: 13px; height: 13px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+.deck-act-primary { background: var(--c-acc-tint); color: var(--c-acc); }
+.deck-act-primary:hover { background: var(--c-acc-tint); opacity: .85; }
+
 /* Mobile responsive adjustments */
 @media (max-width: 600px) {
   .deck-tree-header { padding: 8px 12px; }
@@ -2637,8 +2652,8 @@ setTimeout(function(){
             </div>
             <div style="display:flex;align-items:center;gap:6px;">
               <button class="deck-act-btn" id="btnOpenNewDeck" title="새 덱 만들기">+ 새 덱</button>
-              <button class="deck-act-btn" id="btnExportAllApkgTop" title="전체 덱 Anki(.apkg) 내보내기 (복습 기록 포함)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13" aria-hidden="true"><path d="M12 21V8M7 13l5-5 5 5M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>Anki 내보내기</button>
-              <button class="deck-act-btn deck-act-primary" id="btnOpenImportTop" title="덱 가져오기 / 파일 열기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13" aria-hidden="true"><path d="M12 3v13M7 11l5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>덱 가져오기</button>
+              <button class="deck-act-btn" id="btnExportAllApkgTop" title="전체 덱 Anki 내보내기 (복습 기록 포함)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>Anki 내보내기</button>
+              <button class="deck-act-btn deck-act-primary" id="btnOpenImportTop" title="덱 가져오기 / 파일 열기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true"><path d="M12 3v13M7 11l5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>덱 가져오기</button>
             </div>
           </div>
           <div id="deckListArea"></div>
@@ -3519,7 +3534,7 @@ setTimeout(function(){
   <div class="field"><label>저장 및 내보내기</label>
     <div class="h-tools" style="margin-top:0">
       <button class="h-tool" id="btnSync">지금 저장</button>
-      <button class="h-tool" id="btnExportAllApkg">📦 Anki 내보내기</button>
+      <button class="h-tool" id="btnExportAllApkg">Anki 내보내기</button>
       <button class="h-tool" id="btnBackup">상태 백업</button>
       <button class="h-tool" id="btnSetup">GitHub 연결</button>
     </div>
@@ -17115,12 +17130,12 @@ function renderDeckHub(){
 function openDeckOptionsMenu(deck, targetEl){
   const stats = getDeckStats(deck, true);
   const acts = [
-    { label: '⚙️ 학습 한도 및 옵션', fn: () => openDeckOptionsModal(deck) },
-    { label: '⇄ 상위 덱 변경 (계층 이동)', fn: () => openMoveDeckHierarchyModal(deck) },
-    { label: '+ 하위 덱 만들기', fn: () => openCreateSubdeckModal(deck) },
+    { label: '학습 한도 및 옵션', fn: () => openDeckOptionsModal(deck) },
+    { label: '상위 덱 변경 (계층 이동)', fn: () => openMoveDeckHierarchyModal(deck) },
+    { label: '하위 덱 만들기', fn: () => openCreateSubdeckModal(deck) },
     { label: '카드 추가', fn: () => openAddCardModal(deck.id) },
     { label: `오답 복습 (${stats.again}장)`, fn: () => playDeckAgain(deck), disabled: !stats.again },
-    { label: '📦 Anki(.apkg) 내보내기 (복습 기록 포함)', fn: () => exportDeckApkg(deck) },
+    { label: 'Anki 패키지 내보내기 (.apkg)', fn: () => exportDeckApkg(deck) },
     { label: 'CSV 파일로 내보내기', fn: () => exportDeckCSV(deck) },
     { label: 'JSON 파일로 내보내기', fn: () => exportDeckJSON(deck) },
     { label: '덱 정보 수정', fn: () => editDeckInfo(deck) },
@@ -17132,7 +17147,7 @@ function openDeckOptionsMenu(deck, targetEl){
 
   const menu = document.createElement('div');
   menu.id = 'popDeckMenu';
-  menu.style.cssText = 'position:fixed;z-index:9999;background:var(--c-card);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.18);border:1px solid var(--c-sep);padding:6px;min-width:210px;';
+  menu.style.cssText = 'position:fixed;z-index:9999;background:var(--c-card);border-radius:var(--r-group, 16px);box-shadow:0 8px 30px rgba(0,0,0,0.14);border:0.5px solid var(--c-sep);padding:6px;min-width:210px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);';
 
   const rect = targetEl.getBoundingClientRect();
   menu.style.top = Math.min(window.innerHeight - 340, rect.bottom + 6) + 'px';
@@ -17140,7 +17155,7 @@ function openDeckOptionsMenu(deck, targetEl){
 
   acts.forEach(act => {
     const btn = document.createElement('button');
-    btn.style.cssText = `display:block;width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;border-radius:8px;font-size:13.5px;font-weight:600;color:${act.danger ? 'var(--c-red)' : (act.disabled ? 'var(--c-ter)' : 'var(--c-label)')};cursor:${act.disabled ? 'not-allowed' : 'pointer'};opacity:${act.disabled ? '0.5' : '1'};`;
+    btn.style.cssText = `display:block;width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;border-radius:10px;font-size:13.5px;font-weight:600;font-family:inherit;color:${act.danger ? 'var(--c-red)' : (act.disabled ? 'var(--c-ter)' : 'var(--c-label)')};cursor:${act.disabled ? 'not-allowed' : 'pointer'};opacity:${act.disabled ? '0.5' : '1'};`;
     btn.textContent = act.label;
     if(!act.disabled){
       btn.onmouseenter = () => btn.style.background = 'var(--c-fill)';
@@ -17510,7 +17525,7 @@ async function exportDeckApkg(deck){
   }
 
   try {
-    toast('Anki 패키지(.apkg) 생성 중...');
+    toast('Anki 패키지를 준비하고 있어요...');
 
     if(typeof JSZip === 'undefined' || typeof initSqlJs === 'undefined'){
       alert('Anki 데이터베이스 분석 엔진이 로드되지 않았습니다. 잠시 후 다시 시도해 주세요.');
@@ -17760,7 +17775,7 @@ async function exportDeckApkg(deck){
     const filename = `${deckBaseName}_reviewed.apkg`;
 
     downloadFile(filename, blob, 'application/apkg');
-    toast(`📦 ${filename} 다운로드 완료! (${exportedCardCount}장 카드 / ${exportedRevCount}회 복습 기록 포함)`);
+    toast(`${filename} 다운로드를 시작했어요 (${exportedCardCount}장 · 복습 기록 ${exportedRevCount}회)`);
   } catch(err){
     console.error('[Anki Export Error]', err);
     alert('Anki 패키지 내보내기 중 오류가 발생했습니다: ' + (err.message || err));
