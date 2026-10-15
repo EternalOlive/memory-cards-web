@@ -3155,48 +3155,66 @@ setTimeout(function(){
   <div id="railScrim"></div>
 </div>
 
-<!-- 계정 및 클라우드 동기화 모달 -->
-<div class="ovl" id="ovlAuth"><div class="sheet" style="max-width:440px;">
-  <h2>계정 및 클라우드 동기화</h2>
-  <p class="desc">아이디로 로그인하면 스마트폰, 태블릿, PC 어디서나 나만의 덱과 복습 진도가 실시간 동기화돼요.</p>
-  
-  <div id="authLoggedInView" style="display:none;background:var(--c-fill);border-radius:14px;padding:16px;margin:14px 0;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <span style="font-weight:700;font-size:15px;color:var(--c-label);" id="authLoggedEmail">user@email.com</span>
-      <span class="ac-badge ac-due" style="font-size:11px;">동기화 중</span>
+<!-- 계정 및 클라우드 동기화 모달 (GitHub Gist) -->
+<div class="ovl" id="ovlAuth"><div class="sheet" style="max-width:460px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <h2 style="margin:0;font-size:20px;">기기간 클라우드 동기화</h2>
+    <span id="syncStatusBadge" class="ac-badge ac-new" style="font-size:11px;">로컬 전용</span>
+  </div>
+  <p class="desc" style="margin-bottom:16px;">개인 GitHub 비공개 Gist를 통해 PC, 모바일, 태블릿 간 카드·덱·복습 진도를 안전하게 실시간 동기화합니다.</p>
+
+  <!-- 연결 완료 화면 -->
+  <div id="gistConnectedView" style="display:none;background:var(--c-fill);border-radius:14px;padding:16px;margin:14px 0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;">☁️</span>
+        <div>
+          <div style="font-weight:700;font-size:15px;color:var(--c-label);" id="gistUserLabel">GitHub 계정 연결됨</div>
+          <div style="font-size:12px;color:var(--c-sec);" id="gistIdLabel">Gist ID: -</div>
+        </div>
+      </div>
+      <span class="ac-badge ac-due" id="gistSyncStateBadge" style="font-size:11px;">동기화 켜짐</span>
     </div>
-    <p class="desc" style="margin-bottom:12px;">현재 계정의 모든 덱과 학습 기록이 안전하게 클라우드에 백업되고 있어요.</p>
-    <div style="display:flex;gap:8px;">
-      <button class="deck-act-btn" id="btnManualSync" style="flex:1;">지금 즉시 동기화</button>
-      <button class="deck-act-btn" id="btnAuthSignOut" style="flex:1;color:var(--c-red);">로그아웃</button>
+    
+    <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;margin:12px 0;font-size:13px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="color:var(--c-sec);">마지막 동기화:</span>
+      <b style="color:var(--c-label);" id="gistLastSyncTime">방금 전</b>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn-primary" id="btnGistManualSync" style="flex:1;padding:10px;font-size:14px;">지금 즉시 동기화</button>
+      <button class="btn-ghost" id="btnGistDisconnect" style="flex:1;padding:10px;font-size:14px;color:var(--c-red);">연결 해제</button>
     </div>
   </div>
 
-  <div id="authLoggedOutView">
-    <div style="margin:14px 0;">
-      <button class="btn-primary" id="btnGoogleAuth" style="width:100%;padding:11px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;background:#4285F4;border:none;border-radius:12px;">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
-        <span style="color:#fff;font-weight:600;">Google 계정으로 계속하기</span>
-      </button>
+  <!-- 미연결 화면 (토큰 입력) -->
+  <div id="gistDisconnectedView">
+    <div style="background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;line-height:1.5;">
+      <div style="font-weight:700;margin-bottom:4px;color:var(--c-label);">💡 간편 연동 안내</div>
+      <div style="color:var(--c-sec);margin-bottom:10px;">GitHub Personal Access Token (Gist 권한)만 입력하면 별도 설정 없이 개인 비공개 Gist가 자동으로 생성 및 연결됩니다.</div>
+      <a href="https://github.com/settings/tokens/new?scopes=gist&description=MemoryCardsWeb-Sync" target="_blank" rel="noopener noreferrer" class="btn-ghost" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;font-weight:600;background:var(--c-fill);color:var(--c-blue);">
+        <span>GitHub에서 토큰 발급받기 ↗</span>
+      </a>
     </div>
 
-    <div style="display:flex;align-items:center;margin:16px 0;gap:10px;">
-      <div style="flex:1;height:1px;background:var(--c-sep);"></div>
-      <span style="font-size:12px;color:var(--c-sec);">또는 이메일 로그인</span>
-      <div style="flex:1;height:1px;background:var(--c-sep);"></div>
+    <div class="field" style="margin-bottom:12px;">
+      <label style="font-weight:700;margin-bottom:6px;display:block;">GitHub 토큰 (Personal Access Token)</label>
+      <input id="gistTokenInput" type="password" placeholder="ghp_... 또는 github_pat_..." autocomplete="off" style="width:100%;padding:10px 12px;border-radius:12px;background:var(--c-fill);color:var(--c-label);border:1px solid var(--line);font-size:14px;outline:none;">
     </div>
+    
+    <details style="margin-bottom:14px;font-size:13px;color:var(--c-sec);">
+      <summary style="cursor:pointer;padding:4px 0;user-select:none;">기존 Gist ID 직접 지정 (선택)</summary>
+      <div class="field" style="margin-top:8px;">
+        <input id="gistCustomIdInput" type="text" placeholder="Gist ID를 직접 입력할 경우에만 기입" autocomplete="off" style="width:100%;padding:8px 12px;border-radius:10px;background:var(--c-fill);color:var(--c-label);border:1px solid var(--line);font-size:13px;outline:none;">
+      </div>
+    </details>
 
-    <div class="field"><label>이메일</label><input id="authEmail" type="email" placeholder="example@email.com" autocomplete="email"></div>
-    <div class="field"><label>비밀번호</label><input id="authPassword" type="password" placeholder="6자리 이상 비밀번호" autocomplete="current-password"></div>
-    <div class="desc" id="authErrorMsg" style="color:var(--c-red);display:none;margin-top:4px;"></div>
+    <div class="desc" id="gistAuthErrMsg" style="color:var(--c-red);display:none;margin-bottom:12px;font-size:13px;"></div>
 
-    <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn-primary" id="btnEmailSignIn" style="flex:1;">로그인</button>
-      <button class="btn-ghost" id="btnEmailSignUp" style="flex:1;">회원가입</button>
-    </div>
+    <button class="btn-primary" id="btnConnectGist" style="width:100%;padding:12px;font-size:15px;font-weight:700;border-radius:12px;">동기화 연결하기</button>
   </div>
 
-  <div class="btn-row" style="margin-top:20px;"><button class="btn-ghost" id="authModalClose">닫기</button></div>
+  <div class="btn-row" style="margin-top:16px;"><button class="btn-ghost" id="authModalClose">닫기</button></div>
 </div></div>
 
 <!-- 새 덱 만들기 모달 -->
@@ -17949,91 +17967,419 @@ function initCardBrowserFilters(){
   }
 }
 
-// 9. 사용자 인증 (Supabase Auth & Multi-User)
-async function initAuthSystem(){
-  if(!sbClient) return;
+/* ═══════════════ GitHub Gist 기반 기기간 자동 동기화 엔진 ═══════════════ */
+const GIST_SYNC_FILENAME = 'anki_fsrs_sync_data.json';
+const GIST_CONFIG_KEY = 'mc_gist_sync_config';
 
+function getGistConfig(){
   try {
-    const { data: { session } } = await sbClient.auth.getSession();
-    updateUserAuthUI(session ? session.user : null);
-    sbClient.auth.onAuthStateChange((_event, session) => {
-      updateUserAuthUI(session ? session.user : null);
-    });
-  } catch(e){}
-
-  if($('btnUserAccount')) $('btnUserAccount').onclick = () => $('ovlAuth').classList.add('show');
-  if($('authModalClose')) $('authModalClose').onclick = () => $('ovlAuth').classList.remove('show');
-
-  if($('btnGoogleAuth')) $('btnGoogleAuth').onclick = async () => {
-    await sbClient.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + window.location.pathname }
-    });
-  };
-
-  if($('btnEmailSignIn')) $('btnEmailSignIn').onclick = async () => {
-    const email = $('authEmail').value.trim();
-    const password = $('authPassword').value;
-    if(!email || !password){ showAuthErr('이메일과 비밀번호를 입력해주세요'); return; }
-    try {
-      const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
-      if(error) showAuthErr(error.message);
-      else { $('ovlAuth').classList.remove('show'); toast('로그인되었습니다'); }
-    } catch(e){ showAuthErr(e.message); }
-  };
-
-  if($('btnEmailSignUp')) $('btnEmailSignUp').onclick = async () => {
-    const email = $('authEmail').value.trim();
-    const password = $('authPassword').value;
-    if(!email || password.length < 6){ showAuthErr('6자리 이상의 비밀번호를 입력해주세요'); return; }
-    try {
-      const { data, error } = await sbClient.auth.signUp({ email, password });
-      if(error) showAuthErr(error.message);
-      else { toast('회원가입 확인 메일을 보냈어요. 메일함을 확인해주세요.'); }
-    } catch(e){ showAuthErr(e.message); }
-  };
-
-  if($('btnAuthSignOut')) $('btnAuthSignOut').onclick = async () => {
-    await sbClient.auth.signOut();
-    toast('로그아웃되었습니다');
-    $('ovlAuth').classList.remove('show');
-  };
-
-  if($('btnManualSync')) $('btnManualSync').onclick = async () => {
-    await syncFromSupabase();
-    toast('클라우드 동기화가 완료되었습니다');
-  };
-
-  function showAuthErr(msg){
-    const el = $('authErrorMsg');
-    if(el){ el.style.display = 'block'; el.textContent = msg; }
+    const raw = lsGet(GIST_CONFIG_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e){
+    return null;
   }
 }
 
-function updateUserAuthUI(user){
-  sbUser = user;
-  const badgeLabel = $('accountBadgeLabel');
-  const loggedInView = $('authLoggedInView');
-  const loggedOutView = $('authLoggedOutView');
-  const loggedEmail = $('authLoggedEmail');
+function saveGistConfig(cfg){
+  if(!cfg) lsDel(GIST_CONFIG_KEY);
+  else lsSet(GIST_CONFIG_KEY, JSON.stringify(cfg));
+  updateGistSyncUI();
+}
 
-  if(user){
-    const emailName = user.email.split('@')[0];
-    if(badgeLabel) badgeLabel.textContent = emailName;
-    if(loggedInView) loggedInView.style.display = 'block';
-    if(loggedOutView) loggedOutView.style.display = 'none';
-    if(loggedEmail) loggedEmail.textContent = user.email;
-  } else {
-    if(badgeLabel) badgeLabel.textContent = '게스트';
-    if(loggedInView) loggedInView.style.display = 'none';
-    if(loggedOutView) loggedOutView.style.display = 'block';
+function gistHeaders(token){
+  return {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+
+function buildLocalSyncPayload(){
+  let customCards = [];
+  try {
+    const raw = lsGet(getUserStorageKey('custom_cards')) || '[]';
+    customCards = JSON.parse(raw);
+  } catch(e){}
+
+  return {
+    version: 1,
+    updatedAt: Date.now(),
+    device: (navigator.userAgent && navigator.userAgent.includes('Mobile')) ? 'Mobile' : 'Desktop',
+    decks: Array.isArray(DECKS) ? DECKS : [],
+    cards: Array.isArray(customCards) ? customCards : [],
+    state: {
+      cards: (state && state.cards) ? state.cards : {},
+      log: (state && Array.isArray(state.log)) ? state.log : []
+    }
+  };
+}
+
+function mergeSyncData(remote, local){
+  // 1. Decks merge
+  const deckMap = new Map();
+  (local.decks || []).forEach(d => { if(d && d.id) deckMap.set(d.id, { ...d }); });
+  (remote.decks || []).forEach(rd => {
+    if(!rd || !rd.id) return;
+    if(!deckMap.has(rd.id)) {
+      deckMap.set(rd.id, { ...rd });
+    } else {
+      const ld = deckMap.get(rd.id);
+      const rTime = rd.updatedAt || rd.createdAt || 0;
+      const lTime = ld.updatedAt || ld.createdAt || 0;
+      if(rTime >= lTime) {
+        deckMap.set(rd.id, { ...ld, ...rd, opts: rd.opts || ld.opts });
+      } else {
+        deckMap.set(rd.id, { ...rd, ...ld, opts: ld.opts || rd.opts });
+      }
+    }
+  });
+
+  // 2. Custom cards merge
+  const cardMap = new Map();
+  (local.cards || []).forEach(c => { if(c && c.id) cardMap.set(c.id, { ...c }); });
+  (remote.cards || []).forEach(rc => {
+    if(!rc || !rc.id) return;
+    if(!cardMap.has(rc.id)) {
+      cardMap.set(rc.id, { ...rc });
+    } else {
+      const lc = cardMap.get(rc.id);
+      const rTime = rc.updatedAt || rc.createdAt || 0;
+      const lTime = lc.updatedAt || lc.createdAt || 0;
+      if(rTime >= lTime) {
+        cardMap.set(rc.id, { ...lc, ...rc });
+      }
+    }
+  });
+
+  // 3. State cards merge
+  const mergedStateCards = {};
+  const allCardIds = new Set([
+    ...Object.keys((local.state && local.state.cards) || {}),
+    ...Object.keys((remote.state && remote.state.cards) || {})
+  ]);
+
+  allCardIds.forEach(id => {
+    const ls = (local.state && local.state.cards && local.state.cards[id]) || null;
+    const rs = (remote.state && remote.state.cards && remote.state.cards[id]) || null;
+    if(ls && !rs) {
+      mergedStateCards[id] = { ...ls };
+    } else if(!ls && rs) {
+      mergedStateCards[id] = { ...rs };
+    } else {
+      const lt = ls.t || ls.u || 0;
+      const rt = rs.t || rs.u || 0;
+      if(rt >= lt) {
+        mergedStateCards[id] = { ...ls, ...rs };
+      } else {
+        mergedStateCards[id] = { ...rs, ...ls };
+      }
+    }
+  });
+
+  // 4. Logs merge
+  const logMap = new Map();
+  const addLog = entry => {
+    if(!entry) return;
+    const key = Array.isArray(entry) ? (entry[0] + '_' + entry[1]) : (entry.id + '_' + (entry.t || entry.time || JSON.stringify(entry)));
+    if(!logMap.has(key)) logMap.set(key, entry);
+  };
+  ((local.state && local.state.log) || []).forEach(addLog);
+  ((remote.state && remote.state.log) || []).forEach(addLog);
+
+  const mergedLogs = Array.from(logMap.values()).sort((a,b) => {
+    const ta = Array.isArray(a) ? a[1] : (a.t || a.time || 0);
+    const tb = Array.isArray(b) ? b[1] : (b.t || b.time || 0);
+    return ta - tb;
+  });
+
+  return {
+    version: 1,
+    updatedAt: Date.now(),
+    decks: Array.from(deckMap.values()),
+    cards: Array.from(cardMap.values()),
+    state: {
+      cards: mergedStateCards,
+      log: mergedLogs
+    }
+  };
+}
+
+function applyMergedGistData(merged){
+  if(!merged) return;
+
+  // 1. Decks
+  if(Array.isArray(merged.decks) && merged.decks.length) {
+    DECKS = merged.decks;
+    try { lsSet(getUserStorageKey('decks'), JSON.stringify(DECKS)); } catch(e){}
+    syncDeckDropdowns();
   }
 
-  loadUserDecks();
-  restoreUserCards();
+  // 2. Custom cards
+  if(Array.isArray(merged.cards)) {
+    try { lsSet(getUserStorageKey('custom_cards'), JSON.stringify(merged.cards)); } catch(e){}
+    restoreUserCards();
+  }
+
+  // 3. State (cards & log)
+  if(merged.state) {
+    if(merged.state.cards && typeof merged.state.cards === 'object') {
+      state.cards = Object.assign(state.cards || {}, merged.state.cards);
+    }
+    if(Array.isArray(merged.state.log)) {
+      state.log = merged.state.log;
+    }
+    cacheStateNow();
+    if(typeof setDirty === 'function') setDirty(false);
+  }
+
+  // 4. Update UI
   renderDeckHub();
-  renderTodayAgainSection();
-  if(typeof renderHome === 'function') renderHome();
+  renderHome();
+  if(typeof renderList === 'function') renderList();
+  if(typeof renderStats === 'function') renderStats();
+}
+
+async function findOrCreateGist(token, customGistId){
+  // 1. Verify user token
+  const userRes = await fetch('https://api.github.com/user', {
+    headers: gistHeaders(token),
+    cache: 'no-store'
+  });
+  if(!userRes.ok){
+    if(userRes.status === 401) throw new Error('유효하지 않은 GitHub 토큰입니다. 다시 확인해주세요.');
+    throw new Error(`GitHub 인증 오류 (HTTP ${userRes.status})`);
+  }
+  const user = await userRes.json();
+  const username = user.login;
+
+  // 2. If custom Gist ID given, test it
+  if(customGistId && customGistId.trim()){
+    const gId = customGistId.trim();
+    const gRes = await fetch(`https://api.github.com/gists/${gId}`, {
+      headers: gistHeaders(token),
+      cache: 'no-store'
+    });
+    if(!gRes.ok){
+      throw new Error(`입력한 Gist ID (${gId})를 찾을 수 없거나 접근 권한이 없습니다.`);
+    }
+    return { gistId: gId, username, isNew: false };
+  }
+
+  // 3. Search user's gists
+  const listRes = await fetch('https://api.github.com/gists?per_page=100', {
+    headers: gistHeaders(token),
+    cache: 'no-store'
+  });
+  if(listRes.ok){
+    const gists = await listRes.json();
+    if(Array.isArray(gists)){
+      const existing = gists.find(g => g && g.files && g.files[GIST_SYNC_FILENAME]);
+      if(existing){
+        return { gistId: existing.id, username, isNew: false };
+      }
+    }
+  }
+
+  // 4. Create new secret Gist
+  const localPayload = buildLocalSyncPayload();
+  const createRes = await fetch('https://api.github.com/gists', {
+    method: 'POST',
+    headers: {
+      ...gistHeaders(token),
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      description: 'Memory Cards Web - Anki FSRS Sync Data (Private)',
+      public: false,
+      files: {
+        [GIST_SYNC_FILENAME]: {
+          content: JSON.stringify(localPayload, null, 2)
+        }
+      }
+    })
+  });
+
+  if(!createRes.ok){
+    throw new Error(`비공개 Gist 생성에 실패했습니다 (HTTP ${createRes.status}). 토큰에 'gist' 권한이 있는지 확인해주세요.`);
+  }
+
+  const created = await createRes.json();
+  return { gistId: created.id, username, isNew: true };
+}
+
+async function fetchRemoteGistData(token, gistId){
+  const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+    headers: gistHeaders(token),
+    cache: 'no-store'
+  });
+  if(!res.ok) throw new Error(`Gist 데이터를 불러오지 못했습니다 (HTTP ${res.status})`);
+  const gist = await res.json();
+  const file = gist.files && gist.files[GIST_SYNC_FILENAME];
+  if(!file) return null;
+
+  let content = file.content;
+  if(file.truncated && file.raw_url){
+    const rawRes = await fetch(file.raw_url, { cache: 'no-store' });
+    content = await rawRes.text();
+  }
+
+  if(!content || !content.trim()) return null;
+  try {
+    return JSON.parse(content);
+  } catch(e){
+    return null;
+  }
+}
+
+async function pushGistData(token, gistId, payload){
+  const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+    method: 'PATCH',
+    headers: {
+      ...gistHeaders(token),
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      description: 'Memory Cards Web - Anki FSRS Sync Data (Private)',
+      files: {
+        [GIST_SYNC_FILENAME]: {
+          content: JSON.stringify(payload, null, 2)
+        }
+      }
+    })
+  });
+  if(!res.ok) throw new Error(`Gist 동기화 데이터 업로드 실패 (HTTP ${res.status})`);
+  return await res.json();
+}
+
+let isGistSyncing = false;
+let gistAutoSyncTimer = null;
+let lastGistPullTime = 0;
+
+async function executeGistSync(isManual = false){
+  const cfg = getGistConfig();
+  if(!cfg || !cfg.token || !cfg.gistId){
+    if(isManual) toast('먼저 GitHub 토큰을 연결해주세요');
+    return false;
+  }
+
+  if(isGistSyncing) return false;
+  isGistSyncing = true;
+  setSyncStatusUI('syncing');
+
+  try {
+    const remote = await fetchRemoteGistData(cfg.token, cfg.gistId);
+    const local = buildLocalSyncPayload();
+
+    let finalPayload;
+    if(remote){
+      finalPayload = mergeSyncData(remote, local);
+    } else {
+      finalPayload = local;
+    }
+
+    applyMergedGistData(finalPayload);
+
+    finalPayload.updatedAt = Date.now();
+    await pushGistData(cfg.token, cfg.gistId, finalPayload);
+
+    cfg.lastSyncAt = Date.now();
+    saveGistConfig(cfg);
+
+    setSyncStatusUI('synced');
+    if(isManual) toast('기기간 클라우드 동기화가 완료되었습니다 ☁️');
+    return true;
+  } catch(err) {
+    console.error('[Gist Sync Error]', err);
+    setSyncStatusUI('error', err.message);
+    if(isManual) toast(`동기화 실패: ${err.message || '네트워크 오류'}`);
+    return false;
+  } finally {
+    isGistSyncing = false;
+    lastGistPullTime = Date.now();
+  }
+}
+
+function scheduleGistAutoSync(delay = 3000){
+  const cfg = getGistConfig();
+  if(!cfg || !cfg.token || !cfg.gistId) return;
+
+  if(gistAutoSyncTimer) clearTimeout(gistAutoSyncTimer);
+  gistAutoSyncTimer = setTimeout(() => {
+    gistAutoSyncTimer = null;
+    executeGistSync(false);
+  }, delay);
+}
+
+function setSyncStatusUI(status, err){
+  const badgeLabel = $('accountBadgeLabel');
+  const badgeIcon = $('accountBadgeIcon');
+  const statusBadge = $('syncStatusBadge');
+  const stateBadge = $('gistSyncStateBadge');
+  const cfg = getGistConfig();
+
+  if(status === 'syncing'){
+    if(badgeIcon) badgeIcon.textContent = '🔄';
+    if(badgeLabel) badgeLabel.textContent = '동기화 중...';
+    if(stateBadge) { stateBadge.textContent = '동기화 중'; stateBadge.className = 'ac-badge ac-due'; }
+    return;
+  }
+
+  if(cfg && cfg.token && cfg.gistId){
+    if(badgeIcon) badgeIcon.textContent = '☁️';
+    if(badgeLabel) badgeLabel.textContent = cfg.username || '동기화됨';
+    if(statusBadge) { statusBadge.textContent = 'Gist 연동'; statusBadge.className = 'ac-badge ac-new'; }
+    if(stateBadge) {
+      if(status === 'error'){
+        stateBadge.textContent = '오류 발생';
+        stateBadge.className = 'ac-badge ac-again';
+      } else {
+        stateBadge.textContent = '동기화 켜짐';
+        stateBadge.className = 'ac-badge ac-due';
+      }
+    }
+  } else {
+    if(badgeIcon) badgeIcon.textContent = '☁️';
+    if(badgeLabel) badgeLabel.textContent = '로컬 전용';
+    if(statusBadge) { statusBadge.textContent = '로컬 전용'; statusBadge.className = 'ac-badge ac-new'; }
+  }
+}
+
+function updateGistSyncUI(){
+  const cfg = getGistConfig();
+  const connView = $('gistConnectedView');
+  const disconnView = $('gistDisconnectedView');
+
+  if(cfg && cfg.token && cfg.gistId){
+    if(connView) connView.style.display = 'block';
+    if(disconnView) disconnView.style.display = 'none';
+    if($('gistUserLabel')) $('gistUserLabel').textContent = `${cfg.username} 계정 연결됨`;
+    if($('gistIdLabel')) $('gistIdLabel').textContent = `Gist ID: ${cfg.gistId.slice(0, 12)}...`;
+    if($('gistLastSyncTime')) $('gistLastSyncTime').textContent = formatRelativeSyncTime(cfg.lastSyncAt);
+  } else {
+    if(connView) connView.style.display = 'none';
+    if(disconnView) disconnView.style.display = 'block';
+    if($('gistTokenInput')) $('gistTokenInput').value = '';
+    if($('gistCustomIdInput')) $('gistCustomIdInput').value = '';
+    if($('gistAuthErrMsg')) { $('gistAuthErrMsg').style.display = 'none'; $('gistAuthErrMsg').textContent = ''; }
+  }
+  setSyncStatusUI('idle');
+}
+
+function formatRelativeSyncTime(ts){
+  if(!ts) return '동기화 기록 없음';
+  const diffSec = Math.floor((Date.now() - ts) / 1000);
+  if(diffSec < 10) return '방금 전';
+  if(diffSec < 60) return `${diffSec}초 전`;
+  const diffMin = Math.floor(diffSec / 60);
+  if(diffMin < 60) return `${diffMin}분 전`;
+  const diffHour = Math.floor(diffMin / 60);
+  if(diffHour < 24) return `${diffHour}시간 전`;
+  const d = new Date(ts);
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const hr = d.getHours() < 10 ? '0' + d.getHours() : d.getHours();
+  const min = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes();
+  return `${m}월 ${day}일 ${hr}:${min}`;
 }
 
 function restoreUserCards(){
@@ -18047,11 +18393,11 @@ function restoreUserCards(){
           DATA.push(c);
           BYID[c.id] = c;
         } else {
+          Object.assign(BYID[c.id], c);
           normalizeCard(BYID[c.id]);
         }
         if(c.subj && !SUBJECTS.includes(c.subj)) SUBJECTS.push(c.subj);
       });
-      // 저장소의 카드들도 front/back이 채워진 온전한 형태로 자동 마이그레이션 저장
       lsSet(getUserStorageKey('custom_cards'), JSON.stringify(custom));
     }
   } catch(e){}
@@ -18060,21 +18406,125 @@ function restoreUserCards(){
   }
 }
 
-async function syncFromSupabase(){
-  if(!sbUser || !sbClient) return;
-  try {
-    const { data } = await sbClient.from('card_reviews').select('*').eq('user_id', sbUser.id);
-    if(data && data.length){
-      data.forEach(row => {
-        if(!state.cards[row.card_id]) state.cards[row.card_id] = {};
-        const s = state.cards[row.card_id];
-        if(row.last_review) s.t = row.last_review;
-      });
-      cacheState();
-      if(typeof renderHome === 'function') renderHome();
+function initGistSyncSystem(){
+  updateGistSyncUI();
+
+  if($('btnUserAccount')) $('btnUserAccount').onclick = () => {
+    updateGistSyncUI();
+    if($('ovlAuth')) $('ovlAuth').classList.add('show');
+  };
+  if($('authModalClose')) $('authModalClose').onclick = () => {
+    if($('ovlAuth')) $('ovlAuth').classList.remove('show');
+  };
+
+  if($('btnConnectGist')){
+    $('btnConnectGist').onclick = async () => {
+      const token = $('gistTokenInput') ? $('gistTokenInput').value.trim() : '';
+      const customId = $('gistCustomIdInput') ? $('gistCustomIdInput').value.trim() : '';
+      const errEl = $('gistAuthErrMsg');
+      if(errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+
+      if(!token){
+        if(errEl){ errEl.textContent = 'GitHub 토큰을 입력해주세요.'; errEl.style.display = 'block'; }
+        return;
+      }
+
+      const btn = $('btnConnectGist');
+      btn.disabled = true;
+      btn.textContent = 'Gist 연동 확인 중...';
+
+      try {
+        const { gistId, username, isNew } = await findOrCreateGist(token, customId);
+        const cfg = { token, gistId, username, lastSyncAt: Date.now() };
+        saveGistConfig(cfg);
+
+        // 최초 연결 시 자동 양방향 최초 병합 실행
+        btn.textContent = '초기 데이터 병합 중...';
+        await executeGistSync(false);
+
+        toast(isNew ? `'${username}'님의 새 비공개 Gist가 생성되어 연결되었습니다 ☁️` : `'${username}'님의 기존 Gist가 감지되어 동기화 연결되었습니다 ☁️`);
+        updateGistSyncUI();
+      } catch(err) {
+        if(errEl){
+          errEl.textContent = err.message || 'GitHub Gist 연결에 실패했습니다.';
+          errEl.style.display = 'block';
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '동기화 연결하기';
+      }
+    };
+  }
+
+  if($('btnGistManualSync')){
+    $('btnGistManualSync').onclick = async () => {
+      const btn = $('btnGistManualSync');
+      btn.disabled = true;
+      btn.textContent = '동기화 진행 중...';
+      try {
+        await executeGistSync(true);
+        updateGistSyncUI();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '지금 즉시 동기화';
+      }
+    };
+  }
+
+  if($('btnGistDisconnect')){
+    $('btnGistDisconnect').onclick = () => {
+      if(!confirm('클라우드 동기화 연결을 해제할까요? (로컬에 저장된 카드와 학습 기록은 유지됩니다)')) return;
+      saveGistConfig(null);
+      toast('동기화 연결이 해제되었습니다 (로컬 전용 모드)');
+      updateGistSyncUI();
+    };
+  }
+
+  // 창 포커스 및 탭 복귀 시 자동 풀 (30초 주기)
+  window.addEventListener('focus', () => {
+    const cfg = getGistConfig();
+    if(cfg && cfg.token && cfg.gistId && Date.now() - lastGistPullTime > 30000){
+      lastGistPullTime = Date.now();
+      executeGistSync(false);
     }
-  } catch(e){}
+  });
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible'){
+      const cfg = getGistConfig();
+      if(cfg && cfg.token && cfg.gistId && Date.now() - lastGistPullTime > 30000){
+        lastGistPullTime = Date.now();
+        executeGistSync(false);
+      }
+    }
+  });
+
+  // setDirty 후킹: 변경사항 발생 시 3초 후 자동 백그라운드 푸시
+  if(typeof setDirty === 'function'){
+    const _origSetDirty = setDirty;
+    setDirty = function(v){
+      const r = _origSetDirty.apply(this, arguments);
+      if(v) scheduleGistAutoSync(3000);
+      return r;
+    };
+  }
+
+  // saveUserDecks 후킹: 덱 생성·수정 시 자동 백그라운드 푸시
+  if(typeof saveUserDecks === 'function'){
+    const _origSaveUserDecks = saveUserDecks;
+    saveUserDecks = function(){
+      const r = _origSaveUserDecks.apply(this, arguments);
+      scheduleGistAutoSync(3000);
+      return r;
+    };
+  }
+
+  // 앱 로드시 연결된 상태면 조용히 최신 데이터 가져오기
+  const cfg = getGistConfig();
+  if(cfg && cfg.token && cfg.gistId){
+    setTimeout(() => { executeGistSync(false); }, 1200);
+  }
 }
+const initAuthSystem = initGistSyncSystem;
 
 // renderHome 확장: 덱 허브와 오늘 오답 섹션을 항상 함께 갱신
 {
@@ -18124,7 +18574,7 @@ function initApp(){
     }
   } catch(e){}
 
-  try { initAuthSystem(); } catch(e){}
+  try { initGistSyncSystem(); } catch(e){}
   try { initUniversalImporter(); } catch(e){}
   try { initCardBrowserFilters(); } catch(e){}
   try { renderDeckHub(); } catch(e){}
