@@ -1830,6 +1830,10 @@ input,select{border-radius:10px;}
 .chart .col .rest-l{font-size:10px;color:var(--c-sec);white-space:nowrap;line-height:12px;margin-bottom:2px;}
 .cap-line{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--c-sec);opacity:.8;pointer-events:none;}
 .cap-line span{position:absolute;right:0;top:3px;font-size:11px;color:var(--c-sec);background:var(--c-card);padding:0 2px;line-height:14px;}
+.cum-seg{display:inline-flex;background:var(--c-fill);padding:3px;border-radius:10px;gap:2px;}
+.cum-tab{padding:5px 12px;font-size:12px;font-weight:600;border-radius:8px;border:none;background:transparent;color:var(--c-sec);cursor:pointer;transition:all .15s ease;}
+.cum-tab:hover{color:var(--c-label);}
+.cum-tab.on{background:var(--c-card);color:var(--c-label);box-shadow:0 1px 3px rgba(0,0,0,.08);}
 
 
 /* ═══════════════ 디자인 이식 E(2) — 세션 화면 (캔버스 「세션」 판) ═══════════════ */
@@ -2687,7 +2691,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
               <tr><td>그날 첫 채점만</td><td>같은 카드를 하루에 여러 번 매겨도 <b>첫 번째만</b> 복습일에 반영돼요. 같은 날 반복은 안정도를 왜곡해서요</td></tr>
               <tr><td>그날은 한 번만</td><td>한 번 매긴 카드는 그날 다시 안 나와요. 「다시」를 눌러도 마찬가지 — 다음 복습일에 만나요</td></tr>
               <tr><td>하루 경계 새벽 4시</td><td>밤 12시를 넘겨 푼 것도 <b>그 전날</b>로 칩니다</td></tr>
-              <tr><td>시험일 상한</td><td>복습일이 <b>2026-11-07</b>을 넘지 않아요. 시험 뒤로 밀린 카드는 의미가 없으니까요</td></tr>
+              <tr><td>간격 점진 증가</td><td>복습을 거듭할수록 복습 간격이 점진적으로 늘어나 장기 기억에 정착돼요</td></tr>
             </table>
             <p><b>풀이 화면 맨 위 한 줄</b>이 그 카드가 왜 지금 나왔는지 말해줘요 —
             「다음 진도 — 미술 · 감상」 / 「8/19 채점 · 오늘이 복습일」 / 「복습일 8/18 — 2일 지남」.</p>
@@ -3109,7 +3113,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
     <div class="rng-ends"><span>넓게 85%</span><span>촘촘히 98%</span></div>
     <button class="act-btn" id="focusPick" style="margin-top:10px"><span>집중 암기 카드 고르기</span><small id="focusPickSub"></small></button>
   </div>
-  <div class="field"><label>시험날 기억 목표</label>
+  <div class="field"><label>장기 기억 목표 유지율</label>
     <div class="rng-row"><span class="rng-v" id="xretVal">95%</span><span class="desc" id="xretLoad"></span></div>
     <input class="rng" id="xretRange" type="range" min="88" max="99" step="any" value="95">
     <div class="rng-ends"><span>느슨히 88%</span><span>빡빡히 99%</span></div>
@@ -13865,7 +13869,11 @@ function newExhaust(){             // 신규가 며칠에 바닥나나 — 「�
   const rate = v.length ? median(v) : (intake.cap||130);   // 중앙값 — 위와 같은 이유(버스트 투입일이 평균을 왜곡)
   return {left, rate, days: rate? Math.ceil(left/rate) : null};
 }
-function dDay(){ return Math.round((Date.parse(EXAM_DAY+'T12:00:00+09:00')-Date.now())/86400000); }
+function dDay(){
+  if(!EXAM_DAY) return null;
+  const d = Math.round((Date.parse(EXAM_DAY+'T12:00:00+09:00')-Date.now())/86400000);
+  return isNaN(d) ? null : d;
+}
 /* 🔴 **기억 총량** (감사 A8 · 안키의 estimated total knowledge).
    카드마다 「지금 떠올릴 수 있을 확률(R)」을 더한 값 = **「지금 몇 장을 기억하고 있는 셈인가」**.
    시험 준비의 최종 지표에 가장 가깝다 — 「몇 장 봤나」도 「몇 장이 굳었나」도 아닌 **지금 상태**다.
@@ -13956,21 +13964,27 @@ function statInputs(){
 function maturityHistory(){
   const cards={}, seen=new Set(), out=[]; let cur=null;
   const alive=DATA.filter(c=>{ const s=state.cards[c.id]; return !(s&&s.retired); }).length;
+  let cumReviews=0;
   const snap=k=>{ let hard=0; for(const id in cards){ const f=cards[id].fsrs; if(f&&(f.scheduled_days||0)>=MATURE_IVL) hard++; }
-    out.push({k, hard, soft:seen.size-hard, unseen:Math.max(0, alive-seen.size)}); };
+    out.push({k, hard, soft:seen.size-hard, unseen:Math.max(0, alive-seen.size), cumCards:seen.size, cumReviews}); };
   for(const e of state.log){
+    cumReviews++;
     const k=dayKey(logDate(e));
     if(cur!==null && k!==cur){ snap(cur); /* 빈 날은 앞 값을 그대로 잇는다 */
-      for(let g=dkAdd(cur,1); g<k; g=dkAdd(g,1)){ const p=out[out.length-1]; out.push({k:g, hard:p.hard, soft:p.soft, unseen:p.unseen}); } }
+      for(let g=dkAdd(cur,1); g<k; g=dkAdd(g,1)){ const p=out[out.length-1]; out.push({k:g, hard:p.hard, soft:p.soft, unseen:p.unseen, cumCards:p.cumCards, cumReviews:p.cumReviews}); } }
     cur=k;
     if(!BYID[e[0]]) continue;
     const sx=cards[e[0]]||(cards[e[0]]={fsrs:null,miss:0,d:''});
     seen.add(e[0]); applyLogEntry(sx,e);
   }
   if(cur!==null) snap(cur);
+  if(!out.length && alive){
+    const M=maturitySplit();
+    out.push({k:todayKey(), hard:M.mature, soft:M.young, unseen:M.nw, cumCards:alive-M.nw, cumReviews:cumReviews});
+  }
   return out;
 }
-/* 예측 구간 — 하루 진행 한 번. 반환 = 날짜별 {hard,soft,unseen} + 시험일 K + 신규 소진일 */
+/* 예측 구간 — 하루 진행 한 번. 반환 = 날짜별 {hard,soft,unseen} + 완료일 K + 신규 소진일 */
 function simOnce(inp, newPerDay, seed){
   const eng=simEngine(), rnd=mulberry32(seed), cards=[]; let unseen=0, simId=0;
   for(const c of DATA){ const s=state.cards[c.id];
@@ -13981,7 +13995,8 @@ function simOnce(inp, newPerDay, seed){
   const step=(c,now,p)=>{ const rating = rnd()<p ? grade() : RATING[1];
     const nc=eng.for(c.id).next(c.f, now, rating).card; nc.due=clampDue(nc.due, c.id, nc); c.f=nc; };   // 시뮬 신규(sim*)는 각론 엔진
   const out=[]; let doneKey=null;
-  for(let k=dkAdd(todayKey(),1); k<=EXAM_DAY; k=dkAdd(k,1)){
+  const simEnd = (EXAM_DAY && EXAM_DAY > todayKey()) ? EXAM_DAY : dkAdd(todayKey(), 60);
+  for(let k=dkAdd(todayKey(),1); k<=simEnd; k=dkAdd(k,1)){
     if(!isRestDay(k)){
       const now=new Date(k+'T12:00:00+09:00');
       const due=[]; for(const c of cards){ if(dayKey(c.f.due)<=k) due.push(c); }
@@ -13996,7 +14011,7 @@ function simOnce(inp, newPerDay, seed){
     let hard=0; for(const c of cards) if((c.f.scheduled_days||0)>=MATURE_IVL) hard++;
     out.push({k, hard, soft:cards.length-hard, unseen});
   }
-  const ex=new Date(EXAM_DAY+'T12:00:00+09:00'); let K=0;
+  const ex=new Date(simEnd+'T12:00:00+09:00'); let K=0;
   for(const c of cards){ try{ K+=eng.get_retrievability(c.f, ex, false); }catch(e){} }
   return {days:out, K:Math.round(K), doneKey};
 }
@@ -14008,7 +14023,7 @@ function simTrajectory(inp, newPerDay, seeds){
     unseen:Math.round(runs.reduce((a,r)=>a+r.days[i].unseen,0)/runs.length) }));
   return { days, K:Math.round(runs.reduce((a,r)=>a+r.K,0)/runs.length), doneKey:runs[0].doneKey };
 }
-/* ═══ 궤적 그림 — 누적 면적 3층(굳음/무름/안 나옴) · 실측 실선 + 예측 옅게 + 시험일 선 ═══ */
+/* ═══ 궤적 그림 — 누적 면적 3층(숙련/학습 중/미학습) · 실측 실선 + 예측 옅게 ═══ */
 function trajChart(hist, pred, zero){
   const W=680, H=170, PADB=16;
   const all=[...hist, ...pred];
@@ -14033,7 +14048,7 @@ function trajChart(hist, pred, zero){
     g+='<polygon points="'+band(0,nH,L2[0],L2[1])+'" fill="'+L2[2]+'" opacity="'+L2[3]+'"/>';
     if(pred.length) g+='<polygon points="'+band(nH-1,L,L2[0],L2[1])+'" fill="'+L2[2]+'" opacity="'+(L2[3]*0.55).toFixed(2)+'"/>';
   }
-  // 무름 위 경계선 — 층이 읽히게
+  // 학습 중 위 경계선 — 층이 읽히게
   const softTop=(from,to)=>all.slice(from,to).map((d,i)=>x(from+i).toFixed(1)+','+y(d.hard+d.soft).toFixed(1)).join(' ');
   g+='<polyline points="'+softTop(0,nH)+'" fill="none" stroke="var(--hard)" stroke-width="1.2" opacity=".7"/>';
   if(pred.length) g+='<polyline points="'+softTop(nH-1,L)+'" fill="none" stroke="var(--hard)" stroke-width="1.2" opacity=".5" stroke-dasharray="4 4"/>';
@@ -14046,14 +14061,79 @@ function trajChart(hist, pred, zero){
       +'" fill="none" stroke="var(--mute)" stroke-width="1.5" stroke-dasharray="2 4"/>';
   }
   g+='<line x1="'+x(nH-1).toFixed(1)+'" y1="0" x2="'+x(nH-1).toFixed(1)+'" y2="'+(H-PADB)+'" stroke="var(--line)" stroke-width="1"/>';
-  g+='<line x1="'+W+'" y1="0" x2="'+W+'" y2="'+(H-PADB)+'" stroke="var(--again)" stroke-width="1.5"/>';
-  /* 축 글자는 SVG 밖(HTML) — 늘이기로 글자가 눌렸다(아이폰 0.49배 · UI 리뷰 🟠 · 위 「글자는 SVG 안에 두지 마라」 원칙) */
+  if(pred.length){
+    const hasExam = (EXAM_DAY && EXAM_DAY > todayKey());
+    g+='<line x1="'+W+'" y1="0" x2="'+W+'" y2="'+(H-PADB)+'" stroke="'+(hasExam?'var(--again)':'var(--line)')+'" stroke-width="1.5"'+(hasExam?'':' stroke-dasharray="3 3"')+'/>';
+  }
+  /* 축 글자는 SVG 밖(HTML) */
   const lab=(i,t,anc)=>{ const pc=(Math.min(W-2,Math.max(2,x(i)))/W*100).toFixed(2); const tr=anc==='start'?'0':anc==='end'?'-100%':'-50%';
     return '<span style="position:absolute;bottom:2px;left:'+pc+'%;transform:translateX('+tr+');font-size:10.5px;color:var(--mute);white-space:nowrap">'+t+'</span>'; };
   const k0=all[0].k.slice(5).replace('-','/');
+  const endLab = (EXAM_DAY && EXAM_DAY > todayKey()) ? '목표일' : (pred.length ? '+60일' : '오늘');
   return '<div style="position:relative"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="width:100%;height:'+H+'px;display:block">'+g+'</svg>'
-    +lab(0, k0, 'start')+lab(nH-1,'오늘','middle')+lab(L-1,'시험','end')+'</div>';
+    +lab(0, k0, 'start')+lab(nH-1,'오늘','middle')+(pred.length?lab(L-1, endLab, 'end'):'')+'</div>';
 }
+
+/* ═══ 누적 복습량 곡선 (Anki Cumulative Reviews & Daily Volume) ═══ */
+function cumReviewsChart(hist, by){
+  const W=680, H=170, PADB=16;
+  if(!hist || !hist.length) return '<div class="empty-note" style="padding:40px 0">복습 기록이 쌓이면 누적 곡선이 표시됩니다</div>';
+  const totalCum = (hist[hist.length-1].cumReviews) || (state.log ? state.log.length : 0);
+  if(totalCum === 0){
+    return '<div class="empty-note" style="padding:40px 0">아직 완료된 복습이 없습니다</div>';
+  }
+  const maxCum = Math.max(1, totalCum);
+  const dailies = hist.map(d => (by[d.k] ? (by[d.k].n || by[d.k].cards || 0) : 0));
+  const maxDaily = Math.max(1, ...dailies);
+  const x = i => i / (hist.length - 1 || 1) * W;
+  const yCum = v => (H - PADB) - (v / maxCum) * (H - PADB - 16);
+  const yDaily = v => (H - PADB) - (v / maxDaily) * (H - PADB - 45);
+
+  let g = '';
+  const barW = Math.max(2, Math.min(14, (W / hist.length) - 1));
+  hist.forEach((d, i) => {
+    const dv = dailies[i];
+    if(dv > 0){
+      const bx = x(i) - barW / 2;
+      const byPos = yDaily(dv);
+      const bh = (H - PADB) - byPos;
+      g += '<rect x="'+bx.toFixed(1)+'" y="'+byPos.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="var(--c-acc)" opacity="0.22" rx="1"><title>'+d.k+' · 당일 '+dv.toLocaleString()+'회</title></rect>';
+    }
+  });
+
+  const pts = hist.map((d, i) => x(i).toFixed(1)+','+yCum(d.cumReviews||0).toFixed(1));
+  const areaPts = ['0,'+(H - PADB), ...pts, W+','+(H - PADB)].join(' ');
+  g += '<polygon points="'+areaPts+'" fill="var(--c-acc)" opacity="0.08"/>';
+  g += '<polyline points="'+pts.join(' ')+'" fill="none" stroke="var(--c-acc)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+
+  const lastX = x(hist.length - 1).toFixed(1);
+  const lastY = yCum(totalCum).toFixed(1);
+  g += '<circle cx="'+lastX+'" cy="'+lastY+'" r="4.5" fill="var(--c-acc)"/>';
+  g += '<circle cx="'+lastX+'" cy="'+lastY+'" r="8" fill="none" stroke="var(--c-acc)" opacity="0.35"/>';
+  g += '<line x1="0" y1="'+lastY+'" x2="'+W+'" y2="'+lastY+'" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 3"/>';
+
+  const lab = (i, t, anc) => {
+    const pc = (Math.min(W - 2, Math.max(2, x(i))) / W * 100).toFixed(2);
+    const tr = anc === 'start' ? '0' : anc === 'end' ? '-100%' : '-50%';
+    return '<span style="position:absolute;bottom:2px;left:'+pc+'%;transform:translateX('+tr+');font-size:10.5px;color:var(--mute);white-space:nowrap">'+t+'</span>';
+  };
+  const k0 = hist[0].k.slice(5).replace('-', '/');
+  return '<div style="position:relative"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="width:100%;height:'+H+'px;display:block">'+g+'</svg>'
+    + lab(0, k0, 'start')
+    + lab(hist.length - 1, '오늘 (누적 ' + totalCum.toLocaleString() + '회)', 'end')
+    + '</div>';
+}
+
+window.cumView = 'cards';
+window.setCumView = function(view){
+  window.cumView = view;
+  const bCards = $('btnCumCards'), bReviews = $('btnCumReviews');
+  const vCards = $('cumViewCards'), vReviews = $('cumViewReviews');
+  if(bCards) bCards.classList.toggle('on', view === 'cards');
+  if(bReviews) bReviews.classList.toggle('on', view === 'reviews');
+  if(vCards) vCards.style.display = view === 'cards' ? 'block' : 'none';
+  if(vReviews) vReviews.style.display = view === 'reviews' ? 'block' : 'none';
+};
 /* 궤적은 무겁다(시뮬 ≈1.4초) — 통계를 열 때마다 다시 돌리지 않는다.
    🔴 렌더 경로에 전수 계산을 넣으면 화면이 죽는다(09-06 F2-1 회귀에서 배운 것). */
 let TRAJ=null, TRAJ_KEY='', TRAJ_BUSY=false;
@@ -14186,7 +14266,7 @@ function statSignals(){
    단계 문턱 = 푼 날들의 4분위(날마다 양이 크게 달라 고정 문턱이면 다 같은 색이 된다). 칸을 누르면 아래 줄에 그날 내역. */
 let hmSel=null;
 function heatmapHtml(by, T){
-  const tk=todayKey(), endKey=EXAM_DAY>tk?EXAM_DAY:tk;
+  const tk=todayKey(), endKey=(EXAM_DAY && EXAM_DAY>tk)?EXAM_DAY:tk;
   const days=Object.keys(by).filter(k=>by[k].cards>0).sort();
   let startKey=days.length?days[0]:tk; const minKey=dkAdd(tk,-7*26); if(startKey<minKey) startKey=minKey;   // 최대 26주 뒤로
   const dow=k=>(new Date(k+'T12:00:00').getDay()+6)%7;   // 월=0 … 일=6
@@ -14200,7 +14280,7 @@ function heatmapHtml(by, T){
     if(dow(k)===0){ const m=Number(k.slice(5,7)); months+=`<span>${m!==Number(lastMon)?m+'월':''}</span>`; if(m!==Number(lastMon)) lastMon=String(m); col++; }
     const e=by[k], v=e?e.cards:0, fut=k>tk, cls=['hm-c'];
     if(fut) cls.push('fut'); else if(!v && isRestDay(k)) cls.push('rest'); else cls.push('l'+lvl(v));
-    if(k===tk) cls.push('today'); if(k===EXAM_DAY) cls.push('exam'); if(hmSel===k) cls.push('sel');
+    if(k===tk) cls.push('today'); if(EXAM_DAY && k===EXAM_DAY) cls.push('exam'); if(hmSel===k) cls.push('sel');
     cells+=`<i class="${cls.join(' ')}" data-k="${k}"></i>`;
     k=dkAdd(k,1); }
   /* 요약 — 연속(쉬는 날은 끊지 않음 · 오늘 아직 0이면 어제까지) · 최근 7일 평균(푼 날 기준 아님 = 달력 7일) · 최다 */
@@ -14210,19 +14290,26 @@ function heatmapHtml(by, T){
   let w7=0; for(let i=0;i<7;i++){ const d=dkAdd(tk,-i); w7+=by[d]?by[d].cards:0; }
   let best=null; for(const d of days) if(d<=tk && (!best||by[d].cards>by[best].cards)) best=d;
   const md=d=>Number(d.slice(5,7))+'/'+Number(d.slice(8));
-  const dd=Math.round((new Date(EXAM_DAY+'T12:00:00')-new Date(tk+'T12:00:00'))/86400000);
+  const hasExam = (EXAM_DAY && EXAM_DAY > tk);
+  const dd = hasExam ? Math.round((new Date(EXAM_DAY+'T12:00:00')-new Date(tk+'T12:00:00'))/86400000) : -1;
   const today=by[tk]||emptyDay();
   const stat=(n,l)=>`<div><b>${n}</b><small>${l}</small></div>`;
-  return `<div class="hm-stats">${stat(today.cards.toLocaleString(),'오늘 장')}${stat(streak+'일','연속')}${stat(Math.round(w7/7).toLocaleString(),'7일 평균')}${stat(best?by[best].cards.toLocaleString():'—', best?'최다 '+md(best):'최다')}${dd>=0?stat('D-'+dd,'시험'):''}</div>`
+  return `<div class="hm-stats">${stat(today.cards.toLocaleString(),'오늘 복습')}${stat(streak+'일','연속 학습')}${stat(Math.round(w7/7).toLocaleString(),'7일 평균')}${stat(best?by[best].cards.toLocaleString():'—', best?'최다 '+md(best):'최다')}${dd>=0?stat('D-'+dd,'목표'):''}</div>`
     + `<div class="hm" data-cols="${col}"><div class="hm-days"><span></span><span>월</span><span></span><span>수</span><span></span><span>금</span><span></span></div>`
     + `<div class="hm-body"><div class="hm-months" style="grid-template-columns:repeat(${col},var(--hc))">${months}</div><div class="hm-grid">${cells}</div></div></div>`
     + `<div class="hm-foot"><span class="hm-line" id="hmLine">${hmLine(hmSel||tk, by, hard)}</span>`
-    + `<span class="hm-key">적게<i class="hm-c l0"></i><i class="hm-c l1"></i><i class="hm-c l2"></i><i class="hm-c l3"></i><i class="hm-c l4"></i>많이<i class="hm-c rest" style="margin-left:8px"></i>쉼<i class="hm-c exam fut"></i>시험</span></div>`; }
+    + `<span class="hm-key">적게<i class="hm-c l0"></i><i class="hm-c l1"></i><i class="hm-c l2"></i><i class="hm-c l3"></i><i class="hm-c l4"></i>많이<i class="hm-c rest" style="margin-left:8px"></i>쉼${hasExam?'<i class="hm-c exam fut"></i>목표':''}</span></div>`; }
 function hmLine(k, by, hard){
   const tk=todayKey(), W='일월화수목금토'[new Date(k+'T12:00:00').getDay()], d=`${Number(k.slice(5,7))}월 ${Number(k.slice(8))}일 (${W})`;
-  if(k>tk){ const n=Math.round((new Date(EXAM_DAY+'T12:00:00')-new Date(k+'T12:00:00'))/86400000); return `${d} · ${k===EXAM_DAY?'시험날':n>0?'시험 '+n+'일 전':''}`; }
-  const e=by[k]; if(!e||!e.cards) return `${d} · ${isRestDay(k)?'쉬는 날':'안 풂'}`;
-  return `${d} · <b>${e.cards.toLocaleString()}장</b> · 신규 ${e.nw.toLocaleString()} · 복습 ${Math.max(0,e.cards-e.nw).toLocaleString()} · ${fmtMin(e.ms)}${hard&&hard[k]!=null?' · 새로 굳음 +'+hard[k]:''}`; }
+  if(k>tk){
+    if(EXAM_DAY && EXAM_DAY > tk){
+      const n=Math.round((new Date(EXAM_DAY+'T12:00:00')-new Date(k+'T12:00:00'))/86400000);
+      return `${d} · ${k===EXAM_DAY?'목표일':n>0?'목표 '+n+'일 전':''}`;
+    }
+    return `${d} · 예정된 학습`;
+  }
+  const e=by[k]; if(!e||!e.cards) return `${d} · ${isRestDay(k)?'쉬는 날':'학습 없음'}`;
+  return `${d} · <b>${e.cards.toLocaleString()}장</b> · 신규 ${e.nw.toLocaleString()} · 복습 ${Math.max(0,e.cards-e.nw).toLocaleString()} · ${fmtMin(e.ms)}${hard&&hard[k]!=null?' · 새로 숙련 +'+hard[k]:''}`; }
 function renderStats(){
   if(!statsLoaded){ statsLoaded=true;
     /* 🔴 없는 주를 긁지 않는다 (09-02) — 「있을 수 있는 주」와 교집합만. 상한은 여전히 13주. */
@@ -14243,41 +14330,79 @@ function renderStats(){
   const alive=DATA.length-ret;
   let h='';
 
-  /* ═══ A. 시험까지의 궤적 ═══ */
-  const T=trajectory(), M=maturitySplit(), dd=dDay();
+  /* ═══ A. 누적 학습 추이 (Anki 통계: 카드 상태별 누적 및 누적 복습량) ═══ */
+  const T=trajectory(), M=maturitySplit();
   const cap=T?T.inp.cap:dailyThroughput();
-  if(!T){
-    h+='<div class="card-box"><h3>시험까지의 궤적</h3>'
-      +'<div class="cap">D-'+dd+' · 굳음 <b>'+M.mature.toLocaleString()+'</b> / '+alive.toLocaleString()+'</div>'
-      +'<div class="empty-note" style="padding:24px 0">시험까지 그려 보는 중…</div></div>';
-  } else {
-    const end=T.pred.length?T.pred[T.pred.length-1]:{hard:M.mature};
-    const pctEnd=alive?Math.round(end.hard/alive*100):0;
-    h+='<div class="card-box"><h3>시험까지의 궤적</h3>'
-      +'<div class="cap">D-'+dd+' · 굳음 <b>'+M.mature.toLocaleString()+'</b> / '+alive.toLocaleString()
-      +' · <b>이 속도면</b> 시험날 굳음 약 <b>'+end.hard.toLocaleString()+'장('+pctEnd+'%)</b>'
-      +' · 시험날 떠올릴 수 있는 것 약 <b>'+T.K.toLocaleString()+'장</b></div>'
-      +trajChart(T.hist, T.pred, T.zero)
-      +'<div class="cap" style="margin-top:6px">굳음(21일 이상) · 무름 · 안 나옴 순으로 쌓았어요 · '
-      +'점선 = 예측 · 옅은 점선 = 오늘부터 신규를 안 넣으면('+((T.zeroEnd&&T.zeroEnd.hard)||0).toLocaleString()+'장)</div>'
-      +'<div class="cap" style="margin-top:4px;color:var(--mute)">최근 7일 기준 — 신규 '+T.inp.newPerDay+'/일 · 처리 '+T.inp.cap+'/일'
-      +' · 유지율 '+Math.round(T.inp.pFirst*100)+'/'+Math.round(T.inp.pRev*100)+'%'
-      +(T.doneKey?' · 신규 소진 '+T.doneKey.slice(5).replace('-','/'):'')+'</div>';
+  const totalReviews = state.log ? state.log.length : 0;
+  const learnedCards = alive - M.nw;
+  const pctLearned = alive ? Math.round(learnedCards / alive * 100) : 0;
+  const pctMature = alive ? Math.round(M.mature / alive * 100) : 0;
+  const pctYoung = alive ? Math.round(M.young / alive * 100) : 0;
+  const pctNew = alive ? Math.max(0, 100 - pctMature - pctYoung) : 0;
+  const curView = window.cumView || 'cards';
+
+  let insightHtml = '';
+  if(T){
+    const end = T.pred.length ? T.pred[T.pred.length-1] : { hard: M.mature };
+    const pctEnd = alive ? Math.round(end.hard / alive * 100) : 0;
+    const endLabel = (EXAM_DAY && EXAM_DAY > todayKey()) ? '목표일' : '향후 60일';
+    insightHtml += '<div class="cap" style="margin-top:8px;color:var(--mute)">최근 7일 페이스(신규 '+T.inp.newPerDay+'장/일 · 처리 '+T.inp.cap+'장/일 · 유지율 '+Math.round(T.inp.pRev*100)+'%) 유지 시 '+endLabel+' 숙련 약 <b>'+end.hard.toLocaleString()+'장('+pctEnd+'%)</b>'
+      + (T.doneKey ? ' · 신규 전량 소진 예상: <b>'+T.doneKey.slice(5).replace('-','/')+'</b>' : (M.nw === 0 ? ' · 모든 신규 카드 학습 착수 완료' : ''))
+      + (T.K ? ' · 예상 회상 유지량 약 <b>'+T.K.toLocaleString()+'장</b>' : '')
+      + '</div>';
     recordForecast(T);
-    const FC=forecastCheck();
-    if(FC) h+='<div class="cap" style="margin-top:4px;color:var(--mute)">지난주 예측 오차 '
-      +(FC.err>=0?'+':'')+FC.err+'% (예측 '+FC.pred.toLocaleString()+' · 실제 '+FC.actual.toLocaleString()+')'
-      +(FC.basisChanged?' · ⚠ 기준 바뀜(파라미터·강도 변경)':'')+'</div>';
-    h+='</div>';
+    const FC = forecastCheck();
+    if(FC){
+      insightHtml += '<div class="cap" style="margin-top:4px;color:var(--mute)">지난주 예측 오차 '+(FC.err>=0?'+':'')+FC.err+'% (예측 '+FC.pred.toLocaleString()+' · 실제 '+FC.actual.toLocaleString()+')'
+        + (FC.basisChanged ? ' · ⚠ 파라미터 변경 반영' : '') + '</div>';
+    }
   }
 
-  /* ═══ B. 오늘 ═══ */
-  h+='<div class="card-box"><h3>오늘</h3>';
+  h += '<div class="card-box" id="statCumBox">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">'
+    + '<div><h3 style="margin-bottom:2px">누적 학습 추이</h3>'
+    + '<div class="cap" style="margin-bottom:0">전체 카드 학습 진도 및 누적 복습량</div></div>'
+    + '<div class="cum-seg">'
+    + '<button type="button" class="cum-tab '+(curView==='cards'?'on':'')+'" id="btnCumCards" onclick="setCumView(\'cards\')">카드 상태별</button>'
+    + '<button type="button" class="cum-tab '+(curView==='reviews'?'on':'')+'" id="btnCumReviews" onclick="setCumView(\'reviews\')">누적 복습량</button>'
+    + '</div></div>'
+    + '<div class="hm-stats" style="margin:12px 0 14px">'
+    + '<div><b>'+totalReviews.toLocaleString()+'회</b><small>총 누적 복습</small></div>'
+    + '<div><b>'+learnedCards.toLocaleString()+'장 <span style="font-size:14px;font-weight:600;color:var(--c-acc)">('+pctLearned+'%)</span></b><small>누적 학습 카드</small></div>'
+    + '<div><b>'+M.mature.toLocaleString()+'장 <span style="font-size:14px;font-weight:600;color:var(--c-green)">('+pctMature+'%)</span></b><small>숙련 (21일+)</small></div>'
+    + '<div><b>'+M.young.toLocaleString()+' / '+M.nw.toLocaleString()+'장</b><small>학습 중 · 미학습</small></div>'
+    + '</div>'
+    + '<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--c-fill);margin:10px 0 14px">'
+    + '<div style="width:'+pctMature+'%;background:var(--c-acc)" title="숙련 '+M.mature+'장"></div>'
+    + '<div style="width:'+pctYoung+'%;background:var(--c-orange)" title="학습 중 '+M.young+'장"></div>'
+    + '<div style="width:'+pctNew+'%;background:var(--c-fill);border-left:1px solid var(--c-sep)" title="미학습 '+M.nw+'장"></div>'
+    + '</div>'
+    + '<div id="cumViewCards" style="display:'+(curView==='cards'?'block':'none')+'">'
+    + (!T ? '<div class="empty-note" style="padding:24px 0">학습 추이 계산 중…</div>' : trajChart(T.hist, T.pred, T.zero))
+    + '<div class="cap" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">'
+    + '<span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--c-acc);margin-right:4px"></i>숙련 (21일 이상)</span>'
+    + '<span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--c-orange);margin-right:4px"></i>학습 중 (&lt;21일)</span>'
+    + '<span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--c-fill);border:1px solid var(--c-sep);margin-right:4px"></i>미학습 (신규)</span>'
+    + '<span style="color:var(--c-sec);margin-left:auto">실선 = 실측 진도 · 점선 = 향후 시뮬레이션</span>'
+    + '</div>'
+    + insightHtml
+    + '</div>'
+    + '<div id="cumViewReviews" style="display:'+(curView==='reviews'?'block':'none')+'">'
+    + cumReviewsChart((T&&T.hist)?T.hist:maturityHistory(), by)
+    + '<div class="cap" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">'
+    + '<span><i style="display:inline-block;width:14px;height:3px;background:var(--c-acc);border-radius:1px;margin-right:4px"></i>누적 복습 곡선</span>'
+    + '<span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--c-acc);opacity:.35;margin-right:4px"></i>일일 복습량</span>'
+    + '<span style="color:var(--c-sec);margin-left:auto">총 '+totalReviews.toLocaleString()+'회 복습 완료</span>'
+    + '</div></div>'
+    + '</div>';
+
+  /* ═══ B. 오늘 활동 ═══ */
+  h+='<div class="card-box"><h3>오늘의 학습 활동</h3>';
   if(!T){
     h+='<div class="cap">'+today.cards+'장 — 신규 '+today.nw+' · 복습 '+Math.max(0,today.cards-today.nw)+' · '+fmtMin(today.ms)+'</div>';
   } else {
     const G=todayGains(T.hist);
-    h+='<div class="cap">새로 굳은 <b>'+(G.newHard>=0?'+':'')+G.newHard+'</b> · 누수 탈출 <b>'+G.escaped+'</b>'
+    h+='<div class="cap">새로 숙련 <b>'+(G.newHard>=0?'+':'')+G.newHard+'</b> · 누수 탈출 <b>'+G.escaped+'</b>'
       +' · '+today.cards+'장 — 신규 '+today.nw+' · 복습 '+Math.max(0,today.cards-today.nw)+' · '+fmtMin(today.ms)+'</div>';
   }
   h+=heatmapHtml(by, T);
