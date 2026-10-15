@@ -2294,30 +2294,157 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
 .fw-btns{display:flex;gap:8px;flex-wrap:wrap;}
 
 /* ════ Anki Web Multi-User & Deck Hub UI ════ */
-.deck-card{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--c-card,var(--c-fill));border-radius:14px;border:1px solid var(--c-sep-sub,rgba(0,0,0,0.06));transition:all .15s ease;gap:12px;box-sizing:border-box;}
-.deck-card:hover{background:var(--c-fill-hi,rgba(120,120,128,0.16));}
-.deck-tree-toggle{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border:none;background:transparent;color:var(--c-sec);cursor:pointer;border-radius:6px;margin-right:4px;flex-shrink:0;padding:0;transition:transform .15s ease,background .15s ease;}
-.deck-tree-toggle:hover{background:var(--c-fill-hi);color:var(--c-label);}
-.deck-tree-spacer{width:20px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:4px;color:var(--c-ter);font-size:12px;}
-.deck-info{flex:1 1 auto;min-width:0;cursor:pointer;}
-.deck-title-row{display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;}
-.deck-name{font-size:15.5px;font-weight:700;color:var(--c-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.deck-subdeck-count{display:inline-block;font-size:11px;padding:1px 6px;border-radius:8px;background:var(--c-fill);color:var(--c-sec);font-weight:600;}
-.deck-desc{font-size:12px;color:var(--c-sec);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.deck-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.anki-counts{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;font-size:13px;font-weight:700;}
-.ac-badge{padding:2px 7px;border-radius:6px;font-size:12px;min-width:20px;text-align:center;}
-.ac-new{color:#007aff;background:rgba(0,122,255,0.12);}
-.ac-learn{color:#ff9500;background:rgba(255,149,0,0.12);}
-.ac-due{color:#34c759;background:rgba(52,199,89,0.14);}
-.deck-act-btn{border:none;background:var(--c-fill);color:var(--c-label);font-size:13px;font-weight:600;padding:6px 12px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s;}
-.deck-act-btn:hover{background:var(--c-fill-hi,rgba(120,120,128,0.22));}
-.deck-act-primary{background:var(--c-blue,#007aff);color:#fff;}
-.deck-act-primary:hover{opacity:.9;}
-.deck-opt-btn{border:none;background:transparent;color:var(--c-sec);width:28px;height:28px;border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
-.deck-opt-btn:hover{background:var(--c-fill);color:var(--c-label);}
+.deck-section-wrap { margin: 20px 0 16px; }
+.deck-tree-container {
+  background: var(--c-card);
+  border-radius: var(--r-group, 18px);
+  box-shadow: var(--sh-card);
+  border: 1px solid var(--c-sep-sub, rgba(0,0,0,0.06));
+  overflow: hidden;
+}
+.deck-tree-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--c-fill, rgba(120,120,128,0.08));
+  border-bottom: 1px solid var(--c-sep, rgba(0,0,0,0.08));
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-sec);
+  letter-spacing: -0.01em;
+}
+.dth-left { display: flex; align-items: center; gap: 10px; }
+.dth-title { color: var(--c-label); font-weight: 700; }
+.dth-btn-toggle-all {
+  border: none; background: transparent; color: var(--c-blue, #007aff);
+  font-size: 11.5px; font-weight: 600; cursor: pointer; padding: 2px 7px;
+  border-radius: 6px; transition: background .12s;
+}
+.dth-btn-toggle-all:hover { background: rgba(0,122,255,0.12); }
+.dth-right { display: flex; align-items: center; gap: 12px; }
+.dth-counts {
+  display: grid; grid-template-columns: 36px 36px 36px; gap: 6px; text-align: center;
+}
+.dth-c-badge { font-size: 11px; font-weight: 700; }
+.dth-c-badge.c-new { color: var(--c-blue, #007aff); }
+.dth-c-badge.c-learn { color: #ff9500; }
+.dth-c-badge.c-due { color: #34c759; }
+.dth-act-spacer { width: 90px; }
+
+/* Deck Tree Row */
+.deck-tree-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 16px; min-height: 52px; box-sizing: border-box;
+  background: var(--c-card); transition: background .12s ease;
+  position: relative; width: 100%;
+}
+.deck-tree-row + .deck-tree-row {
+  border-top: 1px solid var(--c-sep-sub, rgba(0,0,0,0.05));
+}
+.deck-tree-row:hover {
+  background: var(--c-fill-hi, rgba(120,120,128,0.07));
+}
+
+/* Left cell: Tree hierarchy, connectors, icons, title */
+.deck-left-cell {
+  display: flex; align-items: center; min-width: 0; flex: 1 1 auto; gap: 6px;
+}
+.tree-indent-wrapper {
+  display: inline-flex; align-items: center; flex-shrink: 0;
+}
+.tree-branch-line {
+  width: 18px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
+  color: var(--c-ter, #8e8e93); opacity: 0.7;
+}
+.tree-branch-svg { width: 14px; height: 22px; display: block; }
+.deck-tree-toggle {
+  width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+  border: none; background: transparent; color: var(--c-sec); cursor: pointer;
+  border-radius: 6px; flex-shrink: 0; padding: 0;
+  transition: transform .18s ease, background .12s ease;
+}
+.deck-tree-toggle:hover { background: var(--c-fill-hi); color: var(--c-label); }
+.deck-tree-empty-toggle { width: 22px; height: 22px; display: inline-block; flex-shrink: 0; }
+.deck-type-icon {
+  width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.deck-type-icon.folder { color: #ff9500; }
+.deck-type-icon.card-deck { color: var(--c-blue, #007aff); }
+
+.deck-info { flex: 1 1 auto; min-width: 0; cursor: pointer; padding-left: 2px; }
+.deck-title-row {
+  display: flex; align-items: center; gap: 7px; flex-wrap: nowrap;
+}
+.deck-name {
+  font-size: 15px; font-weight: 700; color: var(--c-label);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.deck-name.subdeck { font-weight: 600; font-size: 14.5px; }
+.deck-subdeck-count {
+  display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 6px;
+  background: var(--c-fill, rgba(120,120,128,0.12)); color: var(--c-sec);
+  font-weight: 600; flex-shrink: 0;
+}
+.deck-card-count {
+  font-size: 11.5px; color: var(--c-ter); font-weight: 600; flex-shrink: 0;
+}
+.deck-desc {
+  font-size: 11.5px; color: var(--c-sec); line-height: 1.35;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;
+}
+
+/* Right cell: Anki count columns and Action buttons strictly aligned */
+.deck-right-cell {
+  display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+}
+.anki-counts {
+  display: grid; grid-template-columns: 36px 36px 36px; gap: 6px;
+  font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700;
+}
+.ac-badge {
+  padding: 2px 0; border-radius: 6px; font-size: 12px; min-width: 36px;
+  text-align: center; display: inline-block; box-sizing: border-box;
+}
+.ac-new { color: var(--c-blue, #007aff); background: rgba(0,122,255,0.12); }
+.ac-learn { color: #ff9500; background: rgba(255,149,0,0.12); }
+.ac-due { color: #34c759; background: rgba(52,199,89,0.14); }
+.ac-zero { opacity: 0.35; background: transparent; color: var(--c-ter); }
+
+.deck-btn-study {
+  border: none; background: var(--c-blue, #007aff); color: #fff;
+  font-size: 12.5px; font-weight: 600; padding: 6px 11px; border-radius: 8px;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+  transition: opacity .12s, transform .12s; flex-shrink: 0;
+}
+.deck-btn-study:hover { opacity: .9; }
+.deck-btn-study:active { transform: scale(0.96); }
+.deck-btn-opt {
+  border: none; background: transparent; color: var(--c-sec);
+  width: 28px; height: 28px; border-radius: 7px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .12s, color .12s;
+}
+.deck-btn-opt:hover {
+  background: var(--c-fill-hi, rgba(120,120,128,0.16)); color: var(--c-label);
+}
+
 .account-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:none;background:var(--c-fill);color:var(--c-label);cursor:pointer;font-size:13px;font-weight:600;}
 .account-btn:hover{background:var(--c-fill-hi);}
+
+/* Mobile responsive adjustments */
+@media (max-width: 600px) {
+  .deck-tree-header { padding: 8px 12px; }
+  .deck-tree-row { padding: 8px 10px; }
+  .anki-counts, .dth-counts { grid-template-columns: 28px 28px 28px; gap: 4px; }
+  .ac-badge { min-width: 28px; font-size: 11px; padding: 1px 0; }
+  .dth-c-badge { font-size: 10px; }
+  .dth-act-spacer { width: 62px; }
+  .deck-btn-study { padding: 6px 8px; font-size: 12px; }
+  .deck-btn-study span { display: none; }
+  .tree-branch-line { width: 14px; }
+}
 .drop-zone{border:2px dashed var(--c-sep,rgba(120,120,128,0.3));border-radius:14px;padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;}
 .drop-zone.dragover{border-color:var(--c-blue,#007aff);background:rgba(0,122,255,0.06);}
 .preview-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
@@ -2511,7 +2638,7 @@ setTimeout(function(){
               <button class="deck-act-btn deck-act-primary" id="btnOpenImportTop" title="덱 가져오기 / 파일 열기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13" aria-hidden="true"><path d="M12 3v13M7 11l5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>덱 가져오기</button>
             </div>
           </div>
-          <div id="deckListArea" style="display:flex;flex-direction:column;gap:10px;"></div>
+          <div id="deckListArea"></div>
         </div>
         <div class="h-sec2"><h2>세션</h2><button id="btnNewSess" aria-label="새 세션" title="새 세션"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
         <div id="sessList"></div>
@@ -16502,17 +16629,21 @@ function renderDeckHub(){
   const area = $('deckListArea');
   const countBadge = $('deckTotalCountBadge');
   if(!area) return;
-  if(countBadge) countBadge.textContent = `${DECKS.length}개 덱`;
-  area.innerHTML = '';
 
   const validDecks = (Array.isArray(DECKS) ? DECKS : []).filter(d => d && typeof d.name === 'string');
+  if(countBadge) countBadge.textContent = `${validDecks.length}개 덱`;
+  area.innerHTML = '';
 
   if(!validDecks.length){
     area.innerHTML = `
-      <div style="padding:24px 16px;text-align:center;background:var(--c-fill);border-radius:14px;color:var(--c-sec);">
-        <div style="font-size:15px;font-weight:600;color:var(--c-label);margin-bottom:4px;">등록된 덱이 없어요</div>
-        <div style="font-size:13px;margin-bottom:12px;">새 덱을 만들거나 파일/텍스트를 가져와보세요.</div>
-        <button class="deck-act-btn deck-act-primary" onclick="$('ovlImport').classList.add('show')">덱 가져오기</button>
+      <div style="padding:28px 16px;text-align:center;background:var(--c-card);border:1px solid var(--c-sep-sub);border-radius:16px;color:var(--c-sec);">
+        <div style="font-size:32px;margin-bottom:8px;">🗂️</div>
+        <div style="font-size:15px;font-weight:700;color:var(--c-label);margin-bottom:4px;">등록된 덱이 없습니다</div>
+        <div style="font-size:13px;margin-bottom:14px;color:var(--c-sec);">새 덱을 만들거나 파일/텍스트를 가져와보세요.</div>
+        <div style="display:flex;gap:8px;justify-content:center;">
+          <button type="button" class="deck-btn-study" style="padding:7px 14px;" onclick="openCreateSubdeckModal(null)">+ 새 덱 만들기</button>
+          <button type="button" class="deck-btn-study" style="padding:7px 14px;background:var(--c-fill);color:var(--c-label);" onclick="$('ovlImport').classList.add('show')">덱 가져오기</button>
+        </div>
       </div>`;
     return;
   }
@@ -16526,6 +16657,48 @@ function renderDeckHub(){
   // 이름순(자연 계층순)으로 정렬
   const sorted = [...validDecks].sort((a,b) => (a.name||'').localeCompare(b.name||'', undefined, { numeric: true, sensitivity: 'base' }));
 
+  // 부모 덱 목록 추출 (하위 덱을 하나라도 가진 덱)
+  const parentDecks = validDecks.filter(d => validDecks.some(sub => sub && sub.name && sub.name.startsWith(d.name + '::')));
+  const allCollapsed = parentDecks.length > 0 && parentDecks.every(d => collapsedSet.has(d.name));
+
+  // 일체형 트리 컨테이너 생성
+  const container = document.createElement('div');
+  container.className = 'deck-tree-container';
+
+  // 헤더 바 (컬럼 헤더 & 모두 접기/펼치기)
+  const header = document.createElement('div');
+  header.className = 'deck-tree-header';
+  header.innerHTML = `
+    <div class="dth-left">
+      <span class="dth-title">덱 이름</span>
+      ${parentDecks.length > 0 ? `<button type="button" class="dth-btn-toggle-all" id="btnToggleAllDecks" title="하위 덱 전체 접기/펼치기">${allCollapsed ? '모두 펼치기' : '모두 접기'}</button>` : ''}
+    </div>
+    <div class="dth-right">
+      <div class="dth-counts" title="신규 / 학습중 / 복습대기 카드">
+        <span class="dth-c-badge c-new">신규</span>
+        <span class="dth-c-badge c-learn">학습</span>
+        <span class="dth-c-badge c-due">복습</span>
+      </div>
+      <div class="dth-act-spacer"></div>
+    </div>
+  `;
+  container.appendChild(header);
+
+  // 모두 접기/펼치기 핸들러
+  const btnToggleAll = header.querySelector('#btnToggleAllDecks');
+  if(btnToggleAll){
+    btnToggleAll.onclick = () => {
+      if(allCollapsed){
+        collapsedSet.clear();
+      } else {
+        parentDecks.forEach(d => collapsedSet.add(d.name));
+      }
+      try { lsSet(getUserStorageKey('collapsed_decks'), JSON.stringify([...collapsedSet])); } catch(e){}
+      renderDeckHub();
+    };
+  }
+
+  // 덱 행 렌더링
   sorted.forEach(deck => {
     const deckName = deck.name || '이름 없음';
     const parts = deckName.split('::');
@@ -16551,63 +16724,107 @@ function renderDeckHub(){
     const stats = getDeckStats(deck, true);
     const directStats = getDeckStats(deck, false);
 
-    const card = document.createElement('div');
-    card.className = 'deck-card';
+    const row = document.createElement('div');
+    row.className = 'deck-tree-row';
+    row.dataset.deckName = deckName;
+    row.dataset.depth = depth;
+
+    // 1. 트리 가이드 인덴트 및 브랜치 연결선 생성
+    let indentHtml = '';
     if(depth > 0){
-      card.style.marginLeft = Math.min(depth * 22, 110) + 'px';
-      card.style.borderLeft = '3.5px solid var(--c-blue, #007aff)';
+      const parentName = parts.slice(0, -1).join('::');
+      const siblings = validDecks.filter(d => {
+        const dp = d.name.split('::');
+        return dp.length === parts.length && dp.slice(0, -1).join('::') === parentName;
+      });
+      const isLastSibling = siblings.length > 0 && siblings[siblings.length - 1].name === deck.name;
+      
+      indentHtml = `
+        <div class="tree-indent-wrapper" style="padding-left:${(depth - 1) * 16}px;">
+          <span class="tree-branch-line" title="하위 덱">
+            <svg viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="tree-branch-svg">
+              ${isLastSibling ? '<path d="M 4 0 L 4 12 L 14 12"/>' : '<path d="M 4 0 L 4 24 M 4 12 L 14 12"/>'}
+            </svg>
+          </span>
+        </div>
+      `;
     }
 
+    // 2. 접기/펼치기 토글 버튼 (자식이 없으면 동일한 폭의 빈 공간 자리표시자)
     let toggleHtml = '';
     if(hasChildren){
       toggleHtml = `
-        <button class="deck-tree-toggle" data-deck-name="${esc(deck.name)}" title="${isCollapsed ? '하위 덱 펼치기' : '하위 덱 접기'}" aria-label="하위 덱 접기/펼치기">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" width="14" height="14" style="transition:transform .15s ease;${isCollapsed ? 'transform:rotate(-90deg);' : ''}">
+        <button type="button" class="deck-tree-toggle" data-deck-name="${esc(deck.name)}" title="${isCollapsed ? '하위 덱 펼치기' : '하위 덱 접기'}" aria-label="하위 덱 접기/펼치기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" width="13" height="13" style="transition:transform .18s ease;${isCollapsed ? 'transform:rotate(-90deg);' : ''}">
             <path d="M6 9l6 6 6-6"/>
           </svg>
         </button>
       `;
-    } else if(depth > 0){
-      toggleHtml = `<span class="deck-tree-spacer">↳</span>`;
+    } else {
+      toggleHtml = `<span class="deck-tree-empty-toggle"></span>`;
     }
 
+    // 3. 덱 타입 아이콘 (폴더 vs 카드 덱)
+    let iconHtml = '';
+    if(hasChildren){
+      if(isCollapsed){
+        iconHtml = `<span class="deck-type-icon folder closed" title="폴더 (하위 덱 포함)"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></span>`;
+      } else {
+        iconHtml = `<span class="deck-type-icon folder open" title="열린 폴더"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M20 19H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h6l2 2h8c1.1 0 2 .9 2 2v1h-16l-2 10h18l3-8h-2.2z"/></svg></span>`;
+      }
+    } else {
+      iconHtml = `<span class="deck-type-icon card-deck" title="카드 덱"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><rect x="3" y="4" width="14" height="15" rx="2"/><path d="M7 8h6M7 12h4"/><path d="M19 7v13a2 2 0 0 1-2 2H7"/></svg></span>`;
+    }
+
+    // 4. 카드 장수 표시
     const cardCountLabel = hasChildren && stats.total !== directStats.total
-      ? `<span style="font-size:11.5px;color:var(--c-ter);font-weight:600;" title="직속 ${directStats.total}장 / 하위 덱 포함 총 ${stats.total}장">총 ${stats.total}장</span>`
-      : `<span style="font-size:11.5px;color:var(--c-ter);font-weight:600;">${stats.total}장</span>`;
+      ? `<span class="deck-card-count" title="직속 ${directStats.total}장 / 하위 덱 포함 총 ${stats.total}장">총 ${stats.total}장</span>`
+      : `<span class="deck-card-count">${stats.total}장</span>`;
 
     const subCountBadge = hasChildren
-      ? `<span class="deck-subdeck-count" title="하위 덱 ${subdecks.length}개">하위 ${subdecks.length}개</span>`
+      ? `<span class="deck-subdeck-count" title="하위 덱 ${subdecks.length}개">하위 ${subdecks.length}</span>`
       : '';
 
-    card.innerHTML = `
-      <div style="display:flex;align-items:center;min-width:0;flex:1;">
+    // 설명 라인
+    const hasCustomDesc = deck.desc && deck.desc !== '상위 덱' && deck.desc !== '설명 없음';
+    const descHtml = hasCustomDesc ? `<div class="deck-desc">${esc(deck.desc)}</div>` : '';
+
+    // 5. Anki 카운트 뱃지 클래스
+    const newClass = stats.new > 0 ? 'ac-badge ac-new' : 'ac-badge ac-zero';
+    const learnClass = stats.learn > 0 ? 'ac-badge ac-learn' : 'ac-badge ac-zero';
+    const dueClass = stats.due > 0 ? 'ac-badge ac-due' : 'ac-badge ac-zero';
+
+    row.innerHTML = `
+      <div class="deck-left-cell">
+        ${indentHtml}
         ${toggleHtml}
+        ${iconHtml}
         <div class="deck-info">
           <div class="deck-title-row">
-            <span class="deck-name" title="${esc(deck.name)}">${esc(leafName)}</span>
+            <span class="deck-name ${depth > 0 ? 'subdeck' : ''}" title="${esc(deck.name)}">${esc(leafName)}</span>
             ${cardCountLabel}
             ${subCountBadge}
           </div>
-          <div class="deck-desc">${esc(deck.desc || (depth > 0 ? '상위: ' + parts.slice(0, -1).join(' > ') : '설명 없음'))}</div>
+          ${descHtml}
         </div>
       </div>
-      <div class="deck-right">
+      <div class="deck-right-cell">
         <div class="anki-counts" title="신규(파랑) / 학습중(주황) / 복습대기(초록)">
-          <span class="ac-badge ac-new" title="신규 카드: ${stats.new}장">${stats.new}</span>
-          <span class="ac-badge ac-learn" title="학습 중 카드: ${stats.learn}장">${stats.learn}</span>
-          <span class="ac-badge ac-due" title="복습 대기 카드: ${stats.due}장">${stats.due}</span>
+          <span class="${newClass}" title="신규 카드: ${stats.new}장">${stats.new}</span>
+          <span class="${learnClass}" title="학습 중 카드: ${stats.learn}장">${stats.learn}</span>
+          <span class="${dueClass}" title="복습 대기 카드: ${stats.due}장">${stats.due}</span>
         </div>
-        <button class="deck-act-btn deck-act-primary btn-study-deck" title="학습 시작">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M7 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L8.5 3.94A1 1 0 0 0 7 4.8z"/></svg>학습
+        <button type="button" class="deck-btn-study btn-study-deck" title="이 덱 학습 시작">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M7 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L8.5 3.94A1 1 0 0 0 7 4.8z"/></svg><span>학습</span>
         </button>
-        <button class="deck-opt-btn" title="옵션">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></svg>
+        <button type="button" class="deck-btn-opt btn-opt-deck" title="덱 옵션 및 관리">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
         </button>
       </div>
     `;
 
-    // 하위 덱 토글 버튼
-    const btnToggle = card.querySelector('.deck-tree-toggle');
+    // 이벤트 바인딩
+    const btnToggle = row.querySelector('.deck-tree-toggle');
     if(btnToggle){
       btnToggle.onclick = (e) => {
         e.stopPropagation();
@@ -16616,32 +16833,29 @@ function renderDeckHub(){
         } else {
           collapsedSet.add(deck.name);
         }
-        try {
-          lsSet(getUserStorageKey('collapsed_decks'), JSON.stringify([...collapsedSet]));
-        } catch(err){}
+        try { lsSet(getUserStorageKey('collapsed_decks'), JSON.stringify([...collapsedSet])); } catch(err){}
         renderDeckHub();
       };
     }
 
-    // 학습 버튼 클릭
-    card.querySelector('.btn-study-deck').onclick = (e) => {
+    row.querySelector('.btn-study-deck').onclick = (e) => {
       e.stopPropagation();
       playDeck(deck);
     };
 
-    // 덱 카드 클릭 시에도 학습
-    card.querySelector('.deck-info').onclick = () => {
+    row.querySelector('.deck-info').onclick = () => {
       playDeck(deck);
     };
 
-    // 덱 옵션 메뉴
-    card.querySelector('.deck-opt-btn').onclick = (e) => {
+    row.querySelector('.btn-opt-deck').onclick = (e) => {
       e.stopPropagation();
       openDeckOptionsMenu(deck, e.currentTarget);
     };
 
-    area.appendChild(card);
+    container.appendChild(row);
   });
+
+  area.appendChild(container);
 }
 
 // 덱 옵션 팝업 메뉴
