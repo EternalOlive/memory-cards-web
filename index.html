@@ -2252,12 +2252,16 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
 .fw-btns{display:flex;gap:8px;flex-wrap:wrap;}
 
 /* ════ Anki Web Multi-User & Deck Hub UI ════ */
-.deck-card{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--c-card,var(--c-fill));border-radius:14px;border:1px solid var(--c-sep-sub,rgba(0,0,0,0.06));transition:transform .15s ease,background .15s ease;gap:12px;}
+.deck-card{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--c-card,var(--c-fill));border-radius:14px;border:1px solid var(--c-sep-sub,rgba(0,0,0,0.06));transition:all .15s ease;gap:12px;box-sizing:border-box;}
 .deck-card:hover{background:var(--c-fill-hi,rgba(120,120,128,0.16));}
+.deck-tree-toggle{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border:none;background:transparent;color:var(--c-sec);cursor:pointer;border-radius:6px;margin-right:4px;flex-shrink:0;padding:0;transition:transform .15s ease,background .15s ease;}
+.deck-tree-toggle:hover{background:var(--c-fill-hi);color:var(--c-label);}
+.deck-tree-spacer{width:20px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:4px;color:var(--c-ter);font-size:12px;}
 .deck-info{flex:1 1 auto;min-width:0;cursor:pointer;}
-.deck-title-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
-.deck-name{font-size:16px;font-weight:700;color:var(--c-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.deck-desc{font-size:12.5px;color:var(--c-sec);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.deck-title-row{display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;}
+.deck-name{font-size:15.5px;font-weight:700;color:var(--c-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.deck-subdeck-count{display:inline-block;font-size:11px;padding:1px 6px;border-radius:8px;background:var(--c-fill);color:var(--c-sec);font-weight:600;}
+.deck-desc{font-size:12px;color:var(--c-sec);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .deck-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .anki-counts{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;font-size:13px;font-weight:700;}
 .ac-badge{padding:2px 7px;border-radius:6px;font-size:12px;min-width:20px;text-align:center;}
@@ -2616,7 +2620,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
           <p style="margin:10px 0 6px;font-size:12px;color:var(--ink);font-weight:700">기타 기능</p>
           <kbd>R</kbd> 되돌리기 · <kbd>Shift+B</kbd> 내일로 · <kbd>Q</kbd> 카드 끄기 · <kbd>F</kbd> 플래그 ·
           <kbd>S</kbd> 일시정지 · <kbd>T</kbd> 초성 힌트 · <kbd>Esc</kbd> 닫기 → 홈 · <kbd>/</kbd> 목록 검색<br>
-          <kbd>Ctrl</kbd>+<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> 플래그 사유(단서 과다 · 문면 분리 · 문장 어색 · 사례 추가)<br>
+          <kbd>Ctrl</kbd>+<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> 플래그 라벨(🚩 중요 · ⭐ 핵심 · ⚠️ 재확인 · 💡 보충)<br>
           <small style="color:var(--mute)">* 한글 입력 상태에서도 자판 자리로 정상 인식됩니다.</small>
         </div>
       </div></div>
@@ -2766,11 +2770,11 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
           <div class="hpb">
             <p>풀이 화면 오른쪽 사이드바(좁은 화면에선 <b>☰</b>)에 있어요.</p>
             <table class="hp-t">
-              <tr><th>⚑플래그</th><td>「이 카드가 이상하다 — <b>고쳐 달라</b>」 신고. 카드는 그대로 나와요.
-                사유 칩 넷 중 골라 주세요(칩만 눌러도 플래그가 켜져요) —
-                <b>단서 과다</b>=앞면이 너무 많이 알려줘요 · <b>사례 추가</b>=<b>사례를 단서로 주세요</b>(앞면에 예를 보이고 이름을 묻게) ·
-                <b>문면 분리</b>=한 장에 묶인 걸 낱장으로 · <b>문장 어색</b>=말이 이상해요.
-                그 밖의 이유는 <b>메모</b>에 적어 주세요 — 저녁 루틴이 읽고 고쳐요</td></tr>
+              <tr><th>⚑플래그</th><td>중요한 카드나 다시 확인할 카드에 라벨을 붙여요.
+                사유 라벨 넷 중 골라 주세요(라벨만 눌러도 플래그가 켜져요) —
+                <b>🚩 중요</b>=반드시 암기해야 할 내용 · <b>⭐ 핵심</b>=자주 출제되는 핵심 개념 ·
+                <b>⚠️ 재확인</b>=다시 검토 필요한 카드 · <b>💡 보충</b>=추가 학습이 필요한 내용.
+                탐색 화면에서 <code>is:flag</code>로 모아볼 수 있어요.</td></tr>
               <tr><th>지도·사례<br>정의·이름</th><td>「이 성분을 교재에서 끌어와 <b>채워 달라</b>」는 신청이에요. 카드는 그대로 나와요.
                 지도=수업 적용, 사례=예시, 정의=내용, 이름=개념어. 저녁 루틴이 교재에서 찾아 <b>줄을 더해요</b> → <b>카드가 늘어요</b>.
                 ⚠ <b>「사례」는 예시를 하나 더 만드는 것</b>이에요. 지금 카드가 <b>사례로 물어보게</b> 바꾸고 싶으면
@@ -2874,8 +2878,8 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
               <tr><td>1 2 3 4 / Z X C V</td><td>다시 / 어려움 / 알맞음 / 쉬움</td></tr>
               <tr><td>R · Shift+B · Q</td><td>되돌리기(Revert) · 내일로(Shift+B) · <b>끄기</b>(Quit)</td></tr>
               <tr><td>F · S · T</td><td>플래그(Flag) · 일시정지(Stop) · 초성 힌트(Tip)</td></tr>
-              <tr><td><b>Ctrl + 1 2 3 4</b></td><td><b>플래그 사유 칩</b> — 단서 과다 / 문면 분리 / 문장 어색 / 사례 추가.
-                레일을 안 열어도 붙고, 칩을 붙이면 플래그도 켜져요. 같은 키를 다시 누르면 해제</td></tr>
+              <tr><td><b>Ctrl + 1 2 3 4</b></td><td><b>플래그 라벨</b> — 🚩 중요 / ⭐ 핵심 / ⚠️ 재확인 / 💡 보충.
+                사이드바를 안 열어도 붙고, 라벨을 붙이면 플래그도 켜져요. 같은 키를 다시 누르면 해제</td></tr>
               <tr><td>Esc · /</td><td>닫기(열린 것이 없으면 홈) · 목록 검색 — 옛 키 U·O·P·H도 그대로 먹어요</td></tr>
             </table>
             <p>⚠ Ctrl+1~4 말고 다른 조합키(Cmd·Alt 등)는 브라우저 몫이라 앱이 안 받아요. 컨트롤러엔 <b>낱개 키</b>로 배정하세요.</p>
@@ -2982,10 +2986,16 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
 </div></div>
 
 <!-- 새 덱 만들기 모달 -->
-<div class="ovl" id="ovlNewDeck"><div class="sheet" style="max-width:420px;">
+<div class="ovl" id="ovlNewDeck"><div class="sheet" style="max-width:440px;">
   <h2>새 덱 만들기</h2>
-  <p class="desc">학습할 새로운 플래시카드 덱의 이름과 설명을 적어주세요.</p>
-  <div class="field"><label>덱 이름</label><input id="newDeckName" type="text" placeholder="예: 토익 빈출 어휘, 컴퓨터 구조론" autocomplete="off"></div>
+  <p class="desc">학습할 새로운 플래시카드 덱의 이름과 상위 덱 계층을 설정해주세요.</p>
+  <div class="field">
+    <label>상위 덱 (선택)</label>
+    <select id="newDeckParentSelect" style="width:100%;padding:10px 12px;border-radius:12px;background:var(--c-fill);color:var(--c-label);border:none;font-size:14px;font-weight:600;outline:none;">
+      <option value="">(없음 - 최상위 덱으로 생성)</option>
+    </select>
+  </div>
+  <div class="field"><label>덱 이름</label><input id="newDeckName" type="text" placeholder="예: 토익 빈출 어휘, Part 5" autocomplete="off"></div>
   <div class="field"><label>설명 (선택)</label><input id="newDeckDesc" type="text" placeholder="예: 2026년 대비 단어 정리" autocomplete="off"></div>
   <div class="btn-row"><button class="btn-ghost" id="newDeckClose">취소</button><button class="btn-primary" id="btnCreateDeck">만들기</button></div>
 </div></div>
@@ -5786,8 +5796,7 @@ function setFlag(c,v){ const s=st(c.id); s.flag=v; if(v==null)s.ft=[]; touchFb(s
    ⚠ 첫 이름은 `단서 추가`였고 같은 날 동하가 `사례 추가`로 고쳤다(「엄, 단서 추가라고 했네 내가」).
    🔴 **그래서 「추가」 계열의 `ann:["사례"]`와 이름이 겹친다** — 뜻은 정반대다(이쪽은 **구조를 바꿔라**,
    저쪽은 **줄을 더해라**). 도움말 `hp6`에 갈림을 적어 뒀다. **둘 중 하나를 또 고칠 때 같이 봐라.**
-   `답면 오류` 제거 = 동하 「어차피 답면 오류면 내가 설명을 붙여야 한다」 → 메모 칸이 그 자리다. */
-const FLAG_TYPES=['단서 과다','문면 분리','문장 어색','사례 추가'];
+const FLAG_TYPES=['🚩 중요','⭐ 핵심','⚠️ 재확인','💡 보충'];
 function flagTypes(s){ return (s&&Array.isArray(s.ft))?s.ft:[]; }
 function toggleFlagType(c,name){
   const s=st(c.id);
@@ -13608,7 +13617,7 @@ function parseQuery(q){ // 검색 = 연산자 AND + 나머지 낱말 본문 검�
       }
       else if(k==='tag')fn=c=>(c.tags||[]).concat(userTags(c.id)).some(x=>x.toLowerCase().includes(v));
       else if(k==='typ')fn=c=>(c.typ||'').toLowerCase().includes(v);
-      else if(k==='subj')fn=c=>(c.subj||'').toLowerCase().includes(v);
+      else if(k==='subj')fn=c=>(c.subj||'').toLowerCase().includes(v)||(typeof DECKS!=='undefined'&&DECKS.some(d=>d.id===c.deckId&&d.name.toLowerCase().includes(v)));
       /* 🔴 `rated:3` = 최근 3일 채점 · `rated:3:1` = 그중 **「다시」를 누른 것**(감사 A5·A10).
          등급은 1 다시 · 2 어려움 · 3 알맞음 · 4 쉬움. 「최근 틀린 것만」이 이걸로 나온다. */
       else if(k==='rated'){ const p=v.split(':'); const n=Math.max(1,+p[0]||1), gr=p[1]?+p[1]:0;
@@ -16345,13 +16354,34 @@ function saveUserDecks(){
   syncDeckDropdowns();
 }
 
-function getDeckCards(deck){
+function ensureDeckAncestors(deckName){
+  const parts = deckName.split('::');
+  if(parts.length <= 1) return;
+  for(let i = 1; i < parts.length; i++){
+    const ancestorName = parts.slice(0, i).join('::');
+    if(!DECKS.some(d => d.name === ancestorName)){
+      DECKS.push({
+        id: 'deck_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        name: ancestorName,
+        desc: '상위 덱',
+        createdAt: Date.now()
+      });
+    }
+  }
+}
+
+function getDeckCards(deck, includeChildren = true){
   if(!deck) return [];
+  if(includeChildren){
+    const prefix = deck.name + '::';
+    const subdeckIds = new Set(DECKS.filter(d => d.name.startsWith(prefix)).map(d => d.id));
+    return DATA.filter(c => c.deckId === deck.id || c.subj === deck.name || subdeckIds.has(c.deckId) || (c.subj && c.subj.startsWith(prefix)));
+  }
   return DATA.filter(c => c.deckId === deck.id || c.subj === deck.name);
 }
 
-function getDeckStats(deck){
-  const cards = getDeckCards(deck);
+function getDeckStats(deck, includeChildren = true){
+  const cards = getDeckCards(deck, includeChildren);
   let nw = 0, due = 0, learn = 0, again = 0;
   const trM = todayRatings();
   for(const c of cards){
@@ -16364,7 +16394,7 @@ function getDeckStats(deck){
   return { total: cards.length, new: nw, due, learn, again };
 }
 
-// 덱 허브 렌더링 (Anki 스타일 홈 화면)
+// 덱 허브 렌더링 (Anki 계층형 하위 덱 및 트리 뷰 지원)
 function renderDeckHub(){
   const area = $('deckListArea');
   const countBadge = $('deckTotalCountBadge');
@@ -16382,17 +16412,78 @@ function renderDeckHub(){
     return;
   }
 
-  DECKS.forEach(deck => {
-    const stats = getDeckStats(deck);
+  // 접힌 덱 집합 로드
+  let collapsedSet = new Set();
+  try {
+    collapsedSet = new Set(JSON.parse(lsGet(getUserStorageKey('collapsed_decks')) || '[]'));
+  } catch(e){}
+
+  // 이름순(자연 계층순)으로 정렬
+  const sorted = [...DECKS].sort((a,b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+
+  sorted.forEach(deck => {
+    const parts = deck.name.split('::');
+    const depth = parts.length - 1;
+    const leafName = parts[parts.length - 1];
+
+    // 상위 덱 중 하나라도 접혀있으면 화면에 렌더링하지 않음
+    let isHiddenByAncestor = false;
+    for(let i = 1; i <= depth; i++){
+      const anc = parts.slice(0, i).join('::');
+      if(collapsedSet.has(anc)){
+        isHiddenByAncestor = true;
+        break;
+      }
+    }
+    if(isHiddenByAncestor) return;
+
+    const prefix = deck.name + '::';
+    const subdecks = DECKS.filter(d => d.name.startsWith(prefix));
+    const hasChildren = subdecks.length > 0;
+    const isCollapsed = collapsedSet.has(deck.name);
+
+    const stats = getDeckStats(deck, true);
+    const directStats = getDeckStats(deck, false);
+
     const card = document.createElement('div');
     card.className = 'deck-card';
+    if(depth > 0){
+      card.style.marginLeft = Math.min(depth * 22, 110) + 'px';
+      card.style.borderLeft = '3.5px solid var(--c-blue, #007aff)';
+    }
+
+    let toggleHtml = '';
+    if(hasChildren){
+      toggleHtml = `
+        <button class="deck-tree-toggle" data-deck-name="${esc(deck.name)}" title="${isCollapsed ? '하위 덱 펼치기' : '하위 덱 접기'}" aria-label="하위 덱 접기/펼치기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" width="14" height="14" style="transition:transform .15s ease;${isCollapsed ? 'transform:rotate(-90deg);' : ''}">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+      `;
+    } else if(depth > 0){
+      toggleHtml = `<span class="deck-tree-spacer">↳</span>`;
+    }
+
+    const cardCountLabel = hasChildren && stats.total !== directStats.total
+      ? `<span style="font-size:11.5px;color:var(--c-ter);font-weight:600;" title="직속 ${directStats.total}장 / 하위 덱 포함 총 ${stats.total}장">총 ${stats.total}장</span>`
+      : `<span style="font-size:11.5px;color:var(--c-ter);font-weight:600;">${stats.total}장</span>`;
+
+    const subCountBadge = hasChildren
+      ? `<span class="deck-subdeck-count" title="하위 덱 ${subdecks.length}개">하위 ${subdecks.length}개</span>`
+      : '';
+
     card.innerHTML = `
-      <div class="deck-info">
-        <div class="deck-title-row">
-          <span class="deck-name">${esc(deck.name)}</span>
-          <span style="font-size:11.5px;color:var(--c-ter);font-weight:600;">${stats.total}장</span>
+      <div style="display:flex;align-items:center;min-width:0;flex:1;">
+        ${toggleHtml}
+        <div class="deck-info">
+          <div class="deck-title-row">
+            <span class="deck-name" title="${esc(deck.name)}">${esc(leafName)}</span>
+            ${cardCountLabel}
+            ${subCountBadge}
+          </div>
+          <div class="deck-desc">${esc(deck.desc || (depth > 0 ? '상위: ' + parts.slice(0, -1).join(' > ') : '설명 없음'))}</div>
         </div>
-        <div class="deck-desc">${esc(deck.desc || '설명 없음')}</div>
       </div>
       <div class="deck-right">
         <div class="anki-counts" title="신규(파랑) / 학습중(주황) / 복습대기(초록)">
@@ -16408,6 +16499,23 @@ function renderDeckHub(){
         </button>
       </div>
     `;
+
+    // 하위 덱 토글 버튼
+    const btnToggle = card.querySelector('.deck-tree-toggle');
+    if(btnToggle){
+      btnToggle.onclick = (e) => {
+        e.stopPropagation();
+        if(collapsedSet.has(deck.name)){
+          collapsedSet.delete(deck.name);
+        } else {
+          collapsedSet.add(deck.name);
+        }
+        try {
+          lsSet(getUserStorageKey('collapsed_decks'), JSON.stringify([...collapsedSet]));
+        } catch(err){}
+        renderDeckHub();
+      };
+    }
 
     // 학습 버튼 클릭
     card.querySelector('.btn-study-deck').onclick = (e) => {
@@ -16432,8 +16540,9 @@ function renderDeckHub(){
 
 // 덱 옵션 팝업 메뉴
 function openDeckOptionsMenu(deck, targetEl){
-  const stats = getDeckStats(deck);
+  const stats = getDeckStats(deck, true);
   const acts = [
+    { label: '+ 하위 덱 만들기', fn: () => openCreateSubdeckModal(deck) },
     { label: '카드 추가', fn: () => openAddCardModal(deck.id) },
     { label: `오답 복습 (${stats.again}장)`, fn: () => playDeckAgain(deck), disabled: !stats.again },
     { label: 'CSV 파일로 내보내기', fn: () => exportDeckCSV(deck) },
@@ -16450,7 +16559,7 @@ function openDeckOptionsMenu(deck, targetEl){
   menu.style.cssText = 'position:fixed;z-index:9999;background:var(--c-card);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.18);border:1px solid var(--c-sep);padding:6px;min-width:200px;';
 
   const rect = targetEl.getBoundingClientRect();
-  menu.style.top = Math.min(window.innerHeight - 260, rect.bottom + 6) + 'px';
+  menu.style.top = Math.min(window.innerHeight - 290, rect.bottom + 6) + 'px';
   menu.style.right = Math.max(16, window.innerWidth - rect.right) + 'px';
 
   acts.forEach(act => {
@@ -16475,9 +16584,19 @@ function openDeckOptionsMenu(deck, targetEl){
   setTimeout(() => document.addEventListener('pointerdown', closeHandler), 10);
 }
 
-// 덱 전용 학습 시작
+// 하위 덱 만들기 모달 열기
+function openCreateSubdeckModal(parentDeck){
+  syncDeckDropdowns();
+  if($('newDeckParentSelect')) $('newDeckParentSelect').value = parentDeck ? parentDeck.name : '';
+  if($('newDeckName')) $('newDeckName').value = '';
+  if($('newDeckDesc')) $('newDeckDesc').value = '';
+  if($('ovlNewDeck')) $('ovlNewDeck').classList.add('show');
+  if($('newDeckName')) $('newDeckName').focus();
+}
+
+// 덱 전용 학습 시작 (하위 덱 포함)
 function playDeck(deck){
-  const cards = getDeckCards(deck);
+  const cards = getDeckCards(deck, true);
   if(!cards || !cards.length){
     toast('덱에 카드가 없습니다. 카드를 추가해주세요.');
     return;
@@ -16499,9 +16618,9 @@ function playDeck(deck){
   startAdHoc(toStudy, deck.name, `${deck.name} 학습 (${toStudy.length}장)`, true, false);
 }
 
-// 덱 오답만 모아 풀기
+// 덱 오답만 모아 풀기 (하위 덱 포함)
 function playDeckAgain(deck){
-  const cards = getDeckCards(deck);
+  const cards = getDeckCards(deck, true);
   const trM = todayRatings();
   const agains = cards.filter(c => trM[c.id] === 1 && !retired(c) && !offed(c));
   if(!agains.length){
@@ -16548,26 +16667,27 @@ function renderTodayAgainSection(){
   }
 }
 
-// 4. 덱 내보내기 (Export)
+// 4. 덱 내보내기 (Export, 하위 덱 포함)
 function exportDeckCSV(deck){
-  const cards = getDeckCards(deck);
+  const cards = getDeckCards(deck, true);
   if(!cards.length){ toast('내보낼 카드가 없습니다'); return; }
   let csv = 'Front\tBack\tNote\tDeck\n';
   cards.forEach(c => {
-    const q = (c.q||'').replace(/\t/g,' ').replace(/\n/g,'<br>');
-    const a = (c.a||'').replace(/\t/g,' ').replace(/\n/g,'<br>');
+    const q = (c.q||c.front||'').replace(/\t/g,' ').replace(/\n/g,'<br>');
+    const a = (c.a||c.back||'').replace(/\t/g,' ').replace(/\n/g,'<br>');
     const note = (c.note||'').replace(/\t/g,' ').replace(/\n/g,'<br>');
-    csv += `${q}\t${a}\t${note}\t${deck.name}\n`;
+    const dName = c.subj || deck.name;
+    csv += `${q}\t${a}\t${note}\t${dName}\n`;
   });
-  downloadFile(`${deck.name}_cards.tsv`, csv, 'text/tab-separated-values;charset=utf-8');
+  downloadFile(`${deck.name.replace(/::/g,'_')}_cards.tsv`, csv, 'text/tab-separated-values;charset=utf-8');
   toast(`${deck.name} 덱 TSV 다운로드를 시작했어요`);
 }
 
 function exportDeckJSON(deck){
-  const cards = getDeckCards(deck);
+  const cards = getDeckCards(deck, true);
   if(!cards.length){ toast('내보낼 카드가 없습니다'); return; }
   const data = { deck, cards, exportedAt: Date.now() };
-  downloadFile(`${deck.name}_deck.json`, JSON.stringify(data, null, 2), 'application/json');
+  downloadFile(`${deck.name.replace(/::/g,'_')}_deck.json`, JSON.stringify(data, null, 2), 'application/json');
   toast(`${deck.name} 덱 JSON 다운로드를 시작했어요`);
 }
 
@@ -16580,53 +16700,105 @@ function downloadFile(filename, content, type){
   setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 500);
 }
 
-// 덱 삭제
+// 덱 삭제 (하위 덱 연쇄 삭제 지원)
 function confirmDeleteDeck(deck){
-  if(confirm(`'${deck.name}' 덱을 정말 삭제할까요?\n소속된 카드들도 목록에서 제외됩니다.`)){
-    DECKS = DECKS.filter(d => d.id !== deck.id);
+  const subdecks = DECKS.filter(d => d.name.startsWith(deck.name + '::'));
+  let msg = `'${deck.name}' 덱을 정말 삭제할까요?\n소속된 카드들도 목록에서 제외됩니다.`;
+  if(subdecks.length > 0){
+    const names = subdecks.map(d => d.name.split('::').pop()).slice(0, 3).join(', ');
+    msg = `'${deck.name}' 덱과 하위 덱 ${subdecks.length}개(${names}${subdecks.length > 3 ? ' 외' : ''})를 모두 삭제할까요?\n모든 하위 덱과 소속 카드들이 함께 삭제됩니다.`;
+  }
+  if(confirm(msg)){
+    const deckNamesToDelete = new Set([deck.name, ...subdecks.map(d => d.name)]);
+    const deckIdsToDelete = new Set([deck.id, ...subdecks.map(d => d.id)]);
+
+    DECKS = DECKS.filter(d => !deckIdsToDelete.has(d.id));
     saveUserDecks();
+
     const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
-    const nextCustom = custom.filter(c => c.deckId !== deck.id && c.subj !== deck.name);
+    const nextCustom = custom.filter(c => !deckIdsToDelete.has(c.deckId) && !deckNamesToDelete.has(c.subj));
     lsSet(getUserStorageKey('custom_cards'), JSON.stringify(nextCustom));
-    DATA = DATA.filter(c => c.deckId !== deck.id && c.subj !== deck.name);
+
+    DATA = DATA.filter(c => !deckIdsToDelete.has(c.deckId) && !deckNamesToDelete.has(c.subj));
     BYID = {}; DATA.forEach((c,i)=>{ c._i=i; BYID[c.id]=c; });
-    toast(`'${deck.name}' 덱을 삭제했어요`);
+
+    toast(`'${deck.name}' 덱${subdecks.length ? ' 및 하위 덱' : ''}을 삭제했어요`);
     renderDeckHub();
     renderHome();
     if(typeof renderList === 'function') renderList();
   }
 }
 
-// 덱 정보 수정
+// 덱 정보 수정 (하위 덱 이름 연쇄 갱신 지원)
 function editDeckInfo(deck){
-  const newName = prompt('새 덱 이름을 입력하세요:', deck.name);
-  if(!newName || !newName.trim()) return;
   const oldName = deck.name;
-  deck.name = newName.trim();
+  const newName = prompt('새 덱 이름을 입력하세요 (계층 구분은 :: 사용):', oldName);
+  if(!newName || !newName.trim() || newName.trim() === oldName) return;
+  const trimmedNewName = newName.trim();
+
+  const oldPrefix = oldName + '::';
+  const newPrefix = trimmedNewName + '::';
+
+  deck.name = trimmedNewName;
+  DECKS.forEach(d => {
+    if(d.name.startsWith(oldPrefix)){
+      d.name = newPrefix + d.name.slice(oldPrefix.length);
+    }
+  });
+
   const newDesc = prompt('덱 설명을 입력하세요 (선택):', deck.desc || '');
   if(newDesc !== null) deck.desc = newDesc.trim();
-  DATA.forEach(c => { if(c.deckId === deck.id || c.subj === oldName) { c.subj = deck.name; c.deckId = deck.id; } });
+
+  DATA.forEach(c => {
+    if(c.deckId === deck.id || c.subj === oldName){
+      c.subj = trimmedNewName;
+      c.deckId = deck.id;
+    } else if(c.subj && c.subj.startsWith(oldPrefix)){
+      c.subj = newPrefix + c.subj.slice(oldPrefix.length);
+    }
+  });
+
   const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
-  custom.forEach(c => { if(c.deckId === deck.id || c.subj === oldName) { c.subj = deck.name; c.deckId = deck.id; } });
+  custom.forEach(c => {
+    if(c.deckId === deck.id || c.subj === oldName){
+      c.subj = trimmedNewName;
+      c.deckId = deck.id;
+    } else if(c.subj && c.subj.startsWith(oldPrefix)){
+      c.subj = newPrefix + c.subj.slice(oldPrefix.length);
+    }
+  });
   lsSet(getUserStorageKey('custom_cards'), JSON.stringify(custom));
+
   saveUserDecks();
   toast('덱 정보를 수정했어요');
   renderDeckHub();
   renderHome();
 }
 
-// 5. 드롭다운 동기화
+// 5. 드롭다운 동기화 (계층형 들여쓰기 ↳ 표시)
 function syncDeckDropdowns(){
-  const selects = ['listDeckFilter', 'importDeckSelect', 'addCardDeckSelect'];
+  const selects = ['listDeckFilter', 'importDeckSelect', 'addCardDeckSelect', 'newDeckParentSelect'];
+  const sorted = [...DECKS].sort((a,b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+
   selects.forEach(sid => {
     const el = $(sid);
     if(!el) return;
     const curVal = el.value;
-    el.innerHTML = sid === 'listDeckFilter' ? '<option value="">모든 덱 카드 보기</option>' : '';
-    DECKS.forEach(d => {
+    if(sid === 'listDeckFilter'){
+      el.innerHTML = '<option value="">모든 덱 카드 보기</option>';
+    } else if(sid === 'newDeckParentSelect'){
+      el.innerHTML = '<option value="">(없음 - 최상위 덱으로 생성)</option>';
+    } else {
+      el.innerHTML = '';
+    }
+
+    sorted.forEach(d => {
       const opt = document.createElement('option');
-      opt.value = d.id;
-      opt.textContent = d.name;
+      opt.value = sid === 'newDeckParentSelect' ? d.name : d.id;
+      const parts = d.name.split('::');
+      const depth = parts.length - 1;
+      const prefix = depth > 0 ? ('　'.repeat(depth) + '↳ ') : '';
+      opt.textContent = prefix + parts[parts.length - 1] + (depth > 0 ? ` (${d.name})` : '');
       el.appendChild(opt);
     });
     if(curVal) el.value = curVal;
@@ -16915,14 +17087,25 @@ function initUniversalImporter(){
   if($('importClose')) $('importClose').onclick = () => $('ovlImport').classList.remove('show');
 
   if($('btnOpenNewDeck')) $('btnOpenNewDeck').onclick = () => {
+    syncDeckDropdowns();
+    if($('newDeckParentSelect')) $('newDeckParentSelect').value = '';
     $('newDeckName').value = ''; $('newDeckDesc').value = '';
     $('ovlNewDeck').classList.add('show');
     $('newDeckName').focus();
   };
   if($('newDeckClose')) $('newDeckClose').onclick = () => $('ovlNewDeck').classList.remove('show');
   if($('btnCreateDeck')) $('btnCreateDeck').onclick = () => {
-    const name = $('newDeckName').value.trim();
+    const parent = $('newDeckParentSelect') ? $('newDeckParentSelect').value.trim() : '';
+    let name = $('newDeckName').value.trim();
     if(!name){ alert('덱 이름을 입력해주세요'); return; }
+    if(parent && !name.startsWith(parent + '::')){
+      name = parent + '::' + name;
+    }
+    if(DECKS.some(d => d.name === name)){
+      alert('이미 동일한 이름의 덱이 존재합니다.');
+      return;
+    }
+    ensureDeckAncestors(name);
     const desc = $('newDeckDesc').value.trim();
     const newDeck = {
       id: 'deck_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
