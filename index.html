@@ -2637,6 +2637,7 @@ setTimeout(function(){
             </div>
             <div style="display:flex;align-items:center;gap:6px;">
               <button class="deck-act-btn" id="btnOpenNewDeck" title="새 덱 만들기">+ 새 덱</button>
+              <button class="deck-act-btn" id="btnExportAllApkgTop" title="전체 덱 Anki(.apkg) 내보내기 (복습 기록 포함)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13" aria-hidden="true"><path d="M12 21V8M7 13l5-5 5 5M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>Anki 내보내기</button>
               <button class="deck-act-btn deck-act-primary" id="btnOpenImportTop" title="덱 가져오기 / 파일 열기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13" aria-hidden="true"><path d="M12 3v13M7 11l5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>덱 가져오기</button>
             </div>
           </div>
@@ -3515,9 +3516,10 @@ setTimeout(function(){
     <button class="act-btn" id="setInput"><span>입력 배치</span><small>키보드 · 게임패드</small></button>
     <button class="act-btn" id="setHelp" style="margin-top:8px"><span>도움말</span></button>
   </div>
-  <div class="field"><label>저장</label>
+  <div class="field"><label>저장 및 내보내기</label>
     <div class="h-tools" style="margin-top:0">
       <button class="h-tool" id="btnSync">지금 저장</button>
+      <button class="h-tool" id="btnExportAllApkg">📦 Anki 내보내기</button>
       <button class="h-tool" id="btnBackup">상태 백업</button>
       <button class="h-tool" id="btnSetup">GitHub 연결</button>
     </div>
@@ -13103,6 +13105,8 @@ $('btnBackup').onclick=()=>{   // 파일이 나뉜 뒤로는 한 덩어리로 �
   a.download=`cards-state-백업-${todayKey()}.json`; a.click();
 };
 $('btnSetup').onclick=openSetup;
+if($('btnExportAllApkg')) $('btnExportAllApkg').onclick=()=>exportDeckApkg(null);
+if($('btnExportAllApkgTop')) $('btnExportAllApkgTop').onclick=()=>exportDeckApkg(null);
 $('tglSwipe').onclick=()=>{ swipeOn=!swipeOn; lsSet(K_SWIPE,swipeOn?'1':'0'); $('tglSwipe').classList.toggle('on',swipeOn); };
 $('tglReshow').onclick=()=>setReshow(!reshowOn, Date.now(), false);   // 기기 간 동기 — sessFile로 올라간다
 $('tglZtap').onclick=()=>{ zoneTapOn=!zoneTapOn; lsSet(K_ZTAP,zoneTapOn?'1':'0');
@@ -17116,6 +17120,7 @@ function openDeckOptionsMenu(deck, targetEl){
     { label: '+ 하위 덱 만들기', fn: () => openCreateSubdeckModal(deck) },
     { label: '카드 추가', fn: () => openAddCardModal(deck.id) },
     { label: `오답 복습 (${stats.again}장)`, fn: () => playDeckAgain(deck), disabled: !stats.again },
+    { label: '📦 Anki(.apkg) 내보내기 (복습 기록 포함)', fn: () => exportDeckApkg(deck) },
     { label: 'CSV 파일로 내보내기', fn: () => exportDeckCSV(deck) },
     { label: 'JSON 파일로 내보내기', fn: () => exportDeckJSON(deck) },
     { label: '덱 정보 수정', fn: () => editDeckInfo(deck) },
@@ -17497,8 +17502,273 @@ function exportDeckJSON(deck){
   toast(`${deck.name} 덱 JSON 다운로드를 시작했어요`);
 }
 
+async function exportDeckApkg(deck){
+  const cards = deck ? getDeckCards(deck, true) : DATA;
+  if(!cards || !cards.length){
+    toast('내보낼 카드가 없습니다');
+    return;
+  }
+
+  try {
+    toast('Anki 패키지(.apkg) 생성 중...');
+
+    if(typeof JSZip === 'undefined' || typeof initSqlJs === 'undefined'){
+      alert('Anki 데이터베이스 분석 엔진이 로드되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+      return;
+    }
+
+    const SQL = await window.initSqlJs({
+      locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/${f}`
+    });
+    const db = new SQL.Database();
+
+    // 1. Anki SQLite 스키마 생성
+    db.run(`
+      CREATE TABLE col (
+        id integer PRIMARY KEY, crt integer NOT NULL, mod integer NOT NULL, scm integer NOT NULL,
+        ver integer NOT NULL, dty integer NOT NULL, usn integer NOT NULL, ls integer NOT NULL,
+        conf text NOT NULL, models text NOT NULL, decks text NOT NULL, dconf text NOT NULL, tags text NOT NULL
+      );
+      CREATE TABLE notes (
+        id integer PRIMARY KEY, guid text NOT NULL, mid integer NOT NULL, mod integer NOT NULL,
+        usn integer NOT NULL, tags text NOT NULL, flds text NOT NULL, sfld text NOT NULL,
+        csum integer NOT NULL, flags integer NOT NULL, data text NOT NULL
+      );
+      CREATE TABLE cards (
+        id integer PRIMARY KEY, nid integer NOT NULL, did integer NOT NULL, ord integer NOT NULL,
+        mod integer NOT NULL, usn integer NOT NULL, type integer NOT NULL, queue integer NOT NULL,
+        due integer NOT NULL, ivl integer NOT NULL, factor integer NOT NULL, reps integer NOT NULL,
+        lapses integer NOT NULL, left integer NOT NULL, odue integer NOT NULL, odid integer NOT NULL,
+        flags integer NOT NULL, data text NOT NULL
+      );
+      CREATE TABLE revlog (
+        id integer PRIMARY KEY, cid integer NOT NULL, usn integer NOT NULL, ease integer NOT NULL,
+        ivl integer NOT NULL, lastIvl integer NOT NULL, factor integer NOT NULL, time integer NOT NULL,
+        type integer NOT NULL
+      );
+      CREATE TABLE graves (
+        usn integer NOT NULL, oid integer NOT NULL, type integer NOT NULL
+      );
+    `);
+
+    const nowSec = Math.floor(Date.now() / 1000);
+    const nowMs = Date.now();
+    const crt = nowSec - (86400 * 180);
+
+    // 2. 덱 구조 빌드
+    const decksJson = {
+      "1": { id: 1, name: "Default", mod: nowSec, usn: -1, desc: "", collapsed: false }
+    };
+    const deckNameToId = new Map();
+    deckNameToId.set("Default", 1);
+
+    const usedDeckNames = new Set();
+    cards.forEach(c => {
+      const dName = c.subj || (deck ? deck.name : 'Anki 덱');
+      usedDeckNames.add(dName);
+      const parts = dName.split('::');
+      for(let i = 1; i <= parts.length; i++){
+        usedDeckNames.add(parts.slice(0, i).join('::'));
+      }
+    });
+
+    let autoDeckId = 1790710000000;
+    Array.from(usedDeckNames).sort().forEach(dName => {
+      let dId = autoDeckId++;
+      const found = DECKS.find(d => d.name === dName);
+      if(found && found.id){
+        const m = String(found.id).match(/\d+/);
+        if(m && m[0].length >= 5) dId = parseInt(m[0], 10);
+      }
+      deckNameToId.set(dName, dId);
+      decksJson[String(dId)] = {
+        id: dId,
+        name: dName,
+        mod: nowSec,
+        usn: -1,
+        desc: "",
+        collapsed: false
+      };
+    });
+
+    // 3. 모델(노트 타입) 빌드
+    const modelsJson = {
+      "1": {
+        id: 1,
+        name: "Speaking Matrix / Basic",
+        type: 0,
+        mod: nowSec,
+        usn: -1,
+        sortf: 0,
+        did: 1,
+        tmpls: [
+          {
+            name: "카드 1",
+            ord: 0,
+            qfmt: "<div style='font-size:22px;font-weight:700;margin-bottom:12px;'>{{Front}}</div>",
+            afmt: "{{FrontSide}}\n\n<hr id=answer>\n\n<div style='font-size:24px;font-weight:700;color:#2f855a;margin-bottom:12px;'>{{Back}}</div>\n\n<div style='font-size:14px;color:#718096;'>{{Note}}</div>",
+            bqfmt: "",
+            bafmt: "",
+            did: null
+          }
+        ],
+        flds: [
+          { name: "Front", ord: 0, sticky: false, rtl: false, font: "Arial", size: 20 },
+          { name: "Back", ord: 1, sticky: false, rtl: false, font: "Arial", size: 20 },
+          { name: "Note", ord: 2, sticky: false, rtl: false, font: "Arial", size: 14 }
+        ],
+        css: ".card { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 20px; text-align: center; color: #1a202c; background-color: #ffffff; padding: 24px; }"
+      }
+    };
+
+    const dconfJson = {
+      "1": {
+        id: 1,
+        name: "Default",
+        mod: nowSec,
+        usn: -1,
+        maxTaken: 60,
+        autoplay: true,
+        timer: 0,
+        replayq: true,
+        new: { bury: false, delays: [1, 10], initialFactor: 2500, ints: [1, 4, 7], order: 1, perDay: 20 },
+        lapse: { bury: false, delays: [10], mult: 0, minInt: 1, leechFails: 8, leechAction: 0 },
+        rev: { bury: false, ease4: 1.3, fuzz: 0.05, ivlFct: 1, maxIvl: 36500, perDay: 200, minSpace: 1 }
+      }
+    };
+
+    db.run("INSERT INTO col VALUES (1, ?, ?, ?, 11, 0, 0, 0, '{}', ?, ?, ?, '{}')", [
+      crt, nowSec, nowSec,
+      JSON.stringify(modelsJson),
+      JSON.stringify(decksJson),
+      JSON.stringify(dconfJson)
+    ]);
+
+    // 4. 로그 매핑
+    const logsByCard = new Map();
+    if(Array.isArray(state.log)){
+      state.log.forEach(e => {
+        const rawCid = e[0];
+        if(!logsByCard.has(rawCid)) logsByCard.set(rawCid, []);
+        logsByCard.get(rawCid).push(e);
+      });
+    }
+
+    let exportedCardCount = 0;
+    let exportedRevCount = 0;
+    const usedRevIds = new Set();
+
+    // 5. 카드 및 노트 삽입
+    cards.forEach((c, idx) => {
+      let numId = 1790720000000 + idx;
+      if(typeof c.id === 'string' && c.id.startsWith('anki_')){
+        const parsed = parseInt(c.id.replace('anki_', ''), 10);
+        if(!isNaN(parsed)) numId = parsed;
+      } else if(typeof c.id === 'number'){
+        numId = c.id;
+      }
+      const nid = numId;
+      const cid = numId;
+
+      const dName = c.subj || (deck ? deck.name : 'Default');
+      const did = deckNameToId.get(dName) || 1;
+
+      const front = (c.q || c.front || '').trim();
+      const back = (c.a || c.back || '').trim();
+      const note = (c.note || '').trim();
+      const flds = `${front}\x1f${back}\x1f${note}`;
+
+      let csum = 0;
+      for(let j=0; j<Math.min(front.length, 8); j++){
+        csum = (csum * 31 + front.charCodeAt(j)) >>> 0;
+      }
+      const guid = (c.id || ('card_' + idx)).replace(/[^a-zA-Z0-9]/g, '').slice(0, 10).padEnd(10, '0');
+
+      db.run("INSERT INTO notes VALUES (?, ?, 1, ?, -1, '', ?, ?, ?, 0, '')", [
+        nid, guid, nowSec, flds, front, csum
+      ]);
+
+      const s = state.cards[c.id];
+      const fsrs = s ? s.fsrs : null;
+      const isNew = !fsrs || fsrs.state === 0;
+      const isReview = fsrs && fsrs.state === 2;
+      const isLearn = fsrs && (fsrs.state === 1 || fsrs.state === 3);
+
+      let type = isNew ? 0 : (isReview ? 2 : 1);
+      let queue = isNew ? 0 : (isReview ? 2 : 1);
+      if(s && s.retired) queue = -1;
+
+      let due = idx;
+      let ivl = 0;
+      let factor = 2500;
+      let reps = 0;
+      let lapses = 0;
+
+      if(!isNew && fsrs){
+        const dueMs = new Date(fsrs.due).getTime();
+        const dueSec = Math.floor(dueMs / 1000);
+        if(type === 2){
+          due = Math.round((dueSec - crt) / 86400);
+        } else {
+          due = dueSec;
+        }
+        ivl = Math.max(1, Math.round(fsrs.scheduled_days || fsrs.stability || 1));
+        if(fsrs.difficulty){
+          factor = Math.max(1300, Math.min(3000, Math.round((11 - fsrs.difficulty) * 300)));
+        }
+        reps = fsrs.reps || 1;
+        lapses = fsrs.lapses || (s.miss || 0);
+      }
+
+      const cardData = fsrs ? JSON.stringify({ s: fsrs.stability, d: fsrs.difficulty }) : '';
+
+      db.run("INSERT INTO cards VALUES (?, ?, ?, 0, ?, -1, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, ?, ?)", [
+        cid, nid, did, nowSec, type, queue, due, ivl, factor, reps, lapses, (s && s.flag) || 0, cardData
+      ]);
+      exportedCardCount++;
+
+      // 복습 로그 삽입
+      const cardLogs = logsByCard.get(c.id) || logsByCard.get(cid) || [];
+      cardLogs.forEach(entry => {
+        let revTime = logTs(entry);
+        if(isNaN(revTime) || revTime <= 0) revTime = nowMs;
+        while(usedRevIds.has(revTime)) revTime++;
+        usedRevIds.add(revTime);
+
+        const ease = entry[2] || 3;
+        const extra = entry[3] || {};
+        const revIvl = extra.ivl || ivl || 1;
+        const lastIvl = extra.lastIvl || 0;
+        const timeTaken = extra.ms || 5000;
+        const revType = isNew ? 0 : 1;
+
+        db.run("INSERT INTO revlog VALUES (?, ?, -1, ?, ?, ?, ?, ?, ?)", [
+          revTime, cid, ease, revIvl, lastIvl, factor, timeTaken, revType
+        ]);
+        exportedRevCount++;
+      });
+    });
+
+    // 6. DB 바이너리 내보내기 및 Zip 압축
+    const dbBytes = db.export();
+    const zip = new JSZip();
+    zip.file('collection.anki2', dbBytes);
+    zip.file('media', '{}');
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const deckBaseName = deck ? deck.name.replace(/::/g, '_') : 'SpeakingMatrix_MemoryCards';
+    const filename = `${deckBaseName}_reviewed.apkg`;
+
+    downloadFile(filename, blob, 'application/apkg');
+    toast(`📦 ${filename} 다운로드 완료! (${exportedCardCount}장 카드 / ${exportedRevCount}회 복습 기록 포함)`);
+  } catch(err){
+    console.error('[Anki Export Error]', err);
+    alert('Anki 패키지 내보내기 중 오류가 발생했습니다: ' + (err.message || err));
+  }
+}
+
 function downloadFile(filename, content, type){
-  const blob = new Blob([content], { type });
+  const blob = (content instanceof Blob) ? content : new Blob([content], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = filename;
