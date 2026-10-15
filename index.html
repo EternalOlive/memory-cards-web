@@ -53,6 +53,8 @@ window.addEventListener('unhandledrejection', function(e) {
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js"></script>
 <script>/* 테마 — 첫 페인트 전에 적는다(깜빡임 방지). 옛 값 b → dark · c → paper (09-24) */
 try{var _t=localStorage.getItem('cards_theme_v1');_t=_t==='b'?'dark':_t==='c'?'paper':_t;if(_t&&_t!=='auto')document.documentElement.dataset.theme=_t;var _l=localStorage.getItem('cards_light_v1');if(_l)document.documentElement.dataset.light=_l;}catch(e){}</script>
 <style>
@@ -3327,27 +3329,27 @@ setTimeout(function(){
   <p class="desc">Anki 내보내기 파일, CSV, 엑셀 또는 텍스트 데이터를 가져와 나만의 덱으로 즉시 등록해요.</p>
 
   <div class="import-tab-bar">
-    <button class="import-tab-btn on" id="tabImpFile">파일 업로드 (.csv, .txt, .json)</button>
+    <button class="import-tab-btn on" id="tabImpFile">파일 업로드 (.apkg, .colpkg, .csv, .txt)</button>
     <button class="import-tab-btn" id="tabImpText">직접 텍스트 붙여넣기</button>
   </div>
 
   <div class="field" style="margin-bottom:12px;">
     <label>저장할 대상 덱</label>
     <div style="display:flex;gap:12px;margin-bottom:8px;font-size:13px;">
-      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="radio" name="impTargetMode" id="radNewDeck" value="new" checked> 새 덱으로 생성</label>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="radio" name="impTargetMode" id="radNewDeck" value="new" checked> 새 덱으로 생성 (또는 Anki 원본 덱 유지)</label>
       <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="radio" name="impTargetMode" id="radExistingDeck" value="existing"> 기존 덱에 추가</label>
     </div>
-    <div id="wrapNewDeckTitle"><input id="importDeckTitle" type="text" placeholder="새 덱 이름 입력 (예: 필수 회화 100)" autocomplete="off"></div>
+    <div id="wrapNewDeckTitle"><input id="importDeckTitle" type="text" placeholder="새 덱 이름 입력 (Anki 파일은 원본 덱 이름 자동 적용)" autocomplete="off"></div>
     <div id="wrapExistingDeckSelect" style="display:none;"><select id="importDeckSelect" style="width:100%;padding:10px;border-radius:12px;background:var(--c-fill);color:var(--c-label);border:none;font-size:14px;"></select></div>
   </div>
 
   <!-- 파일 업로드 섹션 -->
   <div id="secImpFile">
-    <input type="file" id="importFileInput" accept=".csv,.tsv,.txt,.json" style="display:none;">
+    <input type="file" id="importFileInput" accept=".apkg,.colpkg,.csv,.tsv,.txt,.json,.zip" style="display:none;">
     <div class="drop-zone" id="importDropZone">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="32" height="32" style="margin:0 auto 8px;display:block;color:var(--c-sec);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       <div style="font-weight:600;font-size:14px;color:var(--c-label);margin-bottom:4px;">파일을 여기로 드래그하거나 클릭하여 선택</div>
-      <div style="font-size:12px;color:var(--c-sec);">.csv, .tsv, .txt (Tab 구분), .json 지원</div>
+      <div style="font-size:12px;color:var(--c-sec);"><b>.apkg, .colpkg</b> (복습 진도·간격 완전 복원) 또는 .csv, .txt, .json 지원</div>
       <div id="importSelectedFileName" style="font-size:12.5px;color:var(--c-acc);margin-top:6px;font-weight:600;display:none;"></div>
     </div>
   </div>
@@ -3367,9 +3369,18 @@ setTimeout(function(){
     </div>
     <div style="max-height:120px;overflow-y:auto;">
       <table class="preview-tbl" id="importPreviewTable">
-        <thead><tr><th>앞면 (질문)</th><th>뒷면 (정답)</th><th>해설/메모</th></tr></thead>
+        <thead><tr><th>앞면 (질문)</th><th>뒷면 (정답)</th><th>복습 상태 / 메모</th></tr></thead>
         <tbody></tbody>
       </table>
+    </div>
+
+    <!-- Anki 복습 진도 보존 옵션 -->
+    <div id="ankiOptionsWrap" style="display:none;margin-top:10px;padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:12.5px;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;color:var(--c-label);">
+        <input type="checkbox" id="chkKeepAnkiSchedule" checked>
+        <span>Anki 복습 진도·간격·복습일(Due)을 그대로 유지하여 가져오기</span>
+      </label>
+      <div style="font-size:11.5px;color:var(--c-sec);margin-top:4px;padding-left:22px;">체크 해제 시 모든 카드가 '오늘 시작하는 신규 카드'로 초기화됩니다.</div>
     </div>
   </div>
 
@@ -17718,9 +17729,12 @@ if($('btnDoSaveCard')) $('btnDoSaveCard').onclick = () => {
   if($('scrSolve').classList.contains('on')) showCard();
 };
 
-// 7. 범용 덱 업로더 (Universal Importer)
+// 7. 범용 덱 업로더 (Universal Importer - .apkg, .colpkg, .csv, .txt, .json)
 function initUniversalImporter(){
   let parsedCardsCache = [];
+  let isAnkiPackageMode = false;
+  let ankiDecksCache = {};
+  let ankiRevlogsCache = [];
 
   $('tabImpFile').onclick = () => {
     $('tabImpFile').classList.add('on'); $('tabImpText').classList.remove('on');
@@ -17729,6 +17743,8 @@ function initUniversalImporter(){
   $('tabImpText').onclick = () => {
     $('tabImpText').classList.add('on'); $('tabImpFile').classList.remove('on');
     $('secImpText').style.display = 'block'; $('secImpFile').style.display = 'none';
+    isAnkiPackageMode = false;
+    if($('ankiOptionsWrap')) $('ankiOptionsWrap').style.display = 'none';
   };
 
   $('radNewDeck').onchange = () => {
@@ -17756,19 +17772,201 @@ function initUniversalImporter(){
     };
   }
 
-  function handleImportFile(file){
+  async function handleImportFile(file){
     const fnEl = $('importSelectedFileName');
-    if(fnEl){ fnEl.style.display = 'block'; fnEl.textContent = `선택된 파일: ${file.name} (${(file.size/1024).toFixed(1)} KB)`; }
     const baseName = file.name.replace(/\.[^/.]+$/, "");
     if(!$('importDeckTitle').value.trim()) $('importDeckTitle').value = baseName;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = e.target.result;
-      $('importCardsText').value = content;
-      parseAndPreview(content);
-    };
-    reader.readAsText(file);
+    const lowerName = file.name.toLowerCase();
+    const isAnkiPkg = lowerName.endsWith('.apkg') || lowerName.endsWith('.colpkg') || lowerName.endsWith('.zip');
+
+    if(isAnkiPkg){
+      isAnkiPackageMode = true;
+      if(fnEl){ fnEl.style.display = 'block'; fnEl.textContent = `📦 Anki 패키지: ${file.name} (${(file.size/(1024*1024)).toFixed(2)} MB) - 분석 중...`; }
+      await parseAnkiPackage(file, baseName);
+    } else {
+      isAnkiPackageMode = false;
+      if($('ankiOptionsWrap')) $('ankiOptionsWrap').style.display = 'none';
+      if(fnEl){ fnEl.style.display = 'block'; fnEl.textContent = `선택된 파일: ${file.name} (${(file.size/1024).toFixed(1)} KB)`; }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        $('importCardsText').value = content;
+        parseAndPreview(content);
+      };
+      reader.readAsText(file);
+    }
+  }
+
+  async function parseAnkiPackage(file, baseName){
+    try {
+      if(typeof JSZip === 'undefined' || typeof initSqlJs === 'undefined'){
+        toast('Anki 데이터베이스 분석 엔진을 준비 중입니다...');
+      }
+
+      const zip = await JSZip.loadAsync(file);
+      const dbFile = zip.file('collection.anki2') || zip.file('collection.anki21') || zip.file('collection.anki21b');
+      if(!dbFile){
+        alert('Anki 데이터베이스(collection.anki2)를 패키지에서 찾을 수 없습니다.');
+        return;
+      }
+
+      const dbBytes = await dbFile.async('uint8array');
+      const SQL = await window.initSqlJs({
+        locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/${f}`
+      });
+      const db = new SQL.Database(dbBytes);
+
+      // 1. col 테이블 읽기 (crt, models, decks)
+      const colRes = db.exec("SELECT crt, models, decks FROM col");
+      let crt = Math.floor(Date.now() / 1000);
+      let ankiDecks = {};
+      if(colRes.length && colRes[0].values.length){
+        crt = colRes[0].values[0][0] || crt;
+        try { ankiDecks = JSON.parse(colRes[0].values[0][2]); } catch(e){}
+      }
+      ankiDecksCache = ankiDecks;
+
+      // 2. revlog 테이블 읽기
+      let revlogsByCid = {};
+      ankiRevlogsCache = [];
+      try {
+        const revRes = db.exec("SELECT id, cid, ease, ivl, lastIvl, factor, time, type FROM revlog ORDER BY id ASC");
+        if(revRes.length && revRes[0].values.length){
+          const cols = revRes[0].columns;
+          revRes[0].values.forEach(row => {
+            const rev = {};
+            cols.forEach((c, idx) => rev[c] = row[idx]);
+            if(!revlogsByCid[rev.cid]) revlogsByCid[rev.cid] = [];
+            revlogsByCid[rev.cid].push(rev);
+            ankiRevlogsCache.push(rev);
+          });
+        }
+      } catch(e){}
+
+      // 3. cards + notes 조인 쿼리
+      const cardsRes = db.exec(`
+        SELECT c.id as cid, c.nid, c.did, c.type, c.queue, c.due, c.ivl, c.factor, c.reps, c.lapses, c.data,
+               n.flds, n.tags
+        FROM cards c
+        JOIN notes n ON c.nid = n.id
+      `);
+
+      const nowSec = Math.floor(Date.now() / 1000);
+      const daysSinceCrt = Math.floor((nowSec - crt) / 86400);
+
+      const parsedCards = [];
+      let matureCount = 0;
+      let dueTodayCount = 0;
+      let newCount = 0;
+
+      if(cardsRes.length && cardsRes[0].values.length){
+        const cols = cardsRes[0].columns;
+        cardsRes[0].values.forEach(row => {
+          const item = {};
+          cols.forEach((c, idx) => item[c] = row[idx]);
+
+          const flds = (item.flds || '').split('\x1f');
+          const q = flds[0] || '';
+          const a = flds[1] || '';
+          const note = flds.slice(2).join(' / ');
+
+          const deckObj = ankiDecks[String(item.did)] || { name: baseName || 'Anki 덱' };
+          const deckName = deckObj.name || (baseName || 'Anki 덱');
+
+          let daysUntilDue = 0;
+          const isNew = (item.type === 0 || item.queue === 0);
+
+          if(isNew){
+            newCount++;
+          } else if(item.type === 2){
+            daysUntilDue = item.due - daysSinceCrt;
+            if(daysUntilDue <= 0) dueTodayCount++;
+            if((item.ivl || 0) >= 21) matureCount++;
+          } else if(item.type === 1 || item.type === 3){
+            if(item.due > 1000000000){
+              daysUntilDue = Math.round((item.due * 1000 - Date.now()) / 86400000);
+            } else {
+              daysUntilDue = item.due;
+            }
+            if(daysUntilDue <= 0) dueTodayCount++;
+          }
+
+          const targetDue = new Date(Date.now() + (daysUntilDue * 86400000));
+          const cardRevlogs = revlogsByCid[item.cid] || [];
+          const lastRevTime = cardRevlogs.length ? cardRevlogs[cardRevlogs.length - 1].id : (Date.now() - ((item.ivl || 1) * 86400000));
+
+          let stability = Math.max(1, item.ivl || 1);
+          let difficulty = 5.0;
+          if(item.factor) difficulty = Math.max(1, Math.min(10, 11 - (item.factor / 300)));
+
+          if(item.data && typeof item.data === 'string' && item.data.startsWith('{')){
+            try {
+              const pd = JSON.parse(item.data);
+              if(pd.s) stability = pd.s;
+              if(pd.d) difficulty = pd.d;
+            } catch(e){}
+          }
+
+          const fsrsState = isNew ? null : {
+            due: targetDue.toISOString(),
+            stability: stability,
+            difficulty: difficulty,
+            elapsed_days: Math.max(0, (item.ivl || 0) - daysUntilDue),
+            scheduled_days: Math.max(1, item.ivl || 1),
+            reps: item.reps || cardRevlogs.length || 1,
+            lapses: item.lapses || 0,
+            state: item.type === 2 ? 2 : (item.type === 1 ? 1 : (item.type === 3 ? 3 : 0)),
+            last_review: new Date(lastRevTime).toISOString()
+          };
+
+          parsedCards.push({
+            id: 'anki_' + item.cid,
+            q, a, front: q, back: a,
+            note,
+            deckName,
+            did: item.did,
+            isNew,
+            daysUntilDue,
+            ivl: item.ivl || 0,
+            reps: item.reps || 0,
+            fsrsState,
+            baseAt: Math.round(lastRevTime / 1000),
+            cardRevlogs,
+            suspended: item.queue === -1
+          });
+        });
+      }
+
+      parsedCardsCache = parsedCards;
+
+      const pArea = $('importPreviewArea');
+      const badge = $('importParsedCountBadge');
+      const tbody = $('importPreviewTable').querySelector('tbody');
+      const fnEl = $('importSelectedFileName');
+
+      if(fnEl){
+        fnEl.textContent = `📦 ${file.name} 분석 완료: 총 ${parsedCards.length}장 (복습 진행 중 ${parsedCards.length - newCount}장, 오늘 대기 ${dueTodayCount}장, 신규 ${newCount}장)`;
+      }
+
+      if(pArea && badge && tbody){
+        pArea.style.display = 'block';
+        badge.textContent = `Anki ${parsedCards.length}장 / 오늘 대기 ${dueTodayCount}장`;
+        tbody.innerHTML = '';
+        parsedCards.slice(0, 6).forEach(c => {
+          const tr = document.createElement('tr');
+          const statusText = c.isNew ? '<span style="color:var(--c-blue);">신규 카드</span>' : (c.daysUntilDue <= 0 ? `<b style="color:var(--c-red);">오늘 복습 대기</b> (간격 ${c.ivl}일)` : `<span style="color:var(--c-sec);">${c.daysUntilDue}일 뒤 복습 (간격 ${c.ivl}일)</span>`);
+          tr.innerHTML = `<td>${esc(c.q)}</td><td>${esc(c.a)}</td><td>${statusText}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+
+      if($('ankiOptionsWrap')) $('ankiOptionsWrap').style.display = 'block';
+      toast(`Anki 패키지 분석 완료: 총 ${parsedCards.length}장의 카드와 복습 기록을 감지했습니다.`);
+    } catch(err){
+      console.error('[Anki Parse Error]', err);
+      alert('Anki 패키지 파싱 중 오류가 발생했습니다: ' + (err.message || err));
+    }
   }
 
   $('importCardsText').oninput = (e) => {
@@ -17827,6 +18025,116 @@ function initUniversalImporter(){
   }
 
   $('btnDoImport').onclick = () => {
+    if(!parsedCardsCache || !parsedCardsCache.length){
+      alert('등록할 카드 내용이 없습니다. 파일이나 텍스트를 확인해주세요.');
+      return;
+    }
+
+    const keepSchedule = $('chkKeepAnkiSchedule') ? $('chkKeepAnkiSchedule').checked : false;
+
+    if(isAnkiPackageMode){
+      // Anki 패키지 모드: 덱 계층 자동 생성 및 카드·복습 진도 완벽 등록
+      const deckNameToDeck = new Map();
+      DECKS.forEach(d => { if(d && d.name) deckNameToDeck.set(d.name, d); });
+
+      const newDeckObjs = [];
+      const newCardObjs = [];
+      let reviewCardCount = 0;
+      let todayDueCount = 0;
+
+      parsedCardsCache.forEach(c => {
+        const dName = c.deckName || 'Anki 덱';
+        let targetDeck = deckNameToDeck.get(dName);
+        if(!targetDeck){
+          targetDeck = {
+            id: 'deck_anki_' + (c.did || Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
+            name: dName,
+            desc: 'Anki에서 가져온 덱',
+            createdAt: Date.now()
+          };
+          DECKS.push(targetDeck);
+          deckNameToDeck.set(dName, targetDeck);
+          newDeckObjs.push(targetDeck);
+          ensureDeckAncestors(dName);
+        }
+
+        const cardObj = {
+          id: c.id,
+          q: c.q,
+          a: c.a,
+          front: c.front,
+          back: c.back,
+          typ: '단답',
+          note: c.note || '',
+          subj: dName,
+          unit: dName,
+          deckId: targetDeck.id
+        };
+        newCardObjs.push(cardObj);
+
+        // 복습 진도 복원 (keepSchedule 활성화 시)
+        if(keepSchedule && c.fsrsState){
+          reviewCardCount++;
+          if(c.daysUntilDue <= 0) todayDueCount++;
+          state.cards[c.id] = {
+            fsrs: c.fsrsState,
+            base: { at: c.baseAt, fsrs: JSON.parse(JSON.stringify(c.fsrsState)) },
+            miss: c.fsrsState.lapses || 0,
+            retired: c.suspended,
+            u: new Date().toISOString(),
+            d: dayKey(new Date(c.fsrsState.last_review))
+          };
+
+          if(Array.isArray(c.cardRevlogs)){
+            c.cardRevlogs.forEach(rev => {
+              state.log.push([
+                c.id,
+                rev.id,
+                rev.ease,
+                { ivl: rev.ivl, lastIvl: rev.lastIvl, time: rev.time }
+              ]);
+            });
+          }
+        }
+      });
+
+      // DATA 등록 (중복 방어)
+      newCardObjs.forEach(c => {
+        if(!BYID[c.id]){
+          DATA.push(c);
+          BYID[c.id] = c;
+        } else {
+          Object.assign(BYID[c.id], c);
+        }
+      });
+
+      // custom_cards 저장
+      try {
+        const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
+        const customMap = new Map();
+        custom.forEach(c => customMap.set(c.id, c));
+        newCardObjs.forEach(c => customMap.set(c.id, c));
+        lsSet(getUserStorageKey('custom_cards'), JSON.stringify(Array.from(customMap.values())));
+      } catch(e){}
+
+      saveUserDecks();
+      cacheStateNow();
+      setDirty(true);
+
+      $('ovlImport').classList.remove('show');
+      if(keepSchedule){
+        toast(`${newCardObjs.length}장의 카드와 복습 진도를 완벽히 가져왔어요! (복습 카드 ${reviewCardCount}장 / 오늘 대기 ${todayDueCount}장)`);
+      } else {
+        toast(`${newCardObjs.length}장의 카드를 신규 카드로 등록했어요.`);
+      }
+
+      renderDeckHub();
+      renderHome();
+      if(typeof renderList === 'function') renderList();
+      return;
+    }
+
+    // 일반 텍스트 / CSV 모드
     const rawText = $('importCardsText').value;
     const cards = parseCardData(rawText);
     if(!cards.length){
