@@ -2280,6 +2280,38 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
 .import-tab-bar{display:flex;gap:6px;margin-bottom:14px;}
 .import-tab-btn{flex:1;padding:8px;border:none;border-radius:10px;background:var(--c-fill);color:var(--c-sec);font-size:13px;font-weight:600;cursor:pointer;}
 .import-tab-btn.on{background:var(--c-blue,#007aff);color:#fff;}
+/* 회독본 숨김 정리 */
+#cHoedok, #hsToc, .cs-hoedok { display:none !important; }
+/* 탐색 (Card Browser Table) 스타일 */
+.cbt-container{width:100%;border-radius:14px;background:var(--c-card);border:0.5px solid var(--c-sep,rgba(120,120,128,0.2));overflow:hidden;margin-top:10px;}
+.cbt-head{display:grid;grid-template-columns:110px 1.2fr 1.2fr 90px 90px;background:var(--c-fill);padding:10px 14px;font-size:12px;font-weight:700;color:var(--c-sec);letter-spacing:-0.2px;border-bottom:0.5px solid var(--c-sep,rgba(120,120,128,0.2));}
+.cbt-row{display:grid;grid-template-columns:110px 1.2fr 1.2fr 90px 90px;padding:12px 14px;border-bottom:0.5px solid var(--c-sep-sub,rgba(120,120,128,0.15));align-items:center;font-size:13px;transition:background .12s;cursor:pointer;position:relative;}
+.cbt-row:last-child{border-bottom:none;}
+.cbt-row:hover{background:var(--c-fill-hi,rgba(120,120,128,0.08));}
+.cbt-td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px;}
+.cbt-front{font-weight:600;color:var(--c-label);}
+.cbt-back{color:var(--c-sec);}
+.cbt-deck .deck-tag{display:inline-block;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 7px;border-radius:6px;font-size:11.5px;background:var(--c-fill);color:var(--c-sec);font-weight:600;}
+.cbt-acts{display:flex;gap:4px;align-items:center;justify-content:flex-end;}
+.cbt-btn{border:none;background:transparent;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:3px;transition:background .12s;}
+.cbt-btn.btn-edit{color:var(--c-blue,#007aff);background:rgba(0,122,255,0.08);}
+.cbt-btn.btn-edit:hover{background:rgba(0,122,255,0.18);}
+.cbt-btn.btn-del{color:var(--c-red,#ff3b30);background:rgba(255,59,48,0.08);padding:5px 6px;}
+.cbt-btn.btn-del:hover{background:rgba(255,59,48,0.18);}
+.cbt-row .ck{position:absolute;top:12px;right:8px;width:20px;height:20px;border-radius:7px;border:2px solid var(--line);background:var(--c-fill);display:none;}
+#listBody.picking .cbt-row .ck{display:block;}
+#listBody.picking .cbt-row.sel .ck{background:var(--accent);border-color:var(--accent);}
+#listBody.picking .cbt-row.sel .ck::after{content:'✓';display:flex;align-items:center;justify-content:center;height:100%;font-size:13px;font-weight:900;color:var(--accent-ink);}
+#listBody.picking .cbt-row{padding-right:36px;}
+#listBody.picking .cbt-row.sel{outline:2px solid var(--accent);outline-offset:-2px;}
+@media (max-width:680px){
+  .cbt-head{display:none;}
+  .cbt-row{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px 14px;}
+  .cbt-td{white-space:normal;overflow:visible;padding-right:0;width:100%;}
+  .cbt-front{font-size:14px;line-height:1.4;}
+  .cbt-back{font-size:13px;line-height:1.4;color:var(--c-sec);}
+  .cbt-acts{width:100%;justify-content:flex-end;margin-top:4px;}
+}
 </style>
 </head>
 <body>
@@ -2291,12 +2323,11 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
     <nav class="hs-nav"><div class="hs-grp">메뉴</div>
       <button class="hs-row" data-go="scrHome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>홈 (덱 목록)</button>
       <button class="hs-row" id="hsDeckNav" onclick="ymEnter()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>연문 모드 & 오답</button>
-      <button class="hs-row" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>라이브러리 (검색)</button>
+      <button class="hs-row" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 4v16"/></svg>탐색 (카드 브라우저)</button>
       <button class="hs-row" data-go="scrStats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-6"/></svg>학습 통계</button>
       <button class="hs-row" data-go="scrStudy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.8 14.6c2.4-.3 4.3 1.2 4.8 4.4"/></svg>스터디 룸</button>
     </nav>
     <div class="hs-bottom"><button class="hs-row" id="btnSettings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>설정</button><div class="h-foot" id="hFoot"></div></div>
-    <div id="hsToc"></div>   <!-- 회독본 목차(판을 보는 동안 · 10-05) -->
   </aside>
   <div id="main">
     <div id="banner"></div>
@@ -2313,7 +2344,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
         <!-- 🔴 디자인 이식 09-24: 카드 = 위아래 반반. 답면 내용은 **앞면에서도 미리 채워 visibility:hidden**으로 깔고 가림 면으로 덮는다 →
              앞면↔답면에서 질문·선·버튼이 1px도 안 움직인다(디자인_언어 §1-1 · §7.1). 가림은 visibility라 글자가 선택·낭독되지 않는다. -->
         <div id="card">
-          <div id="cHead"><div class="c-head-top"><div id="cScope"></div><div id="phaseLine"></div></div><div class="c-head-sub" id="cHeadSub"><span id="lastActionChip" class="last-action-chip" style="display:none;" title="직전 채점 (탭하면 되돌리기)"></span><span id="solveStudyChip" class="sc-badge"></span><div class="c-upper-act"><button type="button" class="c-copy-btn c-gpt-btn" id="btnGptFront" title="ChatGPT 앱 열기" aria-label="ChatGPT 앱 열기"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1683a.071.071 0 0 1 .038.052v5.5826a4.5045 4.5045 0 0 1-4.4945 4.4947zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4998 4.4998 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1683a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.0993 3.8558L12.5973 8.3829l2.02-1.1636a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.402-.6862zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L8.909 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4998 4.4998 0 0 1 6.6802 4.6604v.0001zm-4.4664 4.3713L10.1504 9.7348 12.0142 8.66l5.834 3.3685-1.8638 1.0709zm-2.006 1.1541L12 15.3401l-5.834-3.3685 1.8638-1.0709 3.834 2.2132v2.1378z"/></svg></button><button type="button" class="c-copy-btn" id="btnCopyFront" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button></div></div></div>
+          <div id="cHead"><div class="c-head-top"><div id="cScope"></div><div id="phaseLine"></div></div><div class="c-head-sub" id="cHeadSub"><span id="lastActionChip" class="last-action-chip" style="display:none;" title="직전 채점 (탭하면 되돌리기)"></span><span id="solveStudyChip" class="sc-badge"></span><div class="c-upper-act"><button type="button" class="c-copy-btn c-gpt-btn" id="btnGptFront" title="ChatGPT 앱 열기" aria-label="ChatGPT 앱 열기"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1683a.071.071 0 0 1 .038.052v5.5826a4.5045 4.5045 0 0 1-4.4945 4.4947zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4998 4.4998 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1683a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.0993 3.8558L12.5973 8.3829l2.02-1.1636a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.402-.6862zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L8.909 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4998 4.4998 0 0 1 6.6802 4.6604v.0001zm-4.4664 4.3713L10.1504 9.7348 12.0142 8.66l5.834 3.3685-1.8638 1.0709zm-2.006 1.1541L12 15.3401l-5.834-3.3685 1.8638-1.0709 3.834 2.2132v2.1378z"/></svg></button><button type="button" class="c-copy-btn" id="btnEditFront" title="이 카드 수정" aria-label="이 카드 수정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button><button type="button" class="c-copy-btn" id="btnCopyFront" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button></div></div></div>
           <div id="cardScroll"><div id="cSplit">
             <div id="cUpper">
               <div class="c-imgs front" id="cImgF"></div>
@@ -2339,7 +2370,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
                   <!-- 가림 면 = 답과 같은 격자 칸에 겹친다 → 칸 높이 = 둘 중 큰 쪽(힌트 칩이 많아도 넘치지 않는다) · 답면에선 visibility로만 치운다(높이 그대로) -->
                   <div id="cCover"><div id="revealHint">카드를 누르면 정답이 보여요</div><div id="hintBox"></div></div>
                 </div>
-                <div id="cMeta"><span class="typ-tag" id="cTyp"></span><span class="typ-tag" id="cDir">역방향</span><span id="cHint"></span><span id="cTags"></span><button class="typ-tag" id="cTagAdd">＋태그</button><input id="cTagInput" type="text" maxlength="16" placeholder="태그"><button type="button" class="typ-tag c-copy-tag c-gpt-tag" id="btnGptBack" title="ChatGPT 앱 열기" aria-label="ChatGPT 앱 열기"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1683a.071.071 0 0 1 .038.052v5.5826a4.5045 4.5045 0 0 1-4.4945 4.4947zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4998 4.4998 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1683a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.0993 3.8558L12.5973 8.3829l2.02-1.1636a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.402-.6862zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L8.909 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4998 4.4998 0 0 1 6.6802 4.6604v.0001zm-4.4664 4.3713L10.1504 9.7348 12.0142 8.66l5.834 3.3685-1.8638 1.0709zm-2.006 1.1541L12 15.3401l-5.834-3.3685 1.8638-1.0709 3.834 2.2132v2.1378z"/></svg></button><button type="button" class="typ-tag c-copy-tag" id="btnCopyBack" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button><div id="cHoedok"></div></div>
+                <div id="cMeta"><span class="typ-tag" id="cTyp"></span><span class="typ-tag" id="cDir">역방향</span><span id="cHint"></span><span id="cTags"></span><button class="typ-tag" id="cTagAdd">＋태그</button><input id="cTagInput" type="text" maxlength="16" placeholder="태그"><button type="button" class="typ-tag c-copy-tag" id="btnEditBack" title="이 카드 수정">✎ 수정</button><button type="button" class="typ-tag c-copy-tag c-gpt-tag" id="btnGptBack" title="ChatGPT 앱 열기" aria-label="ChatGPT 앱 열기"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1683a.071.071 0 0 1 .038.052v5.5826a4.5045 4.5045 0 0 1-4.4945 4.4947zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4998 4.4998 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1683a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.0993 3.8558L12.5973 8.3829l2.02-1.1636a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.402-.6862zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L8.909 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4998 4.4998 0 0 1 6.6802 4.6604v.0001zm-4.4664 4.3713L10.1504 9.7348 12.0142 8.66l5.834 3.3685-1.8638 1.0709zm-2.006 1.1541L12 15.3401l-5.834-3.3685 1.8638-1.0709 3.834 2.2132v2.1378z"/></svg></button><button type="button" class="typ-tag c-copy-tag" id="btnCopyBack" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button></div>
               </div>
             </div>
           </div></div>
@@ -2407,7 +2438,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
         <div class="hp-views">
           <div class="hs-grp">바로가기</div>
           <div class="hp-list">
-            <button class="hs-row" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 4v16"/></svg>전체 카드 브라우저</button>
+            <button class="hs-row" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 4v16"/></svg>탐색 (전체 카드 브라우저)</button>
             <button class="hs-row" data-go="scrStats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-6"/></svg>학습 통계</button>
             <button class="hs-row" data-go="scrStudy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.8 14.6c2.4-.3 4.3 1.2 4.8 4.4"/></svg>실시간 스터디</button>
           </div>
@@ -2417,7 +2448,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
       </div></div>
       <nav id="tabBar">
         <button class="tab on" id="tabToday"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>홈</span></button>
-        <button class="tab" id="tabCards" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 4v16"/></svg><span>전체 카드</span></button>
+        <button class="tab" id="tabCards" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 4v16"/></svg><span>탐색</span></button>
         <button class="tab" id="tabStats" data-go="scrStats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-6"/></svg><span>통계</span></button>
         <button class="tab" id="tabSetup" data-go="setup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>설정</span></button>
       </nav>
@@ -2456,7 +2487,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
     <div class="scr" id="scrList">
       <div class="sub-head">
         <button class="tb-btn" data-go="scrHome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <div class="sub-title">전체 카드</div>
+        <div class="sub-title">탐색</div><span id="listTotalCountBadge" class="ac-badge ac-new" style="font-size:12px;margin-left:8px;">0장</span>
         <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
           <button class="tb-btn" id="btnOpenAddCardTop" title="새 카드 추가" style="color:var(--c-acc);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></button>
         </div>
@@ -9000,12 +9031,9 @@ function showDiag(c, back){
   el.classList.toggle('on', !!on);
   if(!on){ el.innerHTML=''; return; }
   if(!back){ el.innerHTML = imgsOf(c,'b').length
-    ? '<b>그림 답</b>먼저 직접 그린 다음 넘기세요.'                                    // 뒷면에 그림이 붙은 도식 카드 — 「맞춰 볼 답면이 없다」는 이제 거짓말이다(메타 09-09)
+    ? '<b>그림 답</b>먼저 직접 그린 다음 넘기세요.'
     : '<b>그림 답</b>맞춰 볼 답면이 없는 카드예요 — 먼저 직접 그린 다음 넘기세요.'; return; }
-  const uri=cardHoedokURI(c);
-  el.innerHTML='<b>스스로 채점</b>회독본 그림과 대조해 직접 매기세요.'
-    + (uri?` <a href="${uri.replace(/&/g,'&amp;')}">회독본 ↗</a>`:'');
-  const a=el.querySelector('a'); if(a)a.onclick=(e)=>e.stopPropagation();   // 탭이 카드 되접기로 먹지 않게
+  el.innerHTML='<b>스스로 채점</b>정답 그림과 대조해 직접 매기세요.';
 }
 let lastAction = null;
 function renderLastActionChip(){
@@ -9062,16 +9090,12 @@ function renderLineDots(){
     }, 400);
   }, 850);
 }
-/* 도식이 아닌 카드의 회독본 링크 (동하 2026-08-24 — 「모든 카드에서 회독본으로 갈 수 있게」).
-   🔴 뒷면 전용이다: 답을 보기 전에 원문으로 가면 인출 연습이 깨진다. 그래서 #cDiag(앞면 아래)가
-   아니라 #cBackWrap 안의 #cHoedok에 그린다 — 공개 전에는 부모가 통째로 숨겨져 있어 새어 나올 길이 없다.
-   도식 카드에서는 비워 둔다: #cDiag가 이미 안내 문구와 함께 같은 링크를 달고 있어 두 번 나온다. */
 function showHoedokLink(c){
   const el=$('cHoedok');
-  const uri = (c && c.typ!=='도식') ? cardHoedokURI(c) : null;   // null = 회독본이 없는 과목 (⚠ 13.총창은 09-02에 생겼다 — 지금은 283장 전부 링크)
-  el.classList.toggle('on', !!uri);
-  el.innerHTML = uri ? `<a href="${uri.replace(/&/g,'&amp;')}">회독본 ↗</a>` : '';
-  const a=el.querySelector('a'); if(a)a.onclick=(e)=>e.stopPropagation();   // 탭이 카드 되접기로 먹지 않게
+  if(!el) return;
+  el.classList.remove('on');
+  el.style.display = 'none';
+  el.innerHTML = '';
 }
 function showCard(){
   $('card').classList.remove('rev');
@@ -9198,7 +9222,7 @@ function fillBack(c){   // 앞면에서 답면을 미리 깐다 — 보이는 �
   $('cDir').style.display = isRev(c)?'inline-block':'none';
   const backStr = String(c.back || c.a || '');
   $('cHint').textContent = isTbl ? '표 답 — 위 표를 채워 보고 대조해요'
-    : isDiag ? '그림 답 — 회독본과 대조해 스스로 채점'
+    : isDiag ? '그림 답 — 정답 그림과 대조해 스스로 채점'
     : TERM_TYPES.has(c.typ)||(backStr.length<=14&&!backStr.includes('·'))
     ? '용어 답 — 표기까지 정확히' : '서술 답 — 요지 재현이면 정답';
   try{ showHoedokLink(c); }catch(e){}
@@ -9247,7 +9271,7 @@ function reveal(){
   try{ showHoedokLink(c); }catch(e){}
   const backStr = String(c.back || c.a || '');
   $('cHint').textContent = isTbl ? '표 답 — 위 표를 채워 보고 대조해요'
-    : c.typ==='도식' ? '그림 답 — 회독본과 대조해 스스로 채점'
+    : c.typ==='도식' ? '그림 답 — 정답 그림과 대조해 스스로 채점'
     : TERM_TYPES.has(c.typ)||(backStr.length<=14&&!backStr.includes('·'))
     ? '용어 답 — 표기까지 정확히' : '서술 답 — 요지 재현이면 정답';
   $('cBackWrap').classList.add('on');
@@ -10009,7 +10033,14 @@ function go(id){
   if(id==='scrHome')renderHome();
   if(id==='scrSession')renderSession();
   if(id==='scrUnits')renderUnits();
-  if(id==='scrList'){ picking=false; picked.clear(); listCond=null; $('qSearch').value=''; syncBulk(); renderList(true); }
+  if(id==='scrList'){
+    picking=false; picked.clear(); listCond=null; $('qSearch').value=''; syncBulk();
+    if(typeof syncDeckDropdowns === 'function') syncDeckDropdowns();
+    if($('listDeckFilter')) $('listDeckFilter').value = '';
+    const fr = $('filterChipsRow');
+    if(fr){ fr.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('on')); const allBtn = fr.querySelector('[data-filter="all"]'); if(allBtn) allBtn.classList.add('on'); }
+    renderList(true);
+  }
   if(id==='scrStats')renderStats();
   if(id==='scrSite') siteOpen();
   if(id==='scrStudy'){ $('studyBody').dataset.m=''; scRenderStudy(); if(SC.group && Date.now()-(SC.membersAt||0)>30000) scSync({force:true}); }
@@ -11778,8 +11809,7 @@ function unitRow(k, st2, opts){   // 공용 단위 행 (세션 화면·단위 �
     + `<div class="t">${up?`<div class="up">${esc(up)}</div>`:''}<div class="nm">${esc(rowName(k))}</div>
     <div class="mt">${inQ?`<span class="inq">이 세션 ${inQ}</span>`:''}<span>총 ${st2.n}</span>${st2.due?`<span class="due">복습 ${st2.due.toLocaleString()}</span>`:''}
       ${st2.nw?`<span class="nw">신규 ${st2.nw}</span>`:'<span>투입 완료</span>'}
-      <span>${st2.last?'인출 '+fmtAgo(st2.last):'인출 없음'}</span>${plan?`<span>${plan} 수강</span>`:''}
-      ${uri?`<a class="hd" href="${uri.replace(/&/g,'&amp;')}">회독본 ↗</a>`:''}</div></div>
+      <span>${st2.last?'인출 '+fmtAgo(st2.last):'인출 없음'}</span>${plan?`<span>${plan} 수강</span>`:''}</div></div>
     <button class="rd${read?' on':''}">${read?'읽음 ✓':'읽음 표시'}</button>
     ${opts&&opts.action?`<button class="act">${opts.action}</button>`:''}
     ${opts&&opts.action2?`<button class="act dim">${opts.action2}</button>`:''}`;
@@ -11982,12 +12012,10 @@ function renderSession(){
     const uri=isSubj?null:hoedokURI(k);
     el.innerHTML=`<button class="gr-b us-nm"><span class="gr-t">${esc(label)}</span></button>
       <span class="gr-r us-n">${n?n.toLocaleString()+'장':'—'}</span>
-      ${uri?`<a class="us-hd" href="${uri.replace(/&/g,'&amp;')}" aria-label="회독본">↗</a>`:''}
       ${kids?`<button class="us-cv${open?' open':''}" aria-label="펼치기">${CHEV}</button>`:'<span class="us-cv"></span>'}`;
     const tog=()=>{ open?ssOpen.delete(k):ssOpen.add(k); renderSession(); };
     el.querySelector('.us-nm').onclick = isSubj ? tog : ()=>playUnitFirst(sx,k);
     const cv=el.querySelector('button.us-cv'); if(cv) cv.onclick=(e)=>{ e.stopPropagation(); tog(); };
-    const a=el.querySelector('.us-hd'); if(a) a.onclick=(e)=>e.stopPropagation();
     ub.appendChild(el); return open;
   };
   for(const sj of Object.keys(usBySubj).sort((a,b)=>usSubjNum(a)-usSubjNum(b))){
@@ -12725,7 +12753,7 @@ const PAD_ACTS=[   // [id, 라벨, 합성할 키] — 순서 = 화면 순서
   ['bury','내일로 (Shift+B)',{code:'KeyB',key:'b',shiftKey:true}], ['off','끄기 (Q)',{code:'KeyO',key:'o'}], ['hint','첫 글자 힌트 (T)',{code:'KeyT',key:'t'}],
   ['home','홈 (Esc)',{code:'KeyH',key:'h'}], ['pause','일시정지 (P)',{code:'KeyP',key:'p'}], ['mod','사유 칩 보조키 — 누른 채 채점 버튼 (Ctrl+1~4)',null],
   ['up','위로 스크롤 (↑)',{code:'ArrowUp',key:'ArrowUp'}], ['down','아래로 스크롤 (↓)',{code:'ArrowDown',key:'ArrowDown'}],
-  ['left','회독본 이전 절 (←)',{code:'ArrowLeft',key:'ArrowLeft'}], ['right','회독본 다음 절 (→)',{code:'ArrowRight',key:'ArrowRight'}]];
+  ['left','이전 (←)',{code:'ArrowLeft',key:'ArrowLeft'}], ['right','다음 (→)',{code:'ArrowRight',key:'ArrowRight'}]];
 /* 표준 매핑 버튼 번호: 0 A(다시) · 1 B(통과/어려움) · 2 X(통과/쉬움) · 3 Y(알맞음) · 4 L · 5 R(찌르기) · 6 L2 · 7 R2(되돌리기) · 8 Back · 9 Start · 12↑ 13↓ 14← 15→ · 16 홈/하트(찌르기) */
 const PAD_DEF = {again:0, hard:1, easy:2, good:3, poke:5, undo:7, bury:null, off:4, mod:null, pause:8, home:9, up:12, down:13, left:14, right:15, hint:6, reveal:null};
 let padMap=Object.assign({}, PAD_DEF); try{ const j=JSON.parse(lsGet(K_PAD)||'null'); if(j&&typeof j==='object') padMap=Object.assign({}, PAD_DEF, j); }catch(e){}
@@ -13346,17 +13374,6 @@ function renderCardSheet(){
     ${hasItems?`<div class="cs-items">${c.items.map(i=>`<div>· ${esc(i)}</div>`).join('')}</div>`
               :`<div class="cs-back">${esc(c.back)}</div>`}
     ${csImgs(c,'b')}
-    ${(()=>{ /* 도식 카드는 답면이 「(도식 — 회독본 그림과 대조해…)」 한 줄뿐이라, 여기서도
-                회독본으로 갈 길이 있어야 한다. 풀이 화면 뒷면(showDiag)에는 이미 있었는데
-                상세 시트에는 없어서 카드 목록에서 열면 갈 데가 없었다 (동하 2026-08-23). */
-      const u=cardHoedokURI(c);      // null = 회독본이 없는 과목 — 그때는 링크를 안 만든다 (⚠ 13.총창은 이제 있다)
-      if(c.typ==='도식')
-        return `<div class="cs-diag"><b>스스로 채점</b>회독본 그림과 대조해 직접 매기세요.`
-          + (u?` <a href="${u.replace(/&/g,'&amp;')}" onclick="event.stopPropagation()">회독본 ↗</a>`:'') + `</div>`;
-      /* 도식이 아닌 카드도 회독본으로 갈 수 있어야 한다 (동하 2026-08-24). 안내 문구는 없다 —
-         답면이 멀쩡히 있으니 할 말이 없고, 링크 한 줄이면 된다. */
-      return u?`<div class="cs-hoedok"><a href="${u.replace(/&/g,'&amp;')}" onclick="event.stopPropagation()">회독본 ↗</a></div>`:'';
-    })()}
     ${c.note?`<div class="cs-note"><b>보충 </b>${noteHtml(c.note)}</div>`:''}
     ${forgetChart(c)}
     <div class="cs-sec">상태</div>
@@ -13374,11 +13391,13 @@ function renderCardSheet(){
       :'<div class="cs-hist"><div class="cs-hrow">아직 푼 적 없어요</div></div>'}
     <div class="cs-sec">조작</div>
     <div class="cs-acts">
+      <button class="cs-act" id="csEditCard" style="background:var(--c-blue,#007aff);color:#fff;font-weight:700;">✏️ 카드 내용 수정</button>
       <button class="cs-act" id="csSolve">지금 이 카드 풀기</button>
       <button class="cs-act" id="csCopy">내용 복사</button>
       <button class="cs-act ${s.flag!=null?'on':''}" id="csFlag">${s.flag!=null?'플래그 해제':'플래그'}</button>
       <button class="cs-act ${buried(c)?'on':''}" id="csBury">${buried(c)?'내일로 취소':'내일로'}</button>
       <button class="cs-act ${s.retired?'on':''}" id="csRetire">${s.retired?'다시 켜기':'끄기'}</button>
+      <button class="cs-act danger" id="csDeleteCard">🗑 카드 삭제</button>
     </div>
     <div id="csTypes" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">${
       FLAG_TYPES.map(t=>`<button class="ft-chip${flagTypes(s).includes(t)?' on':''}" data-ft="${t}">${t}</button>`).join('')}</div>
@@ -13391,6 +13410,10 @@ function renderCardSheet(){
     </div>`;
   $('csSheet').scrollTop=keepScroll;
   const rr=()=>renderCardSheet();
+  const csEditEl = $('csEditCard');
+  if(csEditEl) csEditEl.onclick = () => { closeCardSheet(); openEditCardModal(c.id); };
+  const csDelEl = $('csDeleteCard');
+  if(csDelEl) csDelEl.onclick = () => { closeCardSheet(); deleteCard(c.id); };
   $('csSheet').querySelectorAll('[data-untag]').forEach(b=>b.onclick=()=>{
     const s2=st(c.id); s2.t=(s2.t||[]).filter(x=>x!==b.dataset.untag); touch(s2); cacheState(); setDirty(true); rr(); });
   $('csSheet').querySelectorAll('[data-unann]').forEach(b=>b.onclick=()=>{
@@ -13512,17 +13535,65 @@ function fmtAgo(t){
 }
 function cardRow(c, extraMeta){
   const s=state.cards[c.id];
-  const el=document.createElement('div'); el.className='lrow';
-  const r=s&&s.fsrs?retrievability(s.fsrs):null;
-  el.innerHTML=`<div class="lf">${esc(c.front)}</div><div class="lb">→ ${esc(c.back)}</div>
-    <div class="lmeta"><span class="m">${esc(c.typ)}</span>${isRev(c)?'<span class="m">역방향</span>':''}
-    ${s&&s.fsrs?`<span class="m">S ${s.fsrs.stability.toFixed(1)}일</span><span class="m">R ${r!=null?Math.round(r*100)+'%':'—'}</span>`:'<span class="m">신규</span>'}
-    ${s&&s.miss?`<span class="m warn">틀림 ${s.miss}</span>`:''}
-    ${isLeech(c)?'<span class="m warn">⚠ 누수</span>':''}
-    ${buried(c)?'<span class="m">내일로 뺌</span>':''}
-    ${s&&s.flag!=null?`<span class="m warn">⚑${s.flag?' '+esc(s.flag):''}</span>`:''}
-    ${(s&&s.ann&&s.ann.length)?`<span class="m">@${esc(s.ann.join('·'))}</span>`:''}
-    ${extraMeta||''}</div>`;
+  const el=document.createElement('div');
+  el.className='cbt-row';
+  el.dataset.id=c.id;
+
+  let deckName = c.subj || c.unit || '';
+  if(c.deckId){
+    const d = DECKS.find(x => x.id === c.deckId);
+    if(d) deckName = d.name;
+  }
+  if(!deckName && DECKS[0]) deckName = DECKS[0].name;
+
+  let statusBadge = '<span class="ac-badge ac-new" style="font-size:11px;padding:2px 6px;">신규</span>';
+  if(s && s.fsrs){
+    const f = s.fsrs;
+    const dueStr = f.due ? (() => {
+      const dd = Math.round((new Date(f.due) - new Date()) / 86400000);
+      return dd <= 0 ? '오늘' : `${dd}일 뒤`;
+    })() : '';
+    if(isLeech(c)){
+      statusBadge = '<span class="ac-badge" style="font-size:11px;padding:2px 6px;background:rgba(255,59,48,0.15);color:var(--c-red);">누수</span>';
+    } else if(isDue(c)){
+      statusBadge = `<span class="ac-badge" style="font-size:11px;padding:2px 6px;background:rgba(52,199,89,0.15);color:var(--c-green);">${dueStr || '복습'}</span>`;
+    } else {
+      statusBadge = `<span class="ac-badge" style="font-size:11px;padding:2px 6px;background:var(--c-fill);color:var(--c-sec);">${dueStr || '안정'}</span>`;
+    }
+  } else if(s && s.retired){
+    statusBadge = '<span class="ac-badge" style="font-size:11px;padding:2px 6px;background:var(--c-fill);color:var(--c-sec);">비활성</span>';
+  }
+
+  const fText = esc(c.front || c.q || '');
+  const bText = esc(c.back || c.a || '');
+
+  el.innerHTML = `
+    <div class="cbt-td cbt-deck"><span class="deck-tag" title="${esc(deckName)}">${esc(deckName || '기본 덱')}</span></div>
+    <div class="cbt-td cbt-front" title="${fText}">${fText}</div>
+    <div class="cbt-td cbt-back" title="${bText}">${bText}</div>
+    <div class="cbt-td cbt-status">${statusBadge}${extraMeta ? ' ' + extraMeta : ''}</div>
+    <div class="cbt-td cbt-acts">
+      <button type="button" class="cbt-btn btn-edit" title="수정" data-edit-id="${esc(c.id)}">✏️ 수정</button>
+      <button type="button" class="cbt-btn btn-del" title="삭제" data-del-id="${esc(c.id)}">🗑</button>
+    </div>
+    <span class="ck"></span>
+  `;
+
+  const editBtn = el.querySelector('.btn-edit');
+  if(editBtn){
+    editBtn.onclick = (e) => {
+      e.stopPropagation();
+      openEditCardModal(c.id);
+    };
+  }
+  const delBtn = el.querySelector('.btn-del');
+  if(delBtn){
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteCard(c.id);
+    };
+  }
+
   return el;
 }
 function parseQuery(q){ // 검색 = 연산자 AND + 나머지 낱말 본문 검색
@@ -13579,16 +13650,12 @@ function renderList(reset){
   if(reset)listShown=0;
   const raw=$('qSearch').value.trim(), sort=$('qSort').value;
   const cond=LIST_CONDS.find(x=>x.k===listCond)||null;
-  const active=!!raw||!!cond;
-  $('listHome').style.display = active?'none':'block';
-  $('listTools').style.display = active?'flex':'none';
-  $('qSort').style.display = active?'':'none';
+
+  $('listHome').style.display = 'none';
+  $('listTools').style.display = 'flex';
+  $('qSort').style.display = '';
   $('condRow').style.display = cond?'flex':'none';
-  if(!active){                    // 조건이 없으면 목록을 안 띄운다
-    $('listBody').innerHTML=''; $('listMore').style.display='none';
-    $('listNote').style.display='none'; $('opHelp').classList.remove('on');
-    picking=false; picked.clear(); syncBulk(); renderListHome(); return;
-  }
+
   if(cond){
     $('condRow').innerHTML=`<button class="cond-chip">${esc(cond.n)} <span>✕</span></button>`;
     $('condRow').querySelector('button').onclick=()=>{ listCond=null; renderList(true); };
@@ -13613,33 +13680,63 @@ function renderList(reset){
   else if(sort==='recent'){ rows.sort((a,b)=>((LR[b.id]||[0])[0])-((LR[a.id]||[0])[0])); }
   listRows=rows;
   const showRev = todayOnly || sort==='recent';
+
+  const badge=$('listTotalCountBadge');
+  if(badge) badge.textContent = `${rows.length.toLocaleString()}장`;
+
   const note=$('listNote');
-  if(todayOnly){ let n=0; for(const e of state.log) if(dayKey(logDate(e))===tk)n++;
-    note.textContent = raw ? `${rows.length}장 (오늘 푼 것 중)`   // 검색을 겹치면 전체 채점 횟수는 오해를 부른다
-      : `오늘 푼 카드 ${rows.length}장 · 채점 ${n}회 (하루 경계 새벽 ${DAY_CUT}시)`;
-    note.style.display='block'; }
-  else if(raw||cond){ note.textContent=`${rows.length}장`; note.style.display='block'; }
-  else note.style.display='none';
+  if(todayOnly){
+    let n=0; for(const e of state.log) if(dayKey(logDate(e))===tk)n++;
+    note.textContent = raw ? `${rows.length.toLocaleString()}장 (오늘 푼 것 중)`
+      : `오늘 푼 카드 ${rows.length.toLocaleString()}장 · 채점 ${n}회`;
+    note.style.display='block';
+  } else {
+    note.textContent=`${rows.length.toLocaleString()}장의 카드`;
+    note.style.display='block';
+  }
+
   $('btnSolveList').textContent = `이 결과 풀기${rows.length?` (${Math.min(rows.length,300)})`:''}`;
+
   const body=$('listBody');
-  if(reset)body.innerHTML='';
+  let rowsArea = $('cbtRowsArea');
+  if(reset || !rowsArea){
+    body.innerHTML = `
+      <div class="cbt-container">
+        <div class="cbt-head">
+          <div>덱 / 분류</div>
+          <div>앞면 (질문)</div>
+          <div>뒷면 (정답)</div>
+          <div>상태 / 복습</div>
+          <div style="text-align:right;">관리</div>
+        </div>
+        <div id="cbtRowsArea"></div>
+      </div>
+    `;
+    rowsArea = $('cbtRowsArea');
+  }
+
   const page=rows.slice(listShown, listShown+120);
   for(const c of page){
     const lr=showRev?LR[c.id]:null;
     const revMeta=lr?`<span class="m${lr[1]===1?' warn':''}">${fmtAgo(lr[0])} · ${RATE_NAME[lr[1]]||lr[1]}</span>`:'';
     const el=cardRow(c, revMeta);
-    el.insertAdjacentHTML('beforeend','<span class="ck"></span>');
     if(picked.has(c.id))el.classList.add('sel');
     el.onclick=()=>{
-      if(picking){ if(picked.has(c.id)){picked.delete(c.id); el.classList.remove('sel');}
-                   else {picked.add(c.id); el.classList.add('sel');} syncBulk(); }
-      else openCardSheet(c, refreshList);
+      if(picking){
+        if(picked.has(c.id)){picked.delete(c.id); el.classList.remove('sel');}
+        else {picked.add(c.id); el.classList.add('sel');}
+        syncBulk();
+      } else {
+        openCardSheet(c, refreshList);
+      }
     };
-    body.appendChild(el);
+    rowsArea.appendChild(el);
   }
   listShown+=page.length;
   $('listMore').style.display = listShown<rows.length?'block':'none';
-  if(!rows.length)body.innerHTML=`<div class="empty-note">${todayOnly?'오늘 푼 카드가 아직 없어요':'해당하는 카드가 없어요'}</div>`;
+  if(!rows.length){
+    rowsArea.innerHTML = `<div style="padding:28px 16px;text-align:center;color:var(--c-sec);font-size:13.5px;">${todayOnly?'오늘 푼 카드가 아직 없어요':'해당하는 카드가 없어요'}</div>`;
+  }
 }
 /* 일괄 선택 */
 function refreshList(){ // 상세·일괄 조작 후 되돌아올 때 보던 자리를 지킨다
@@ -16565,9 +16662,27 @@ function syncDeckDropdowns(){
   });
 }
 
-// 6. 단일 카드 추가/수정 모달
-function openAddCardModal(targetDeckId){
+// 6. 단일 카드 추가/수정/삭제 모달
+let editingCardId = null;
+
+function openEditCardModal(cardId){
+  const c = BYID[cardId] || (DATA.find(x => x.id === cardId));
+  if(!c) return;
+  editingCardId = c.id;
   syncDeckDropdowns();
+  if($('cardModalTitle')) $('cardModalTitle').textContent = '카드 내용 수정';
+  if($('addCardDeckSelect')) $('addCardDeckSelect').value = c.deckId || (DECKS.find(d => d.name === c.subj)||{}).id || '';
+  $('addCardQ').value = c.front || c.q || '';
+  $('addCardA').value = c.back || c.a || '';
+  $('addCardNote').value = c.note || '';
+  $('ovlAddCard').classList.add('show');
+  $('addCardQ').focus();
+}
+
+function openAddCardModal(targetDeckId){
+  editingCardId = null;
+  syncDeckDropdowns();
+  if($('cardModalTitle')) $('cardModalTitle').textContent = '새 카드 추가';
   if(targetDeckId && $('addCardDeckSelect')) $('addCardDeckSelect').value = targetDeckId;
   $('addCardQ').value = '';
   $('addCardA').value = '';
@@ -16576,9 +16691,32 @@ function openAddCardModal(targetDeckId){
   $('addCardQ').focus();
 }
 
+function deleteCard(cardId){
+  const c = BYID[cardId] || (DATA.find(x => x.id === cardId));
+  if(!c) return;
+  const fText = (c.front || c.q || '').slice(0, 30);
+  if(!confirm(`'${fText || '이 카드'}'를 정말 삭제할까요?`)) return;
+
+  DATA = DATA.filter(x => x.id !== cardId);
+  delete BYID[cardId];
+  if(state.cards && state.cards[cardId]) delete state.cards[cardId];
+
+  const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
+  const nextCustom = custom.filter(x => x.id !== cardId);
+  lsSet(getUserStorageKey('custom_cards'), JSON.stringify(nextCustom));
+  cacheState();
+
+  toast('카드를 삭제했어요');
+  renderDeckHub();
+  renderHome();
+  if(typeof renderList === 'function') renderList();
+}
+
 if($('addCardClose')) $('addCardClose').onclick = () => $('ovlAddCard').classList.remove('show');
 if($('btnOpenAddCardTop')) $('btnOpenAddCardTop').onclick = () => openAddCardModal();
 if($('btnOpenAddCardList')) $('btnOpenAddCardList').onclick = () => openAddCardModal();
+if($('btnEditFront')) $('btnEditFront').onclick = () => { const c = cur(); if(c) openEditCardModal(c.id); };
+if($('btnEditBack')) $('btnEditBack').onclick = () => { const c = cur(); if(c) openEditCardModal(c.id); };
 if($('btnDoSaveCard')) $('btnDoSaveCard').onclick = () => {
   const q = $('addCardQ').value.trim();
   const a = $('addCardA').value.trim();
@@ -16588,32 +16726,56 @@ if($('btnDoSaveCard')) $('btnDoSaveCard').onclick = () => {
 
   if(!q || !a){ alert('앞면(질문)과 뒷면(정답)을 모두 입력해주세요'); return; }
 
-  const cid = 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-  const newCard = {
-    id: cid,
-    q,
-    a,
-    front: q,
-    back: a,
-    typ: '단답',
-    note,
-    subj: deck.name,
-    unit: deck.name,
-    deckId: deck.id
-  };
+  if(editingCardId){
+    const c = BYID[editingCardId] || DATA.find(x => x.id === editingCardId);
+    if(c){
+      c.q = q; c.a = a;
+      c.front = q; c.back = a;
+      c.note = note;
+      c.subj = deck.name;
+      c.unit = deck.name;
+      c.deckId = deck.id;
 
-  DATA.push(newCard);
-  BYID[cid] = newCard;
+      const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
+      const idx = custom.findIndex(x => x.id === editingCardId);
+      if(idx >= 0){
+        custom[idx] = Object.assign({}, custom[idx], { q, a, front: q, back: a, note, subj: deck.name, unit: deck.name, deckId: deck.id });
+      } else {
+        custom.push(c);
+      }
+      lsSet(getUserStorageKey('custom_cards'), JSON.stringify(custom));
+      toast('카드를 수정했어요');
+    }
+    editingCardId = null;
+  } else {
+    const cid = 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+    const newCard = {
+      id: cid,
+      q,
+      a,
+      front: q,
+      back: a,
+      typ: '단답',
+      note,
+      subj: deck.name,
+      unit: deck.name,
+      deckId: deck.id
+    };
 
-  const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
-  custom.push(newCard);
-  lsSet(getUserStorageKey('custom_cards'), JSON.stringify(custom));
+    DATA.push(newCard);
+    BYID[cid] = newCard;
+
+    const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
+    custom.push(newCard);
+    lsSet(getUserStorageKey('custom_cards'), JSON.stringify(custom));
+    toast('새 카드를 저장했어요');
+  }
 
   $('ovlAddCard').classList.remove('show');
-  toast('새 카드를 저장했어요');
   renderDeckHub();
   renderHome();
   if(typeof renderList === 'function') renderList();
+  if($('scrSolve').classList.contains('on')) showCard();
 };
 
 // 7. 범용 덱 업로더 (Universal Importer)
