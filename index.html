@@ -6024,6 +6024,8 @@ function tomorrowKey(){ return dayKey(new Date(Date.now()+86400000)); }
 
 /* ═══════════════ 전역 상태 ═══════════════ */
 var YM = null;
+var sbUser = null;
+var DECKS = [];
 let DATA=[], BYID={}, ALLTAGS=[], ALLTYPS=[], TAGMETA={};
 /* 이번 부팅의 DATA가 **원격에서 방금 받은 것**인가 (캐시 폴백이면 false).
    BYID로 「없는 카드」를 판정하는 곳은 이 값을 먼저 봐야 한다 — pruneOrphans 참고. */
@@ -7697,6 +7699,24 @@ async function loadData(){
     const c=(await idbGet(K_DATA)) || lsGet(K_DATA);   // IDB 먼저 · 아직 안 옮긴 기기는 옛 사본
     if(c){ try{ DATA=(JSON.parse(c).cards)||[]; toast('오프라인 — 캐시 카드로 진행'); }catch(e2){} }
   }
+  // 🔴 사용자 정의 카드(custom_cards)를 DATA에 병합하여 원격 데이터 재로드 시 유실 방지
+  try {
+    const rawCustom = lsGet(getUserStorageKey('custom_cards')) || '[]';
+    const customList = JSON.parse(rawCustom);
+    if(Array.isArray(customList) && customList.length){
+      const existingIds = new Set(DATA.map(c => c && c.id));
+      customList.forEach(c => {
+        if(!c || !c.id) return;
+        normalizeCard(c);
+        if(!existingIds.has(c.id)){
+          DATA.push(c);
+          existingIds.add(c.id);
+        }
+      });
+    }
+  } catch(e){
+    console.warn('[loadData custom_cards 병합 실패]', e);
+  }
   BYID={}; const tags=new Set(), typs=new Set(), subjs=new Set();
   DATA.forEach((c,i)=>{ c._i=i; BYID[c.id]=c; (c.tags||[]).forEach(t=>tags.add(t)); if(c.typ) typs.add(c.typ); if(c.subj) subjs.add(c.subj); });
   ALLTAGS=[...tags].sort(); ALLTYPS=[...typs].sort();
@@ -7708,6 +7728,9 @@ async function loadData(){
   /* 🔴 데이터를 다시 받았으면 파생 캐시도 비운다(전층 감사 F2-3/F3-9) — TREE(피커)·NODE_FWD(역방 도입 판정)·prFacts가
      한 번 만들어지면 새로고침 전까지 안 갈려, 재로드로 받은 새 노드의 역방이 「전방 없음 = 도입」으로 통과하고 사라진 단위가 유령으로 남았다. */
   TREE=null; for(const k in NODE_FWD) delete NODE_FWD[k]; for(const k in NODE_FWD_UP) delete NODE_FWD_UP[k]; _prMemo=null;
+  if(typeof loadUserDecks === 'function'){ try { loadUserDecks(); } catch(e){} }
+  if(typeof syncDeckDropdowns === 'function'){ try { syncDeckDropdowns(); } catch(e){} }
+  if(typeof renderDeckHub === 'function'){ try { renderDeckHub(); } catch(e){} }
 }
 let SPLITS = {};   // cards-plan.json에서 로드
 function tagKey(c){ // 투입·회독 단위 키 — 분할 대주제는 그룹까지 (subj|대주제#g)
@@ -16732,7 +16755,7 @@ $('ovlImg').onclick=closeImg;
 const SB_URL = 'https://uvrnsdknkivtclzlfjxx.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cm5zZGtua2l2dGNsemxmanh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTA2NzYsImV4cCI6MjA3MDA2NjY3Nn0.k_jx9ysXfPIsU9ls3NHSgE4uqEkOrdzPftVVcYvck2s';
 const sbClient = (typeof supabase !== 'undefined') ? supabase.createClient(SB_URL, SB_ANON) : null;
-let sbUser = null;
+sbUser = sbUser || null;
 
 // 1. 사용자별 테넌트 격리 스토리지 헬퍼
 function getUserStorageKey(key){
@@ -16741,7 +16764,7 @@ function getUserStorageKey(key){
 }
 
 // 2. 덱(Deck) 모델 및 관리
-let DECKS = [];
+DECKS = DECKS || [];
 
 function loadUserDecks(){
   try {
@@ -16773,6 +16796,26 @@ function loadUserDecks(){
       }];
     }
     saveUserDecks();
+  } else if(Array.isArray(DATA) && DATA.length){
+    // 존재하는 카드의 subj에 대응하는 덱이 DECKS에 누락된 경우 자동 보정 등록
+    const knownDeckNames = new Set(DECKS.map(d => d.name));
+    let added = false;
+    DATA.forEach(c => {
+      if(!c || !c.subj || c.subj === '시작 가이드') return;
+      if(!knownDeckNames.has(c.subj)){
+        const newD = {
+          id: c.deckId || ('deck_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)),
+          name: c.subj,
+          desc: `${c.subj} 학습 덱`,
+          createdAt: Date.now()
+        };
+        DECKS.push(newD);
+        knownDeckNames.add(newD.name);
+        ensureDeckAncestors(newD.name);
+        added = true;
+      }
+    });
+    if(added) saveUserDecks();
   }
 }
 
@@ -19080,22 +19123,29 @@ function restoreUserCards(){
     const raw = lsGet(getUserStorageKey('custom_cards')) || '[]';
     const custom = JSON.parse(raw);
     if(Array.isArray(custom) && custom.length){
+      const existingMap = new Map();
+      DATA.forEach(c => { if(c && c.id) existingMap.set(c.id, c); });
       custom.forEach(c => {
+        if(!c || !c.id) return;
         normalizeCard(c);
-        if(!BYID[c.id]){
+        if(!existingMap.has(c.id)){
           DATA.push(c);
           BYID[c.id] = c;
+          existingMap.set(c.id, c);
         } else {
-          Object.assign(BYID[c.id], c);
-          normalizeCard(BYID[c.id]);
+          Object.assign(existingMap.get(c.id), c);
+          normalizeCard(BYID[c.id] || existingMap.get(c.id));
         }
         if(c.subj && !SUBJECTS.includes(c.subj)) SUBJECTS.push(c.subj);
       });
+      DATA.forEach((c, i) => { c._i = i; BYID[c.id] = c; });
       lsSet(getUserStorageKey('custom_cards'), JSON.stringify(custom));
     }
-  } catch(e){}
+  } catch(e){
+    console.warn('[restoreUserCards 실패]', e);
+  }
   if(Array.isArray(DATA)){
-    DATA.forEach(c => normalizeCard(c));
+    DATA.forEach((c, i) => { c._i = i; normalizeCard(c); });
   }
 }
 
@@ -19249,8 +19299,8 @@ function safeHideLoading(){
 }
 
 function initApp(){
-  try { loadUserDecks(); } catch(e){ console.warn('[덱 로드 경고]', e); }
   try { restoreUserCards(); } catch(e){}
+  try { loadUserDecks(); } catch(e){ console.warn('[덱 로드 경고]', e); }
 
   // 휴식일 강제 기본값 해제 (기본 목요일 자동 휴식 해제 -> 오늘 카드 학습 즉시 가능)
   try {
