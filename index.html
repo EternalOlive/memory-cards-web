@@ -5492,7 +5492,7 @@ function dkAdd(k, n){                    // 'YYYY-MM-DD'에 n일 — 정오 기�
      · **직접 추가한 날**   = 갑자기 쉬는 것이니 **뒤 3일**에 나눠 갚는다 (과거로는 못 보낸다)
    카드마다 1·2·3일이 **id 해시로 고정** 배정돼 저절로 흩어진다(09-27까지의 revDelay와 같은 수법).
    ⚠ 옮긴 자리가 또 휴식일이면 건너뛴다. ⚠ 실효 due는 **표시 규칙**이고 로그·FSRS는 안 건드린다. */
-let rest={dow:4, days:[], skip:[], at:0};         // dow: 0=일 … 4=목(기본) · null이면 매주 반복 없음
+let rest={dow:null, days:[], skip:[], at:0};      // dow: 0=일 … 6=토 · null이면 매주 반복 없음 (기본: 휴식일 없음)
 /* 채점 버튼 밑 「다음 간격」(14일·22일…) 표시 토글 — 동하 결정 09-05(판정대기 「동하 결정」 · 「알맞음 누르기가 좀 무서워」).
    기본 숨김. 채점·로그·FSRS 무변경 — 보이기만 바뀐다. 휴식일과 같은 경로로 기기 간 동기화(더 새것이 이긴다). */
 const K_IVSHOW='cards_ivshow_v1';
@@ -6623,14 +6623,6 @@ function snapSoon(){                              // 10분에 한 번 이하 —
 let pushFromHidden=false, netFails=0;
 async function push(force){ // 배치 push — 옵티미스틱: 실패해도 로컬은 이미 저장됨
   if(!cfg||!cfg.token){
-    /* 토큰은 기기별이다. 조용히 리턴하면 저장 배지만 켜진 채로 영원히 남아
-       「미저장분 있음」이 왜 뜨는지 알 길이 없다 (동하 아이패드 2026-08-21). */
-    /* 🔴 문구가 원인을 오도했다 (전층 감사 X 목록 밖 · 2026-09-06) — 채점을 한 번도 안 한 새 기기에서도
-       「채점이 이 기기에만 쌓여요」가 떴다. `hasPending()`이 부팅의 이관·고아 정리로도 참이 되기 때문이다.
-       **쌓인 것이 채점일 때만** 그렇게 말한다. */
-    if(hasPending()) showBanner(dirtyLogs.size
-      ? '이 기기는 GitHub에 연결 안 됨 — 채점이 이 기기에만 쌓여요'
-      : '이 기기는 GitHub에 연결 안 됨 — 「연결」에서 토큰을 넣으면 올라가요', true);
     return;
   }
   if(pushing){ return; }
@@ -14320,7 +14312,8 @@ function hmLine(k, by, hard){
   const e=by[k]; if(!e||!e.cards) return `${d} · ${isRestDay(k)?'쉬는 날':'학습 없음'}`;
   return `${d} · <b>${e.cards.toLocaleString()}장</b> · 신규 ${e.nw.toLocaleString()} · 복습 ${Math.max(0,e.cards-e.nw).toLocaleString()} · ${fmtMin(e.ms)}${hard&&hard[k]!=null?' · 새로 숙련 +'+hard[k]:''}`; }
 function renderStats(){
-  if(!statsLoaded){ statsLoaded=true;
+  try {
+    if(!statsLoaded){ statsLoaded=true;
     /* 🔴 없는 주를 긁지 않는다 (09-02) — 「있을 수 있는 주」와 교집합만. 상한은 여전히 13주. */
     const HAVE=new Set(logWeeksRange());
     loadWeeks(weeksBack(13).filter(k=>HAVE.has(k))).then(ok=>{ if(ok&&$('scrStats').classList.contains('on'))renderStats(); }); }
@@ -14597,6 +14590,10 @@ function renderStats(){
   $('statsBody').querySelectorAll('[data-sigmute]').forEach(b=>b.onclick=ev=>{ ev.stopPropagation();
     let m={}; try{ m=JSON.parse(lsGet('cards_sig_mute_v1')||'{}')||{}; }catch(e){} m[b.dataset.sigmute]=dkAdd(todayKey(),6); lsSet('cards_sig_mute_v1', JSON.stringify(m));
     toast('이 신호는 7일 동안 숨겨요'); renderStats(); });
+  } catch(err) {
+    console.error('[통계 렌더 오류]', err);
+    if($('statsBody')) $('statsBody').innerHTML = '<div class="card-box" style="padding:40px 20px;text-align:center;"><div style="font-size:16px;font-weight:700;margin-bottom:8px;">통계 데이터를 준비하고 있습니다</div><div style="font-size:13px;color:var(--c-sec);">카드를 복습하거나 덱을 선택하면 지표가 갱신됩니다.</div></div>';
+  }
 }
 
 /* ═══════════════ 읽기 (2026-09-05 · 동하 결정 · 메타 스펙) ═══════════════ */
@@ -16930,6 +16927,17 @@ async function syncFromSupabase(){
 window.addEventListener('DOMContentLoaded', () => {
   loadUserDecks();
   restoreUserCards();
+
+  // 휴식일 강제 기본값 해제 (기본 목요일 자동 휴식 해제 -> 오늘 카드 학습 즉시 가능)
+  if(typeof rest !== 'undefined' && rest && rest.dow === 4 && (!rest.at || rest.at === 0)){
+    rest.dow = null;
+    if(typeof restReset === 'function') restReset();
+  }
+  // 깃허브 토큰 미사용 시 불필요한 상단 붉은 경고 띠 제거
+  if(!cfg || !cfg.token){
+    if(typeof hideBanner === 'function') hideBanner();
+  }
+
   initAuthSystem();
   initUniversalImporter();
   initCardBrowserFilters();
