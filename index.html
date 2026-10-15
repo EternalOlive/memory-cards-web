@@ -2322,7 +2322,6 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
     <div class="hs-tiles" id="hTiles"></div>
     <nav class="hs-nav"><div class="hs-grp">메뉴</div>
       <button class="hs-row" data-go="scrHome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>홈 (덱 목록)</button>
-      <button class="hs-row" id="hsDeckNav" onclick="ymEnter()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>연문 모드 & 오답</button>
       <button class="hs-row" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 4v16"/></svg>탐색 (카드 브라우저)</button>
       <button class="hs-row" data-go="scrStats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-6"/></svg>학습 통계</button>
       <button class="hs-row" data-go="scrStudy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.8 14.6c2.4-.3 4.3 1.2 4.8 4.4"/></svg>스터디 룸</button>
@@ -2388,15 +2387,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
     </div>
 
 
-    <!-- ══ 연문 모드 (발주 2026-09-08) — 세 화면. 카드 모드 화면과 완전히 갈린다 ══ -->
-    <div class="scr" id="scrYmToday">
-      <div class="sub-head"><button class="tb-btn" id="ymBack" title="홈으로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><div class="sub-title">덱 탐색 & 오답</div><button class="tb-btn" id="ymTodayUndo" title="되돌리기" aria-label="되돌리기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button></div>
-      <div class="sub-body"><div class="sub-inner" id="ymTodayBody"></div></div>
-    </div>
-    <div class="scr" id="scrYmUnit">
-      <div class="sub-head"><button class="tb-btn" id="ymUnitBack" title="뒤로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><div class="sub-title" id="ymUnitTitle">단위별 문항</div></div>
-      <div class="sub-body"><div class="sub-inner" id="ymUnitBody"></div></div>
-    </div>
+
 
     <!-- 홈 -->
     <div class="scr" id="scrHome">
@@ -10027,7 +10018,7 @@ function go(id){
   $('rail').style.display=railShow?'flex':'none';
   $('app').dataset.screen = railShow ? 'solve' : '';
   document.querySelectorAll('#hSide .hs-nav [data-go]').forEach(b=>b.classList.toggle('on', b.dataset.go===id));   // 사이드바 = 지금 목적지
-  document.querySelectorAll('#hSide .hs-tile').forEach(t=>t.classList.toggle('on', (t.dataset.tile==='today'&&(id==='scrHome'||id==='scrSession'))||(t.dataset.tile==='ym'&&/^scrYm/.test(id))));   // 풀이 화면 = 중간 톤 강조색(tokens [data-screen="solve"] · 디자인_언어 §2.2)
+  document.querySelectorAll('#hSide .hs-tile').forEach(t=>t.classList.toggle('on', (t.dataset.tile==='today'&&(id==='scrHome'||id==='scrSession'))));
   $('railFab').classList.remove('show');               // ☰ 떠 있는 버튼은 은퇴 — 윗줄 ⋯ · 아이폰 한 손 막대 ⋯가 서랍을 연다(09-24)
   if(id!=='scrHome') navGuard();          // 홈이 아니면 뒤로가기용 칸을 물고 있는다
   if(id==='scrHome')renderHome();
@@ -10292,14 +10283,7 @@ function ymSolvedToday(){
   for(const e of YM.ev){ if(e.m==='-'||YM_MARKS.indexOf(e.m)<0||undone.has(e.i)||!YM_ITEM_KEY.test(e.k)||dayKey(new Date(e.t))!==tk) continue; s.add(ymKeyParts(ymAliasK(e.k)).base); }
   return s.size;
 }
-/* 문풀 칩 = 재풀이가 남으면 「오답 n」(✕ · 빨강) · 다 비우면 「푼 문제 n」(체크 · 초록) — 동하 09-28 · 누르면 둘 다 문풀 화면.
-   🔴 표시할 때마다 바로 준다(동하 09-30 「오답 하나 표시(닫건 또 틀림이건)할 때마다 하나씩 줄고 0 되면 전환」) — 예전엔 홈을 다시 그릴 때만 바뀌어
-   문풀 화면에서 닫아도 사이드바 칩 숫자가 그대로였다. ymEvent(되돌리기 포함)·원격 당김 뒤 ymTileRefresh가 칩만 고친다. */
-function ymTileSpec(ym){ const ymS=ym===0?ymSolvedToday():null, done=!!ymS;
-  return {k:'ym', n:done?ymS:ym, l:done?'푼 문제':'오답', ic:done?'<path d="m5 12.5 4.5 4.5L19 7.5"/>':'<path d="M7.5 7.5l9 9M16.5 7.5l-9 9"/>', col:done?'var(--c-green)':'var(--c-red)'}; }
-function ymTileRefresh(){ try{ const t=ymTileSpec(ymTodayN()); const num=t.n==null?'—':t.n.toLocaleString();
-  document.querySelectorAll('[data-tile="ym"]').forEach(b=>{ b.style.setProperty('--tc', t.col); const sv=b.querySelector('.ht-ic svg'); if(sv) sv.innerHTML=t.ic;
-    const n=b.querySelector('.ht-n'); if(n){ n.textContent=num; n.classList.toggle('sm', num.length>=6); } const l=b.querySelector('.ht-l'); if(l) l.textContent=t.l; }); }catch(e){} }
+function ymTileRefresh(){}
 function openListCond(k){ go('scrList'); listCond=k; if(k==='today') $('qSort').value='recent'; renderList(true); }
 function renderHomeHead(due, restToday){
   let learned=0, live=0; for(const c of DATA){ const s=state.cards[c.id]; if(s&&s.retired) continue; live++; if(!isNew(c)) learned++; }
@@ -10312,20 +10296,21 @@ function renderHomeHead(due, restToday){
   if(restToday) parts.push('오늘은 쉬는 날');
   $('hSub').innerHTML=parts.map(x=>'<span style="white-space:nowrap">'+esc(x)+'</span>').join(' · ');   /* 폰에서 줄이 바뀌어도 「오늘 / 신규 0」처럼 한 토막이 갈리지 않게 */
   $('hDday').textContent = dd>0?`D-${dd}`:dd===0?'D-day':''; $('hDday').style.display=dd>=0?'':'none';
-  const ym=ymTodayN(), tiles=[
+  const unlearned = Math.max(0, live - learned);
+  const tiles=[
     {k:'today', n:due, l:'오늘 복습', ic:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', col:'var(--c-acc)', on:true},
-    {k:'tmr', n:tomorrowCount(null), l:'내일', ic:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/>', col:'var(--c-indigo)'},
-    ymTileSpec(ym),
+    {k:'new', n:unlearned, l:'학습 대기', ic:'<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>', col:'var(--c-blue, #007aff)'},
+    {k:'tmr', n:tomorrowCount(null), l:'내일 복습', ic:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/>', col:'var(--c-indigo)'},
     {k:'solved', n:solvedTodayCount(), l:'푼 카드', ic:'<rect x="4" y="6" width="13" height="15" rx="2.5"/><path d="M8 3h9.5A2.5 2.5 0 0 1 20 5.5V17"/>', col:'var(--c-teal)'},
   ];
   const html=tiles.map(t=>{ const num=t.n==null?'—':t.n.toLocaleString();
-    const onNow = t.k==='today' ? ($('scrHome').classList.contains('on')||$('scrSession').classList.contains('on')) : t.k==='ym' ? /^scrYm/.test((document.querySelector('.scr.on')||{}).id||'') : false;
+    const onNow = t.k==='today' ? ($('scrHome').classList.contains('on')||$('scrSession').classList.contains('on')) : false;
     return `<button class="hs-tile${onNow?' on':''}" data-tile="${t.k}" style="--tc:${t.col}"><span class="ht-top"><span class="ht-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${t.ic}</svg></span><span class="ht-n${num.length>=6?' sm':''}">${num}</span></span><span class="ht-l">${t.l}</span></button>`; }).join('');
   for(const id of ['hTiles','hTilesP']){ const box=$(id); box.innerHTML=html;
     box.querySelectorAll('[data-tile]').forEach(b=>b.onclick=()=>{ const k=b.dataset.tile;
       if(k==='today'){ if(!$('scrHome').classList.contains('on')) go('scrHome'); const w=document.querySelector('#scrHome .home-wrap'); if(w) w.scrollTop=0; }
-      else if(k==='tmr') go('scrStats');           // 내일 = 예보가 있는 통계로(카드 목록 필터로 만들 술어가 아직 없다)
-      else if(k==='ym') ymEnter();
+      else if(k==='new'){ go('scrList'); if($('filterChipsRow')){ const cb = $('filterChipsRow').querySelector('[data-filter="new"]'); if(cb) cb.click(); } }
+      else if(k==='tmr') go('scrStats');
       else if(k==='solved') openListCond('today'); }); }
   renderHero(due);
 }
@@ -10355,13 +10340,12 @@ function renderHero(due){
       return;
     }
 
-    const ym=ymTodayN();
     const tmrAll=tomorrowCardsForSess(null);
     box.innerHTML=`<section class="hero done"><span class="hero-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
-      <div class="hero-b"><span class="hero-t">오늘 할 일을 다 했어요</span><span class="hero-s">내일 ${tomorrowCount(null).toLocaleString()}장${ym?` · 문풀 ${ym}문항 남음`:''}</span></div>
-      ${tmrAll.length?'<button class="hero-go tint" id="heroPullTmr">내일 복습 당겨오기</button>':(ym?'<button class="hero-go tint" id="heroYm">문풀 열기</button>':'')}</section>`;
+      <div class="hero-b"><span class="hero-t">오늘 할 일을 다 했어요</span><span class="hero-s">내일 ${tomorrowCount(null).toLocaleString()}장</span></div>
+      ${tmrAll.length?'<button class="hero-go tint" id="heroPullTmr">내일 복습 당겨오기</button>':''}</section>`;
     const hp=$('heroPullTmr'); if(hp) hp.onclick=()=>openPullTmr(findPullTmrSess(curSess), true);
-    const y=$('heroYm'); if(y) y.onclick=ymEnter; return; }
+    return; }
   const remain=sessRemain(sx), st=stArr(sx.how.status).map(k=>({due:'복습',new:'신규',all:'전체',weak:'약점'}[k]||k)).join('+');
   box.innerHTML=`<section class="hero"><div class="hero-b"><span class="hero-k">이어서 풀기</span><span class="hero-t">${esc(sx.name)}</span>
       <span class="hero-s">${esc(st)} ${remain.toLocaleString()}장${sx.lastAt?` · 마지막 ${esc(fmtAgo(sx.lastAt))}`:''}</span></div>
@@ -16050,10 +16034,7 @@ function ymRenderCurrent(){
   else if($('scrYmUnit').classList.contains('on') && _ymUnit) ymRenderUnit(_ymUnit);
 }
 async function ymEnter(){
-  _ymSubOpen.clear(); _ymRowPos.clear(); _ymTodayPin.clear();
-  if(!YM.loaded || !YM.cat){ $('ymTodayBody').innerHTML='<div class="ym-empty">덱 카탈로그 여는 중…</div>'; go('scrYmToday'); await ymLoad(); }
-  else { go('scrYmToday'); ymPull(); }
-  _ymReady=null; ymRenderToday();
+  go('scrList');
 }
 function ymTodayKey(e){
   if(!$('scrYmToday').classList.contains('on') || document.querySelector('.ovl.show')) return false;
@@ -16246,17 +16227,7 @@ function ymRenderUnit(id){
 if($('ymBack')) $('ymBack').onclick=ymLeave;
 if($('ymUnitBack')) $('ymUnitBack').onclick=()=>{ go('scrYmToday'); ymRenderToday(); };
 /* 홈 머리의 알약 둘 — 「회독본」(둘러보기 · 동하 09-12 「회독본을 그냥 보러 들어갈 수가 없어」) · 「연문 →」 */
-{ const hh=null;   // 09-24 디자인 이식: 알약 은퇴(사이드바 「보기」 회독본 · 「문풀」 타일 · 아이폰 탭 막대)
-  if(hh){ const g=hh.querySelector('.gear');
-    const h=document.createElement('button'); h.className='ym-pill'; h.id='hdPill'; h.textContent='회독본'; h.title='회독본 둘러보기';
-    h.onclick=hdBrowse; hh.insertBefore(h, g);
-    const b=document.createElement('button'); b.className='ym-pill'; b.id='ymPill'; b.textContent='문풀 →'; b.title='문제 풀이 모드(연문 · 중등기출)';
-    b.onclick=ymEnter; hh.insertBefore(b, g); } }
-/* 마지막 모드가 연문이면 부팅 뒤 그리로. 앱 부팅이 끝난 뒤(로딩 가림막이 내려간 뒤)에만. */
-if(ymMode){ (function waitBoot(n){ const l=$('loading');
-  if(typeof DATA!=='undefined' && DATA && DATA.length && l && l.style.display==='none'){ ymEnter(); }
-  else if(n<200) setTimeout(()=>waitBoot(n+1), 250); })(0); }
-/* 카드 재로드(loadData) 뒤에는 노드→카드 인덱스를 버린다 — 새 카드가 준비도에 들어오게 */
+/* 카드 재로드(loadData) 뒤에는 노드→카드 인덱스를 버린다 */
 { const _ld=loadData; loadData=async function(){ const r=await _ld.apply(this, arguments); YM.idx=null; _ymReady=null; return r; }; }
 
 
