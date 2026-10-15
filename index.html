@@ -26,7 +26,7 @@ window.__reportBootError = function(type, detail) {
     var box = document.getElementById('loadingErrorBox');
     if (box) {
       box.style.display = 'block';
-      box.innerHTML = '<div style="color:#ff3b30;font-weight:700;font-size:14px;margin-bottom:6px;">⚠️ 로딩 중 오류가 발생했습니다</div>'
+      box.innerHTML = '<div style="color:#ff3b30;font-weight:700;font-size:14px;margin-bottom:6px;">로딩 중 오류가 발생했습니다</div>'
         + '<div style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;background:rgba(255,59,48,0.12);color:var(--c-label,#1c1c1e);padding:10px;border-radius:8px;text-align:left;max-height:160px;overflow:auto;word-break:break-all;white-space:pre-wrap;">'
         + '<b>' + (msg ? msg.replace(/</g,'&lt;') : '알 수 없는 오류') + '</b>' + loc
         + (stack ? '<div style="opacity:0.75;margin-top:6px;font-size:10px;">' + stack.replace(/</g,'&lt;') + '</div>' : '')
@@ -542,10 +542,10 @@ input:focus,select:focus{border-color:var(--accent);}
 #flagMemo{width:100%;font-size:16px;padding:8px 10px;}
 /* 플래그 사유 칩 — 한 번 탭이 곧 플래그+사유다 (타이핑 제로 경로) */
 #flagTypes{display:grid;grid-template-columns:repeat(2,max-content);gap:5px;padding:6px 2px 2px;}   /* 늘 2×2(동하 09-27 — 아이폰 280 서랍에서 3+1로 줄바꿈) · 칸은 max-content라 칩이 늘어나지 않는다(09-23 「칩 모양이 이상해짐」 = 1fr로 꽉 채운 격자였다) */
-.ft-chip{font-size:12px;font-weight:600;padding:0 10px;min-height:44px;display:inline-flex;align-items:center;border-radius:999px;line-height:1;
-  background:transparent;color:var(--mute);border:1.5px solid var(--line);}
-  /* 높이 44px(터치 기준) · 채움 없이 테두리만 — 칩 4개가 늘 펼쳐져 카드보다 먼저 눈에 들어왔다(동하 09-05 비평 5).
-     접지 않는 이유: 칩은 플래그 전에도 보여야 한 번에 「플래그+사유」가 된다(아래 renderFlagChips 주석). 폭은 좁은 사이드바라 그대로 */
+.ft-chip{font-size:12px;font-weight:600;padding:0 10px;min-height:36px;display:inline-flex;align-items:center;gap:5px;border-radius:18px;line-height:1;
+  background:transparent;color:var(--mute);border:1.5px solid var(--line);cursor:pointer;}
+.ft-chip svg{flex-shrink:0;color:currentColor;}
+  /* 채움 없이 테두리만 — 접지 않는 이유: 칩은 플래그 전에도 보여야 한 번에 「플래그+사유」가 된다(아래 renderFlagChips 주석). 폭은 좁은 사이드바라 그대로 */
 .ft-chip.on{background:var(--accent-dim);color:var(--accent);border-color:var(--accent);}
 
 /* ══ 홈 화면 ══ */
@@ -1484,7 +1484,8 @@ details.ym-subj>summary small{font-weight:600;color:var(--mute);font-size:12.5px
 .rbtn.on svg{color:inherit;}
 #rFlag.on svg{color:var(--c-orange);}
 #flagTypes{gap:6px;padding:2px 12px 6px;}
-.ft-chip{min-height:34px;padding:0 12px;border:0;border-radius:17px;background:var(--c-fill);color:var(--c-label);font-size:13px;font-weight:400;}
+.ft-chip{min-height:34px;padding:0 12px;border:0;border-radius:17px;background:var(--c-fill);color:var(--c-label);font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:5px;cursor:pointer;transition:background .12s, color .12s;}
+.ft-chip svg{flex-shrink:0;color:currentColor;}
 .ft-chip.on{background:var(--c-acc-tint);color:var(--c-acc);font-weight:600;border:0;}
 #flagMemoRow,#flagMemoRow.on{display:block;padding:0;margin:2px 12px 6px;}
 #flagMemo{min-height:36px;border-radius:10px;background:var(--c-fill);border:0;padding:0 12px;font-size:16px;color:var(--c-label);}
@@ -2854,7 +2855,7 @@ setTimeout(function(){
           <p style="margin:10px 0 6px;font-size:12px;color:var(--ink);font-weight:700">기타 기능</p>
           <kbd>R</kbd> 되돌리기 · <kbd>Shift+B</kbd> 내일로 · <kbd>Q</kbd> 카드 끄기 · <kbd>F</kbd> 플래그 ·
           <kbd>S</kbd> 일시정지 · <kbd>T</kbd> 초성 힌트 · <kbd>Esc</kbd> 닫기 → 홈 · <kbd>/</kbd> 목록 검색<br>
-          <kbd>Ctrl</kbd>+<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> 플래그 라벨(🚩 중요 · ⭐ 핵심 · ⚠️ 재확인 · 💡 보충)<br>
+          <kbd>Ctrl</kbd>+<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> 플래그 라벨(중요 · 핵심 · 재확인 · 보충)<br>
           <small style="color:var(--mute)">* 한글 입력 상태에서도 자판 자리로 정상 인식됩니다.</small>
         </div>
       </div></div>
@@ -3004,10 +3005,10 @@ setTimeout(function(){
           <div class="hpb">
             <p>풀이 화면 오른쪽 사이드바(좁은 화면에선 <b>☰</b>)에 있어요.</p>
             <table class="hp-t">
-              <tr><th>⚑플래그</th><td>중요한 카드나 다시 확인할 카드에 라벨을 붙여요.
+              <tr><th>플래그</th><td>중요한 카드나 다시 확인할 카드에 라벨을 붙여요.
                 사유 라벨 넷 중 골라 주세요(라벨만 눌러도 플래그가 켜져요) —
-                <b>🚩 중요</b>=반드시 암기해야 할 내용 · <b>⭐ 핵심</b>=자주 출제되는 핵심 개념 ·
-                <b>⚠️ 재확인</b>=다시 검토 필요한 카드 · <b>💡 보충</b>=추가 학습이 필요한 내용.
+                <b>중요</b>=반드시 암기해야 할 내용 · <b>핵심</b>=자주 출제되는 핵심 개념 ·
+                <b>재확인</b>=다시 검토 필요한 카드 · <b>보충</b>=추가 학습이 필요한 내용.
                 탐색 화면에서 <code>is:flag</code>로 모아볼 수 있어요.</td></tr>
               <tr><th>지도·사례<br>정의·이름</th><td>「이 성분을 교재에서 끌어와 <b>채워 달라</b>」는 신청이에요. 카드는 그대로 나와요.
                 지도=수업 적용, 사례=예시, 정의=내용, 이름=개념어. 저녁 루틴이 교재에서 찾아 <b>줄을 더해요</b> → <b>카드가 늘어요</b>.
@@ -3112,7 +3113,7 @@ setTimeout(function(){
               <tr><td>1 2 3 4 / Z X C V</td><td>다시 / 어려움 / 알맞음 / 쉬움</td></tr>
               <tr><td>R · Shift+B · Q</td><td>되돌리기(Revert) · 내일로(Shift+B) · <b>끄기</b>(Quit)</td></tr>
               <tr><td>F · S · T</td><td>플래그(Flag) · 일시정지(Stop) · 초성 힌트(Tip)</td></tr>
-              <tr><td><b>Ctrl + 1 2 3 4</b></td><td><b>플래그 라벨</b> — 🚩 중요 / ⭐ 핵심 / ⚠️ 재확인 / 💡 보충.
+              <tr><td><b>Ctrl + 1 2 3 4</b></td><td><b>플래그 라벨</b> — 중요 / 핵심 / 재확인 / 보충.
                 사이드바를 안 열어도 붙고, 라벨을 붙이면 플래그도 켜져요. 같은 키를 다시 누르면 해제</td></tr>
               <tr><td>Esc · /</td><td>닫기(열린 것이 없으면 홈) · 목록 검색 — 옛 키 U·O·P·H도 그대로 먹어요</td></tr>
             </table>
@@ -6179,14 +6180,30 @@ function setFlag(c,v){ const s=st(c.id); s.flag=v; if(v==null)s.ft=[]; touchFb(s
    ⚠ 첫 이름은 `단서 추가`였고 같은 날 동하가 `사례 추가`로 고쳤다(「엄, 단서 추가라고 했네 내가」).
    🔴 **그래서 「추가」 계열의 `ann:["사례"]`와 이름이 겹친다** — 뜻은 정반대다(이쪽은 **구조를 바꿔라**,
    저쪽은 **줄을 더해라**). 도움말 `hp6`에 갈림을 적어 뒀다. **둘 중 하나를 또 고칠 때 같이 봐라.** */
-const FLAG_TYPES=['🚩 중요','⭐ 핵심','⚠️ 재확인','💡 보충'];
-function flagTypes(s){ return (s&&Array.isArray(s.ft))?s.ft:[]; }
+const FLAG_TYPES=['중요','핵심','재확인','보충'];
+function cleanFlagName(name){
+  if(typeof name !== 'string') return '';
+  return name.replace(/^[\s\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}⚑🚩⭐⚠️💡\uFE0F]+/u, '').trim();
+}
+const FLAG_ICONS={
+  '중요':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
+  '핵심':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  '재확인':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  '보충':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>'
+};
+function flagIcon(name){ return FLAG_ICONS[cleanFlagName(name)] || ''; }
+function flagTypes(s){
+  if(!s || !Array.isArray(s.ft)) return [];
+  return s.ft.map(cleanFlagName).filter(Boolean);
+}
 function toggleFlagType(c,name){
   const s=st(c.id);
   if(s.flag==null) s.flag='';            // 칩만 눌러도 플래그가 켜진다
-  if(!Array.isArray(s.ft)) s.ft=[];
-  const i=s.ft.indexOf(name);
-  if(i>=0) s.ft.splice(i,1); else s.ft.push(name);
+  const clean=cleanFlagName(name);
+  if(!clean) return;
+  s.ft=flagTypes(s);
+  const i=s.ft.indexOf(clean);
+  if(i>=0) s.ft.splice(i,1); else s.ft.push(clean);
   touchFb(s); cacheState();
 }
 function addTag(c,t){ const s=st(c.id); s.t=s.t||[]; if(!s.t.includes(t))s.t.push(t);
@@ -6431,7 +6448,7 @@ function applyFiles(marksFile, fbFile){   // 파일 두 벌 → 메모리 state.
     const e=cards[id]||(cards[id]={fsrs:null,miss:0,retired:false,flag:null,ann:[],u:'',d:'',mu:''});
     e.fu=fc[id].u||'';
     e.flag=fc[id].flag!==undefined?fc[id].flag:null;
-    e.ft=Array.isArray(fc[id].type)?fc[id].type.slice():[];
+    e.ft=Array.isArray(fc[id].type)?fc[id].type.map(cleanFlagName).filter(Boolean):[];
     e.ann=fc[id].ann||[];
     if((fc[id].u||'')>(e.u||'')) e.u=fc[id].u;
   }
@@ -9963,8 +9980,11 @@ function syncRail(){
 function renderFlagChips(s){
   const on=flagTypes(s);
   const list=[...FLAG_TYPES, ...on.filter(t=>!FLAG_TYPES.includes(t))];   // 옛 사유는 뒤에 붙인다
-  $('flagTypes').innerHTML=list.map(t=>
-    `<button class="ft-chip${on.includes(t)?' on':''}" data-ft="${t}">${t}</button>`).join('');
+  $('flagTypes').innerHTML=list.map(t=>{
+    const clean=cleanFlagName(t);
+    const isOn=on.includes(clean);
+    return `<button type="button" class="ft-chip${isOn?' on':''}" data-ft="${esc(clean)}">${flagIcon(clean)}<span>${esc(clean)}</span></button>`;
+  }).join('');
   document.querySelectorAll('#flagTypes .ft-chip').forEach(b=>{
     b.onclick=()=>{ const c=cur(); if(!c)return; toggleFlagType(c,b.dataset.ft); syncRail(); };
   });
@@ -13796,7 +13816,11 @@ function renderCardSheet(){
       <button class="cs-act danger" id="csDeleteCard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>카드 삭제</button>
     </div>
     <div id="csTypes" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">${
-      FLAG_TYPES.map(t=>`<button class="ft-chip${flagTypes(s).includes(t)?' on':''}" data-ft="${t}">${t}</button>`).join('')}</div>
+      FLAG_TYPES.map(t=>{
+        const clean=cleanFlagName(t);
+        const isOn=flagTypes(s).includes(clean);
+        return `<button type="button" class="ft-chip${isOn?' on':''}" data-ft="${esc(clean)}">${flagIcon(clean)}<span>${esc(clean)}</span></button>`;
+      }).join('')}</div>
     ${s.flag!=null?`<div class="cs-row" style="margin-top:8px"><input id="csMemo" type="text" maxlength="120" placeholder="플래그 메모 (루틴 수거가 읽어요)" value="${esc(s.flag||'')}"><button id="csMemoSave">저장</button></div>`:''}
     <div class="cs-sec">일정 손보기</div>
     <div class="cs-row"><input id="csDueN" type="number" inputmode="numeric" min="0" max="90" placeholder="며칠 뒤"><button id="csDueSet">다음 복습 옮기기</button></div>
@@ -15354,9 +15378,9 @@ function renderFlags(){
     }
     body.appendChild(d);
   };
-  sec('⚑ 플래그', flagged, c=>{      // 사유 칩이 있으면 목록에서도 보여 준다
+  sec('플래그', flagged, c=>{      // 사유 칩이 있으면 목록에서도 보여 준다
     const ft=flagTypes(state.cards[c.id]);
-    return (ft.length?ft.map(t=>`<span class="m">${esc(t)}</span>`).join(''):'')
+    return (ft.length?ft.map(t=>`<span class="m">${esc(cleanFlagName(t))}</span>`).join(''):'')
       +'<button data-cid="'+c.id+'">해제</button>'; });
   sec('@ 주석 (교재 유입·방향·끄기 요청)', annd, c=>'<button data-cid="'+c.id+'">해제</button>');
 }
