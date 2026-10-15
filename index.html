@@ -1315,10 +1315,10 @@ details.ym-subj>summary small{font-weight:600;color:var(--mute);font-size:12.5px
 #cardScroll{flex:1 1 auto;min-height:0;display:block;}   /* 🔴 block — flex면 #cSplit이 칸 높이로 줄어들어 긴 문면이 가림 면과 겹쳤다(09-24 아이폰 실측) */
 #cSplit{min-height:100%;display:flex;flex-direction:column;}
 #cUpper{flex:42 1 0;display:flex;flex-direction:column;justify-content:center;padding:12px 0;position:relative;}
-.c-upper-act{position:absolute;top:2px;right:0;display:flex;align-items:center;gap:4px;z-index:2;}
+.c-upper-act{display:inline-flex;align-items:center;gap:6px;margin-left:auto;}
 .c-copy-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;color:var(--c-sec);background:var(--c-fill);border:0;border-radius:50%;cursor:pointer;transition:all .15s ease;-webkit-user-select:none;user-select:none;}
 .c-copy-btn:hover{color:var(--c-label);background:var(--c-fill-hi,rgba(120,120,128,0.22));}
-.c-copy-btn svg{width:13px;height:13px;}
+.c-copy-btn svg{width:14px;height:14px;}
 .c-gpt-btn{color:var(--c-sec);}
 .c-gpt-tag{color:var(--c-sec);}
 .c-copy-tag{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0 !important;border:0;color:var(--c-sec);border-radius:50% !important;user-select:none;-webkit-user-select:none;}
@@ -2246,6 +2246,36 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
 .fw-fc tr.sum td{border-top:.5px solid var(--c-sep);padding-top:5px;}
 .fw-msg{font-size:13px;line-height:18px;color:var(--c-sec);margin:6px 0;}
 .fw-btns{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* ════ Anki Web Multi-User & Deck Hub UI ════ */
+.deck-card{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--c-card,var(--c-fill));border-radius:14px;border:1px solid var(--c-sep-sub,rgba(0,0,0,0.06));transition:transform .15s ease,background .15s ease;gap:12px;}
+.deck-card:hover{background:var(--c-fill-hi,rgba(120,120,128,0.16));}
+.deck-info{flex:1 1 auto;min-width:0;cursor:pointer;}
+.deck-title-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.deck-name{font-size:16px;font-weight:700;color:var(--c-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.deck-desc{font-size:12.5px;color:var(--c-sec);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.deck-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.anki-counts{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;font-size:13px;font-weight:700;}
+.ac-badge{padding:2px 7px;border-radius:6px;font-size:12px;min-width:20px;text-align:center;}
+.ac-new{color:#007aff;background:rgba(0,122,255,0.12);}
+.ac-learn{color:#ff9500;background:rgba(255,149,0,0.12);}
+.ac-due{color:#34c759;background:rgba(52,199,89,0.14);}
+.deck-act-btn{border:none;background:var(--c-fill);color:var(--c-label);font-size:13px;font-weight:600;padding:6px 12px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s;}
+.deck-act-btn:hover{background:var(--c-fill-hi,rgba(120,120,128,0.22));}
+.deck-act-primary{background:var(--c-blue,#007aff);color:#fff;}
+.deck-act-primary:hover{opacity:.9;}
+.deck-opt-btn{border:none;background:transparent;color:var(--c-sec);width:28px;height:28px;border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+.deck-opt-btn:hover{background:var(--c-fill);color:var(--c-label);}
+.account-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:none;background:var(--c-fill);color:var(--c-label);cursor:pointer;font-size:13px;font-weight:600;}
+.account-btn:hover{background:var(--c-fill-hi);}
+.drop-zone{border:2px dashed var(--c-sep,rgba(120,120,128,0.3));border-radius:14px;padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;}
+.drop-zone.dragover{border-color:var(--c-blue,#007aff);background:rgba(0,122,255,0.06);}
+.preview-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+.preview-tbl th{text-align:left;padding:6px 8px;background:var(--c-fill);color:var(--c-sec);border-radius:6px;font-weight:600;}
+.preview-tbl td{padding:6px 8px;border-bottom:0.5px solid var(--c-sep-sub,rgba(0,0,0,0.06));color:var(--c-label);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.import-tab-bar{display:flex;gap:6px;margin-bottom:14px;}
+.import-tab-btn{flex:1;padding:8px;border:none;border-radius:10px;background:var(--c-fill);color:var(--c-sec);font-size:13px;font-weight:600;cursor:pointer;}
+.import-tab-btn.on{background:var(--c-blue,#007aff);color:#fff;}
 </style>
 </head>
 <body>
@@ -2278,10 +2308,9 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
         <!-- 🔴 디자인 이식 09-24: 카드 = 위아래 반반. 답면 내용은 **앞면에서도 미리 채워 visibility:hidden**으로 깔고 가림 면으로 덮는다 →
              앞면↔답면에서 질문·선·버튼이 1px도 안 움직인다(디자인_언어 §1-1 · §7.1). 가림은 visibility라 글자가 선택·낭독되지 않는다. -->
         <div id="card">
-          <div id="cHead"><div class="c-head-top"><div id="cScope"></div><div id="phaseLine"></div></div><div class="c-head-sub" id="cHeadSub"><span id="lastActionChip" class="last-action-chip" style="display:none;" title="직전 채점 (탭하면 되돌리기)"></span><span id="solveStudyChip" class="sc-badge"></span></div></div>
+          <div id="cHead"><div class="c-head-top"><div id="cScope"></div><div id="phaseLine"></div></div><div class="c-head-sub" id="cHeadSub"><span id="lastActionChip" class="last-action-chip" style="display:none;" title="직전 채점 (탭하면 되돌리기)"></span><span id="solveStudyChip" class="sc-badge"></span><div class="c-upper-act"><button type="button" class="c-copy-btn c-gpt-btn" id="btnGptFront" title="ChatGPT 앱 열기" aria-label="ChatGPT 앱 열기"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1683a.071.071 0 0 1 .038.052v5.5826a4.5045 4.5045 0 0 1-4.4945 4.4947zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4998 4.4998 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1683a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.0993 3.8558L12.5973 8.3829l2.02-1.1636a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.402-.6862zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L8.909 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4998 4.4998 0 0 1 6.6802 4.6604v.0001zm-4.4664 4.3713L10.1504 9.7348 12.0142 8.66l5.834 3.3685-1.8638 1.0709zm-2.006 1.1541L12 15.3401l-5.834-3.3685 1.8638-1.0709 3.834 2.2132v2.1378z"/></svg></button><button type="button" class="c-copy-btn" id="btnCopyFront" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button></div></div></div>
           <div id="cardScroll"><div id="cSplit">
             <div id="cUpper">
-              <div class="c-upper-act"><button type="button" class="c-copy-btn c-gpt-btn" id="btnGptFront" title="ChatGPT 앱 열기" aria-label="ChatGPT 앱 열기"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1683a.071.071 0 0 1 .038.052v5.5826a4.5045 4.5045 0 0 1-4.4945 4.4947zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4998 4.4998 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1683a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.0993 3.8558L12.5973 8.3829l2.02-1.1636a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.402-.6862zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L8.909 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4998 4.4998 0 0 1 6.6802 4.6604v.0001zm-4.4664 4.3713L10.1504 9.7348 12.0142 8.66l5.834 3.3685-1.8638 1.0709zm-2.006 1.1541L12 15.3401l-5.834-3.3685 1.8638-1.0709 3.834 2.2132v2.1378z"/></svg></button><button type="button" class="c-copy-btn" id="btnCopyFront" title="카드 내용 복사" aria-label="카드 내용 복사"><svg class="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M20 6 9 17l-5-5"/></svg></button></div>
               <div class="c-imgs front" id="cImgF"></div>
               <div id="cFront"></div>
               <div id="cDiag"></div>
@@ -2340,27 +2369,52 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
       <div class="home-wrap"><div class="home-inner">
         <div class="home-head">
           <div class="hh-t"><div class="h-title">오늘</div><div class="h-sub" id="hSub"></div></div>
-          <button class="gear glass-c" id="btnSettingsP" aria-label="설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="account-btn glass-c" id="btnUserAccount" title="계정 및 클라우드 동기화" aria-label="계정">
+              <span id="accountBadgeIcon">👤</span>
+              <span id="accountBadgeLabel">게스트</span>
+            </button>
+            <button class="gear glass-c" id="btnSettingsP" aria-label="설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+          </div>
         </div>
         <div class="hs-tiles" id="hTilesP"></div>
         <div id="hHero"></div>
         <div id="planWarn" class="plan-warn"></div>
+        <!-- 오늘 푼 오답 즉시 다시 풀기 섹션 -->
+        <div id="todayAgainBox" style="margin:16px 0 8px;display:none;"></div>
+        <!-- Anki 스타일 덱 허브 (내 덱 목록) -->
+        <div class="deck-section-wrap" style="margin:20px 0 12px;">
+          <div class="h-sec2" style="margin-bottom:10px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <h2>내 덱 (Decks)</h2>
+              <span id="deckTotalCountBadge" class="ac-badge ac-new" style="font-size:12px;padding:2px 8px;">0개 덱</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button class="deck-act-btn" id="btnOpenNewDeck" title="새 덱 만들기">+ 새 덱</button>
+              <button class="deck-act-btn deck-act-primary" id="btnOpenImportTop" title="덱 가져오기 / 업로드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13" aria-hidden="true"><path d="M12 3v13M7 11l5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>덱 업로드</button>
+            </div>
+          </div>
+          <div id="deckListArea" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
         <div class="h-sec2"><h2>세션</h2><button id="btnNewSess" aria-label="새 세션" title="새 세션"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
         <div id="sessList"></div>
         <div id="studyBox"></div>
         <div class="hp-views">
-          <div class="hs-grp">보기</div>
-          <div class="hp-list"><button class="hs-row" id="ctOpenP"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="3"/><path d="M9.5 4.5v15"/></svg>내용 체계표</button><button class="hs-row" data-go="scrStats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-6"/></svg>통계</button><button class="hs-row" data-go="scrStudy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.8 14.6c2.4-.3 4.3 1.2 4.8 4.4"/></svg>스터디</button>
-      <button class="hs-row" data-go="scrSite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.6 3.6 5.4 3.6 8.5s-1.2 5.9-3.6 8.5c-2.4-2.6-3.6-5.4-3.6-8.5s1.2-5.9 3.6-8.5z"/></svg>공개 사이트</button></div>
+          <div class="hs-grp">바로가기</div>
+          <div class="hp-list">
+            <button class="hs-row" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 4v16"/></svg>전체 카드 브라우저</button>
+            <button class="hs-row" data-go="scrStats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-6"/></svg>학습 통계</button>
+            <button class="hs-row" data-go="scrStudy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.8 14.6c2.4-.3 4.3 1.2 4.8 4.4"/></svg>실시간 스터디</button>
+          </div>
           <div class="h-foot" id="hFootP"></div>
         </div>
         <div class="today-box" id="todayBox" style="display:none"></div>
       </div></div>
       <nav id="tabBar">
         <button class="tab on" id="tabToday"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>오늘</span></button>
-        <button class="tab" id="tabYm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg><span>덱 탐색</span></button>
-        <button class="tab" id="tabHd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5v13"/></svg><span>요약 회독</span></button>
-        <button class="tab" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg><span>라이브러리</span></button>
+        <button class="tab" id="tabCards" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 4v16"/></svg><span>전체 카드</span></button>
+        <button class="tab" id="tabStats" data-go="scrStats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-6"/></svg><span>통계</span></button>
+        <button class="tab" id="tabSetup" data-go="setup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>설정</span></button>
       </nav>
     </div>
 
@@ -2393,15 +2447,36 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
       </div></div>
     </div>
 
-    <!-- 목록 -->
+    <!-- 전체 카드 (Card Browser) -->
     <div class="scr" id="scrList">
-      <div class="sub-head"><button class="tb-btn" data-go="scrHome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><div class="sub-title">라이브러리</div></div>
+      <div class="sub-head">
+        <button class="tb-btn" data-go="scrHome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="sub-title">전체 카드</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+          <button class="tb-btn" id="btnOpenAddCardTop" title="새 카드 추가" style="color:var(--c-acc);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+      </div>
       <div class="sub-body"><div class="sub-inner">
-        <div class="search-row"><input id="qSearch" type="search" placeholder="검색 (앞면·뒷면·태그)"><select id="qSort"><option value="doc">문서순</option><option value="recent">최근 푼 순</option><option value="risk">위험도순</option><option value="miss">틀림순</option></select></div>
+        <!-- 덱 필터 & 카드 추가 바 -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <select id="listDeckFilter" style="flex:1;padding:9px 12px;border-radius:12px;background:var(--c-fill);color:var(--c-label);border:none;font-size:13.5px;font-weight:600;outline:none;">
+            <option value="">모든 덱 카드 보기</option>
+          </select>
+          <button class="deck-act-btn deck-act-primary" id="btnOpenAddCardList" style="white-space:nowrap;padding:7px 12px;font-size:13px;">+ 카드 추가</button>
+        </div>
+        <!-- 오답 및 상태 빠른 필터 칩 -->
+        <div class="filter-chips-row" id="filterChipsRow" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;-webkit-overflow-scrolling:touch;">
+          <button class="ac-badge ac-new filter-chip on" data-filter="all" style="cursor:pointer;padding:6px 13px;font-size:12.5px;border:none;">전체</button>
+          <button class="ac-badge filter-chip" data-filter="today_again" style="cursor:pointer;padding:6px 13px;font-size:12.5px;border:none;background:rgba(255,59,48,0.14);color:var(--c-red);">🔴 오늘 오답</button>
+          <button class="ac-badge filter-chip" data-filter="weak" style="cursor:pointer;padding:6px 13px;font-size:12.5px;border:none;background:rgba(255,149,0,0.14);color:var(--c-orange);">⚠️ 자주 틀림</button>
+          <button class="ac-badge filter-chip" data-filter="due" style="cursor:pointer;padding:6px 13px;font-size:12.5px;border:none;background:rgba(52,199,89,0.14);color:var(--c-green);">복습 대기</button>
+          <button class="ac-badge filter-chip" data-filter="new" style="cursor:pointer;padding:6px 13px;font-size:12.5px;border:none;background:rgba(0,122,255,0.14);color:var(--c-acc);">신규 카드</button>
+        </div>
+        <div class="search-row"><input id="qSearch" type="search" placeholder="검색 (앞면·뒷면·해설·태그)"><select id="qSort"><option value="doc">등록순</option><option value="recent">최근 푼 순</option><option value="risk">위험도순</option><option value="miss">틀림순</option></select></div>
         <div class="cond-row" id="condRow"></div>
         <div class="list-tools" id="listTools">
-          <button id="btnSolveList">이 결과 풀기</button>
-          <button id="btnOpenImport">덱 가져오기</button>
+          <button id="btnSolveList">이 결과 학습하기</button>
+          <button id="btnOpenImport">덱 업로드</button>
           <button id="btnPick">선택</button>
           <span class="grow"></span>
           <button id="btnOpHelp" title="검색 연산자">연산자 ⓘ</button>
@@ -2835,35 +2910,125 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
   <div id="railScrim"></div>
 </div>
 
-<!-- 셋업 (동기화) -->
-<div class="ovl" id="ovlSetup"><div class="sheet">
-  <h2>클라우드 동기화 & 백업</h2>
-  <div style="background:var(--c-fill);border-radius:14px;padding:14px 16px;margin:12px 0 16px;">
-    <div style="font-weight:700;font-size:16px;margin-bottom:4px;">Google 계정 실시간 연동 (추천)</div>
-    <div class="desc" style="margin-bottom:12px;">복잡한 토큰 없이 구글 계정으로 로그인하면 모바일·태블릿·PC에서 실시간으로 진도가 자동 동기화됩니다.</div>
-    <div id="sbUserArea" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-      <span id="sbUserStatus" style="font-size:14px;color:var(--c-sec);">로그인되지 않음 (로컬 저장 중)</span>
-      <button class="btn-primary" id="btnSbGoogle" style="padding:8px 14px;font-size:14px;">Google 로그인</button>
+<!-- 계정 및 클라우드 동기화 모달 -->
+<div class="ovl" id="ovlAuth"><div class="sheet" style="max-width:440px;">
+  <h2>계정 및 클라우드 동기화</h2>
+  <p class="desc">아이디로 로그인하면 스마트폰, 태블릿, PC 어디서나 나만의 덱과 복습 진도가 실시간 동기화돼요.</p>
+  
+  <div id="authLoggedInView" style="display:none;background:var(--c-fill);border-radius:14px;padding:16px;margin:14px 0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-weight:700;font-size:15px;color:var(--c-label);" id="authLoggedEmail">user@email.com</span>
+      <span class="ac-badge ac-due" style="font-size:11px;">동기화 중</span>
+    </div>
+    <p class="desc" style="margin-bottom:12px;">현재 계정의 모든 덱과 학습 기록이 안전하게 클라우드에 백업되고 있어요.</p>
+    <div style="display:flex;gap:8px;">
+      <button class="deck-act-btn" id="btnManualSync" style="flex:1;">지금 즉시 동기화</button>
+      <button class="deck-act-btn" id="btnAuthSignOut" style="flex:1;color:var(--c-red);">로그아웃</button>
     </div>
   </div>
 
-  <details class="fold" style="margin-top:16px;"><summary style="font-size:14px;font-weight:600;color:var(--c-sec);cursor:pointer;">기존 GitHub 저장소 직접 연결 (고급)</summary>
-    <p class="desc" style="margin-top:10px;">학습 기록을 내 GitHub 저장소에 직접 커밋해요.</p>
-    <div class="field"><label>저장소 (사용자명/저장소명)</label><input id="cfgRepo" type="text" placeholder="예: username/my-cards" autocomplete="off" spellcheck="false"></div>
-    <div class="field"><label>토큰 (github_pat_… / ghp_…)</label><input id="cfgToken" type="password" autocomplete="off" spellcheck="false"></div>
-    <div class="desc" id="cfgErr" style="color:var(--again);display:none"></div>
-    <div style="margin-top:10px;text-align:right;"><button class="btn-primary" id="btnConnect" style="padding:6px 14px;font-size:13px;">GitHub 연결</button></div>
-  </details>
-  <div class="btn-row" style="margin-top:20px;"><button class="btn-ghost" id="setupClose">닫기</button></div>
+  <div id="authLoggedOutView">
+    <div style="margin:14px 0;">
+      <button class="btn-primary" id="btnGoogleAuth" style="width:100%;padding:11px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;background:#4285F4;border:none;border-radius:12px;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
+        <span style="color:#fff;font-weight:600;">Google 계정으로 계속하기</span>
+      </button>
+    </div>
+
+    <div style="display:flex;align-items:center;margin:16px 0;gap:10px;">
+      <div style="flex:1;height:1px;background:var(--c-sep);"></div>
+      <span style="font-size:12px;color:var(--c-sec);">또는 이메일 로그인</span>
+      <div style="flex:1;height:1px;background:var(--c-sep);"></div>
+    </div>
+
+    <div class="field"><label>이메일</label><input id="authEmail" type="email" placeholder="example@email.com" autocomplete="email"></div>
+    <div class="field"><label>비밀번호</label><input id="authPassword" type="password" placeholder="6자리 이상 비밀번호" autocomplete="current-password"></div>
+    <div class="desc" id="authErrorMsg" style="color:var(--c-red);display:none;margin-top:4px;"></div>
+
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn-primary" id="btnEmailSignIn" style="flex:1;">로그인</button>
+      <button class="btn-ghost" id="btnEmailSignUp" style="flex:1;">회원가입</button>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-top:20px;"><button class="btn-ghost" id="authModalClose">닫기</button></div>
 </div></div>
 
-<!-- 덱 일괄 등록 (텍스트/CSV) -->
-<div class="ovl" id="ovlImport"><div class="sheet">
-  <h2>덱 가져오기 (일괄 등록)</h2>
-  <p class="desc">텍스트나 스프레드시트에서 복사한 내용을 붙여넣어 카드를 일괄 생성해요. (한 줄에 카드 1장: 앞면 [Tab 또는 ,] 뒷면)</p>
-  <div class="field"><label>과목 / 덱 이름</label><input id="importDeckTitle" type="text" placeholder="예: 필수 영단어, 일상 회화" autocomplete="off"></div>
-  <div class="field"><label>카드 데이터 붙여넣기</label><textarea id="importCardsText" style="width:100%;height:140px;padding:10px;font-family:monospace;font-size:13px;border-radius:12px;background:var(--c-fill);color:var(--c-label);border:none;outline:none;" placeholder="apple&#9;사과&#10;banana&#9;바나나"></textarea></div>
-  <div class="btn-row"><button class="btn-ghost" id="importClose">닫기</button><button class="btn-primary" id="btnDoImport">등록하기</button></div>
+<!-- 새 덱 만들기 모달 -->
+<div class="ovl" id="ovlNewDeck"><div class="sheet" style="max-width:420px;">
+  <h2>새 덱 만들기</h2>
+  <p class="desc">학습할 새로운 플래시카드 덱의 이름과 설명을 적어주세요.</p>
+  <div class="field"><label>덱 이름</label><input id="newDeckName" type="text" placeholder="예: 토익 빈출 어휘, 컴퓨터 구조론" autocomplete="off"></div>
+  <div class="field"><label>설명 (선택)</label><input id="newDeckDesc" type="text" placeholder="예: 2026년 대비 단어 정리" autocomplete="off"></div>
+  <div class="btn-row"><button class="btn-ghost" id="newDeckClose">취소</button><button class="btn-primary" id="btnCreateDeck">만들기</button></div>
+</div></div>
+
+<!-- 덱 범용 업로더 (파일 드래그앤드롭 / 텍스트 붙여넣기 / Anki 호환) -->
+<div class="ovl" id="ovlImport"><div class="sheet" style="max-width:540px;">
+  <h2>덱 가져오기 (업로드)</h2>
+  <p class="desc">Anki 내보내기 파일, CSV, 엑셀 또는 텍스트 데이터를 가져와 나만의 덱으로 즉시 등록해요.</p>
+
+  <div class="import-tab-bar">
+    <button class="import-tab-btn on" id="tabImpFile">파일 업로드 (.csv, .txt, .json)</button>
+    <button class="import-tab-btn" id="tabImpText">직접 텍스트 붙여넣기</button>
+  </div>
+
+  <div class="field" style="margin-bottom:12px;">
+    <label>저장할 대상 덱</label>
+    <div style="display:flex;gap:12px;margin-bottom:8px;font-size:13px;">
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="radio" name="impTargetMode" id="radNewDeck" value="new" checked> 새 덱으로 생성</label>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="radio" name="impTargetMode" id="radExistingDeck" value="existing"> 기존 덱에 추가</label>
+    </div>
+    <div id="wrapNewDeckTitle"><input id="importDeckTitle" type="text" placeholder="새 덱 이름 입력 (예: 필수 회화 100)" autocomplete="off"></div>
+    <div id="wrapExistingDeckSelect" style="display:none;"><select id="importDeckSelect" style="width:100%;padding:10px;border-radius:12px;background:var(--c-fill);color:var(--c-label);border:none;font-size:14px;"></select></div>
+  </div>
+
+  <!-- 파일 업로드 섹션 -->
+  <div id="secImpFile">
+    <input type="file" id="importFileInput" accept=".csv,.tsv,.txt,.json" style="display:none;">
+    <div class="drop-zone" id="importDropZone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="32" height="32" style="margin:0 auto 8px;display:block;color:var(--c-sec);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div style="font-weight:600;font-size:14px;color:var(--c-label);margin-bottom:4px;">파일을 여기로 드래그하거나 클릭하여 선택</div>
+      <div style="font-size:12px;color:var(--c-sec);">.csv, .tsv, .txt (Tab 구분), .json 지원</div>
+      <div id="importSelectedFileName" style="font-size:12.5px;color:var(--c-acc);margin-top:6px;font-weight:600;display:none;"></div>
+    </div>
+  </div>
+
+  <!-- 직접 붙여넣기 섹션 -->
+  <div id="secImpText" style="display:none;">
+    <div class="field"><label>카드 데이터 (한 줄에 1장: 앞면 [Tab 또는 ,] 뒷면 [Tab] 해설)</label>
+      <textarea id="importCardsText" style="width:100%;height:130px;padding:10px;font-family:monospace;font-size:13px;border-radius:12px;background:var(--c-fill);color:var(--c-label);border:none;outline:none;" placeholder="apple&#9;사과&#9;과일 명사&#10;banana&#9;바나나&#9;노란 과일"></textarea>
+    </div>
+  </div>
+
+  <!-- 실시간 파싱 미리보기 -->
+  <div id="importPreviewArea" style="margin-top:14px;display:none;background:var(--c-fill);border-radius:14px;padding:12px 14px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <span style="font-weight:700;font-size:13px;color:var(--c-label);">미리보기</span>
+      <span id="importParsedCountBadge" class="ac-badge ac-new" style="font-size:11px;">0장 감지</span>
+    </div>
+    <div style="max-height:120px;overflow-y:auto;">
+      <table class="preview-tbl" id="importPreviewTable">
+        <thead><tr><th>앞면 (질문)</th><th>뒷면 (정답)</th><th>해설/메모</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-top:16px;">
+    <button class="btn-ghost" id="importClose">닫기</button>
+    <button class="btn-primary" id="btnDoImport">덱 등록하기</button>
+  </div>
+</div></div>
+
+<!-- 단일 카드 직접 추가 모달 -->
+<div class="ovl" id="ovlAddCard"><div class="sheet" style="max-width:460px;">
+  <h2 id="cardModalTitle">새 카드 추가</h2>
+  <div class="field"><label>소속 덱</label><select id="addCardDeckSelect" style="width:100%;padding:10px;border-radius:12px;background:var(--c-fill);color:var(--c-label);border:none;font-size:14px;"></select></div>
+  <div class="field"><label>앞면 (질문)</label><textarea id="addCardQ" style="width:100%;height:80px;padding:10px;font-size:14px;border-radius:12px;background:var(--c-fill);color:var(--c-label);border:none;outline:none;" placeholder="질문 또는 단어 입력"></textarea></div>
+  <div class="field"><label>뒷면 (정답)</label><textarea id="addCardA" style="width:100%;height:80px;padding:10px;font-size:14px;border-radius:12px;background:var(--c-fill);color:var(--c-label);border:none;outline:none;" placeholder="정답 또는 뜻 입력"></textarea></div>
+  <div class="field"><label>해설 / 메모 (선택)</label><input id="addCardNote" type="text" placeholder="참고 설명, 예문 등" autocomplete="off"></div>
+  <div class="btn-row"><button class="btn-ghost" id="addCardClose">취소</button><button class="btn-primary" id="btnDoSaveCard">저장하기</button></div>
 </div></div>
 
 <!-- 확인 다이얼로그 (끄기 가드) -->
@@ -6273,9 +6438,9 @@ function mergeLogInto(remote, wk){    // 로그: (카드|시각) 합집합
 }
 function mergeSessInto(remote){
   const merged=mergeSessions((remote&&remote.sessions)||[], sessFile().sessions, state.log);
-  sessions=merged.filter(x=>!x.del && !x.name?.includes('Speaking') && !String(x.id||'').includes('speaking'));
+  sessions=merged.filter(x=>!x.del&&x.name!=='시작 가이드'&&x.id!=='s_tutorial'&&x.id!=='s1791980482284592'&&!x.name?.includes('Speaking')&&!String(x.id||'').includes('speaking'));
   if(!sessions.length){
-    sessions=[newSessObj('시작 가이드', HOW_TPL[0].how, {subj:['시작 가이드']})];
+    sessions=[newSessObj('전체 복습', HOW_TPL[0].how, {})];
   }
   sessTomb=merged.filter(x=>x.del);
   normalizeSessions();
@@ -7019,7 +7184,10 @@ function saveResume(){
 function clearResume(){ try{ lsSet(K_RESUME,''); }catch(e){} }
 function tryResume(){
   let r=null; try{ r=JSON.parse(lsGet(K_RESUME)||'null'); }catch(e){}
-  if(!r||r.day!==todayKey()) return false;
+  if(!r||r.day!==todayKey()||r.sid==='s1791980482284592'||String(r.cid).startsWith('guide_')) {
+    if(r&&(r.sid==='s1791980482284592'||String(r.cid).startsWith('guide_'))) clearResume();
+    return false;
+  }
   const sx=sessions.find(s=>s.id===r.sid), c=BYID[r.cid];
   if(!sx||!c||settledToday(c)||buried(c)) return false;
   playSess(sx);                                  // 저장 큐가 그 카드부터라 보통 첫 장이 그 카드다
@@ -7418,7 +7586,12 @@ function newSessObj(name, how, scope, mode){
     q:[], done:0, day:'', lastScore:null, scores:[], createdAt:Date.now(), lastAt:0};
 }
 function normalizeSessions(){
+  sessions=sessions.filter(x=>x&&!x.del&&x.name!=='시작 가이드'&&x.id!=='s_tutorial'&&x.id!=='s1791980482284592'&&!((x.scope&&x.scope.subj)||[]).includes('시작 가이드'));
+  if(!sessTomb.some(x=>x.id==='s1791980482284592')) sessTomb.push({id:'s1791980482284592', del:1791986500000});
+  if(curSess&&(curSess.id==='s1791980482284592'||curSess.name==='시작 가이드')){ curSess=null; queue=[]; qPos=0; }
+  if(viewSess&&(viewSess.id==='s1791980482284592'||viewSess.name==='시작 가이드')){ viewSess=null; }
   for(const x of sessions){
+    if(x.q&&Array.isArray(x.q)) x.q=x.q.filter(id=>!String(id).startsWith('guide_'));
     x.scope=Object.assign({units:[],mids:[],subj:[],tags:[],typ:[]},x.scope||{}); x.q=x.q||[];
     x.scope.ex=Object.assign({units:[],mids:[]}, x.scope.ex||{});
     if(!x.mode) x.mode=(x.scope.units&&x.scope.units.length)?'manual':'auto';
@@ -7452,7 +7625,7 @@ function loadSessions(){
   if(v){ try{ const j=JSON.parse(v); sessions=Array.isArray(j)?j:((j&&j.sessions)||[]); }
          catch(e){ sessions=[]; } }
   if(!Array.isArray(sessions)) sessions=[];
-  sessions=sessions.filter(x=>x&&!x.del);      // 캐시에는 삭제 툼스톤도 같이 들어 있다
+  sessions=sessions.filter(x=>x&&!x.del&&x.name!=='시작 가이드'&&x.id!=='s_tutorial'&&x.id!=='s1791980482284592');      // 캐시에는 삭제 툼스톤도 같이 들어 있다 — 시작 가이드 잔여물 영구 배제
   if(!sessions.length){                       // 예전 프리셋이 있으면 승계, 없으면 일일 복습 하나
     const old=lsGet(K_PRESETS);
     let migrated=[];
@@ -15805,97 +15978,717 @@ $('ovlImg').onclick=closeImg;
     requestAnimationFrame(fitCard); return r; };
   const _s2=showCard; showCard=function(){ const Z=$('cardZone'); Z.classList.remove('anchored'); $('card').style.marginTop=''; return _s2.apply(this,arguments); }; }
 
-/* ═══════════════ Supabase 클라우드 실시간 동기화 & 덱 가져오기 확장 ═══════════════ */
+/* ═══════════════ 범용 Multi-User & Anki 덱 플랫폼 엔진 ═══════════════ */
 const SB_URL = 'https://uvrnsdknkivtclzlfjxx.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cm5zZGtua2l2dGNsemxmanh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTA2NzYsImV4cCI6MjA3MDA2NjY3Nn0.k_jx9ysXfPIsU9ls3NHSgE4uqEkOrdzPftVVcYvck2s';
 const sbClient = (typeof supabase !== 'undefined') ? supabase.createClient(SB_URL, SB_ANON) : null;
 let sbUser = null;
 
-async function initSupabaseAuth(){
-  if(!sbClient) return;
-  try {
-    const { data: { session } } = await sbClient.auth.getSession();
-    updateSbUser(session ? session.user : null);
-    sbClient.auth.onAuthStateChange((_event, session) => {
-      updateSbUser(session ? session.user : null);
-    });
-  } catch(e){}
+// 1. 사용자별 테넌트 격리 스토리지 헬퍼
+function getUserStorageKey(key){
+  const uid = (sbUser && sbUser.id) ? sbUser.id : 'guest';
+  return `mc_${key}_${uid}`;
 }
 
-function updateSbUser(u){
-  sbUser = u;
-  const stat = $('sbUserStatus');
-  const btn = $('btnSbGoogle');
-  if(!stat || !btn) return;
-  if(u){
-    stat.innerHTML = `<span style="color:var(--c-good);font-weight:600;">✓ 동기화됨</span> · ${u.email.split('@')[0]}`;
-    btn.textContent = '로그아웃';
-    btn.onclick = async () => { await sbClient.auth.signOut(); toast('로그아웃 되었습니다'); };
-    syncFromSupabase();
-  } else {
-    stat.textContent = '로그인되지 않음 (로컬 저장 중)';
-    btn.textContent = 'Google 로그인';
-    btn.onclick = async () => {
-      await sbClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin + window.location.pathname }
-      });
-    };
+// 2. 덱(Deck) 모델 및 관리
+let DECKS = [];
+
+function loadUserDecks(){
+  try {
+    const raw = lsGet(getUserStorageKey('decks'));
+    if(raw) DECKS = JSON.parse(raw);
+    else DECKS = [];
+  } catch(e){ DECKS = []; }
+
+  // 덱이 전혀 없는 경우: DATA에 있는 카드의 과목(subj)들로부터 덱 자동 생성
+  if(!DECKS.length){
+    const subjs = new Set();
+    DATA.forEach(c => { if(c.subj) subjs.add(c.subj); });
+    if(subjs.size){
+      DECKS = [...subjs].map(s => ({
+        id: 'deck_' + Mash()(s).toString(36),
+        name: s,
+        desc: `${s} 학습 덱`,
+        createdAt: Date.now()
+      }));
+    } else {
+      DECKS = [{
+        id: 'deck_default',
+        name: '기본 덱',
+        desc: '나만의 플래시카드 덱',
+        createdAt: Date.now()
+      }];
+    }
+    saveUserDecks();
   }
 }
 
-// 덱 일괄 등록 (Import)
-if($('btnOpenImport')) $('btnOpenImport').onclick = () => { $('ovlImport').classList.add('show'); };
-if($('importClose')) $('importClose').onclick = () => { $('ovlImport').classList.remove('show'); };
-if($('btnDoImport')) $('btnDoImport').onclick = async () => {
-  const title = $('importDeckTitle').value.trim() || '가져온 덱';
-  const text = $('importCardsText').value.trim();
-  if(!text){ alert('카드 데이터를 입력해주세요'); return; }
-  const lines = text.split('\n');
-  const newCards = [];
-  for(const line of lines){
-    const tr = line.trim();
-    if(!tr) continue;
-    let parts = tr.split('\t');
-    if(parts.length < 2) parts = tr.split(',');
-    if(parts.length >= 2){
-      const cid = 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-      newCards.push({
-        id: cid,
-        q: parts[0].trim(),
-        a: parts[1].trim(),
-        note: parts[2] ? parts[2].trim() : '',
-        subj: title,
-        unit: title
-      });
+function saveUserDecks(){
+  try {
+    lsSet(getUserStorageKey('decks'), JSON.stringify(DECKS));
+  } catch(e){}
+  syncDeckDropdowns();
+}
+
+function getDeckCards(deck){
+  if(!deck) return [];
+  return DATA.filter(c => c.deckId === deck.id || c.subj === deck.name);
+}
+
+function getDeckStats(deck){
+  const cards = getDeckCards(deck);
+  let nw = 0, due = 0, learn = 0, again = 0;
+  const trM = todayRatings();
+  for(const c of cards){
+    if(retired(c) || offed(c)) continue;
+    if(trM[c.id] === 1) again++;
+    if(isNew(c)) nw++;
+    else if(isDue(c)) due++;
+    else learn++;
+  }
+  return { total: cards.length, new: nw, due, learn, again };
+}
+
+// 덱 허브 렌더링 (Anki 스타일 홈 화면)
+function renderDeckHub(){
+  const area = $('deckListArea');
+  const countBadge = $('deckTotalCountBadge');
+  if(!area) return;
+  if(countBadge) countBadge.textContent = `${DECKS.length}개 덱`;
+  area.innerHTML = '';
+
+  if(!DECKS.length){
+    area.innerHTML = `
+      <div style="padding:24px 16px;text-align:center;background:var(--c-fill);border-radius:14px;color:var(--c-sec);">
+        <div style="font-size:15px;font-weight:600;color:var(--c-label);margin-bottom:4px;">등록된 덱이 없어요</div>
+        <div style="font-size:13px;margin-bottom:12px;">새 덱을 만들거나 파일/텍스트를 업로드해보세요.</div>
+        <button class="deck-act-btn deck-act-primary" onclick="$('ovlImport').classList.add('show')">덱 업로드하기</button>
+      </div>`;
+    return;
+  }
+
+  DECKS.forEach(deck => {
+    const stats = getDeckStats(deck);
+    const card = document.createElement('div');
+    card.className = 'deck-card';
+    card.innerHTML = `
+      <div class="deck-info">
+        <div class="deck-title-row">
+          <span class="deck-name">${esc(deck.name)}</span>
+          <span style="font-size:11.5px;color:var(--c-ter);font-weight:600;">${stats.total}장</span>
+        </div>
+        <div class="deck-desc">${esc(deck.desc || '설명 없음')}</div>
+      </div>
+      <div class="deck-right">
+        <div class="anki-counts" title="신규(파랑) / 학습중(주황) / 복습대기(초록)">
+          <span class="ac-badge ac-new">${stats.new}</span>
+          <span class="ac-badge ac-learn">${stats.learn}</span>
+          <span class="ac-badge ac-due">${stats.due}</span>
+        </div>
+        <button class="deck-act-btn deck-act-primary btn-study-deck" title="학습 시작">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M7 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L8.5 3.94A1 1 0 0 0 7 4.8z"/></svg>학습
+        </button>
+        <button class="deck-opt-btn" title="옵션">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></svg>
+        </button>
+      </div>
+    `;
+
+    // 학습 버튼 클릭
+    card.querySelector('.btn-study-deck').onclick = (e) => {
+      e.stopPropagation();
+      playDeck(deck);
+    };
+
+    // 덱 카드 클릭 시에도 학습
+    card.querySelector('.deck-info').onclick = () => {
+      playDeck(deck);
+    };
+
+    // 덱 옵션 메뉴
+    card.querySelector('.deck-opt-btn').onclick = (e) => {
+      e.stopPropagation();
+      openDeckOptionsMenu(deck, e.currentTarget);
+    };
+
+    area.appendChild(card);
+  });
+}
+
+// 덱 옵션 팝업 메뉴
+function openDeckOptionsMenu(deck, targetEl){
+  const stats = getDeckStats(deck);
+  const acts = [
+    { label: '➕ 이 덱에 카드 추가', fn: () => openAddCardModal(deck.id) },
+    { label: `🔴 이 덱 오답만 풀기 (${stats.again}장)`, fn: () => playDeckAgain(deck), disabled: !stats.again },
+    { label: '📤 CSV 파일로 내보내기', fn: () => exportDeckCSV(deck) },
+    { label: '📤 JSON 파일로 내보내기', fn: () => exportDeckJSON(deck) },
+    { label: '✏️ 덱 이름/설명 수정', fn: () => editDeckInfo(deck) },
+    { label: '🗑️ 덱 삭제', fn: () => confirmDeleteDeck(deck), danger: true }
+  ];
+
+  const old = $('popDeckMenu');
+  if(old) old.remove();
+
+  const menu = document.createElement('div');
+  menu.id = 'popDeckMenu';
+  menu.style.cssText = 'position:fixed;z-index:9999;background:var(--c-card);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.18);border:1px solid var(--c-sep);padding:6px;min-width:200px;';
+
+  const rect = targetEl.getBoundingClientRect();
+  menu.style.top = Math.min(window.innerHeight - 260, rect.bottom + 6) + 'px';
+  menu.style.right = Math.max(16, window.innerWidth - rect.right) + 'px';
+
+  acts.forEach(act => {
+    const btn = document.createElement('button');
+    btn.style.cssText = `display:block;width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;border-radius:8px;font-size:13.5px;font-weight:600;color:${act.danger ? 'var(--c-red)' : (act.disabled ? 'var(--c-ter)' : 'var(--c-label)')};cursor:${act.disabled ? 'not-allowed' : 'pointer'};opacity:${act.disabled ? '0.5' : '1'};`;
+    btn.textContent = act.label;
+    if(!act.disabled){
+      btn.onmouseenter = () => btn.style.background = 'var(--c-fill)';
+      btn.onmouseleave = () => btn.style.background = 'transparent';
+      btn.onclick = () => { menu.remove(); act.fn(); };
+    }
+    menu.appendChild(btn);
+  });
+
+  document.body.appendChild(menu);
+  const closeHandler = (e) => {
+    if(!menu.contains(e.target) && e.target !== targetEl){
+      menu.remove();
+      document.removeEventListener('pointerdown', closeHandler);
+    }
+  };
+  setTimeout(() => document.addEventListener('pointerdown', closeHandler), 10);
+}
+
+// 덱 전용 학습 시작
+function playDeck(deck){
+  const cards = getDeckCards(deck);
+  if(!cards.length){
+    toast('덱에 카드가 없습니다. 카드를 추가해주세요.');
+    return;
+  }
+  const sess = newSessObj(deck.name, HOW_TPL[0].how, { subj: [deck.name], deckId: deck.id });
+  sess.temp = true;
+  sessions = sessions.filter(x => !x.temp || x.name !== deck.name || sessRemain(x) > 0);
+  sessions.unshift(sess);
+  normalizeSessions();
+  playSess(sess);
+}
+
+// 덱 오답만 모아 풀기
+function playDeckAgain(deck){
+  const cards = getDeckCards(deck);
+  const trM = todayRatings();
+  const agains = cards.filter(c => trM[c.id] === 1 && !retired(c) && !offed(c));
+  if(!agains.length){
+    toast('이 덱에 오늘 틀린 카드가 없습니다.');
+    return;
+  }
+  startAdHoc(agains, `${deck.name} (오답)`, `${deck.name} 오답 ${agains.length}장 복습`, true, true);
+}
+
+// 3. 오늘 푼 오답 섹션 렌더링 (홈 화면)
+function renderTodayAgainSection(){
+  const box = $('todayAgainBox');
+  if(!box) return;
+  const trM = todayRatings();
+  const againCards = [];
+  for(const id in trM){
+    if(trM[id] === 1){
+      const c = BYID[id];
+      if(c && !retired(c) && !offed(c)) againCards.push(c);
     }
   }
-  if(!newCards.length){ alert('앞면과 뒷면을 Tab 또는 쉼표(,)로 구분해주세요'); return; }
-  
-  DATA.push(...newCards);
-  newCards.forEach(c => BYID[c.id] = c);
-  if(!SUBJECTS.includes(title)) SUBJECTS.push(title);
-  
-  try {
-    const custom = JSON.parse(localStorage.getItem('mc_custom_cards') || '[]');
-    custom.push(...newCards);
-    localStorage.setItem('mc_custom_cards', JSON.stringify(custom));
-  } catch(e){}
 
-  $('ovlImport').classList.remove('show');
-  toast(`${newCards.length}장의 카드를 등록했어요`);
+  if(againCards.length > 0){
+    box.style.display = 'block';
+    box.innerHTML = `
+      <div style="background:linear-gradient(135deg, rgba(255,59,48,0.12), rgba(255,149,0,0.08));border:1px solid rgba(255,59,48,0.22);border-radius:16px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div style="min-width:0;flex:1;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+            <span style="font-size:16px;">🔴</span>
+            <span style="font-weight:700;font-size:15.5px;color:var(--c-red);">오늘 틀린 카드 (${againCards.length}장)</span>
+          </div>
+          <div style="font-size:12.5px;color:var(--c-sec);line-height:1.4;">오늘 풀다 막혔던 카드들을 외울 때까지 즉시 복습해요.</div>
+        </div>
+        <button id="btnPlayTodayAgain" class="deck-act-btn" style="background:var(--c-red);color:#fff;font-weight:700;padding:9px 15px;font-size:13.5px;border-radius:12px;white-space:nowrap;flex-shrink:0;">
+          ▶ 오답 풀기
+        </button>
+      </div>
+    `;
+    $('btnPlayTodayAgain').onclick = () => {
+      startAdHoc(againCards, '오늘 오답 복습', `오늘 틀린 카드 ${againCards.length}장 즉시 복습`, true, true);
+    };
+  } else {
+    box.style.display = 'none';
+    box.innerHTML = '';
+  }
+}
+
+// 4. 덱 내보내기 (Export)
+function exportDeckCSV(deck){
+  const cards = getDeckCards(deck);
+  if(!cards.length){ toast('내보낼 카드가 없습니다'); return; }
+  let csv = 'Front\tBack\tNote\tDeck\n';
+  cards.forEach(c => {
+    const q = (c.q||'').replace(/\t/g,' ').replace(/\n/g,'<br>');
+    const a = (c.a||'').replace(/\t/g,' ').replace(/\n/g,'<br>');
+    const note = (c.note||'').replace(/\t/g,' ').replace(/\n/g,'<br>');
+    csv += `${q}\t${a}\t${note}\t${deck.name}\n`;
+  });
+  downloadFile(`${deck.name}_cards.tsv`, csv, 'text/tab-separated-values;charset=utf-8');
+  toast(`${deck.name} 덱 TSV 다운로드를 시작했어요`);
+}
+
+function exportDeckJSON(deck){
+  const cards = getDeckCards(deck);
+  if(!cards.length){ toast('내보낼 카드가 없습니다'); return; }
+  const data = { deck, cards, exportedAt: Date.now() };
+  downloadFile(`${deck.name}_deck.json`, JSON.stringify(data, null, 2), 'application/json');
+  toast(`${deck.name} 덱 JSON 다운로드를 시작했어요`);
+}
+
+function downloadFile(filename, content, type){
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 500);
+}
+
+// 덱 삭제
+function confirmDeleteDeck(deck){
+  if(confirm(`'${deck.name}' 덱을 정말 삭제할까요?\n소속된 카드들도 목록에서 제외됩니다.`)){
+    DECKS = DECKS.filter(d => d.id !== deck.id);
+    saveUserDecks();
+    const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
+    const nextCustom = custom.filter(c => c.deckId !== deck.id && c.subj !== deck.name);
+    lsSet(getUserStorageKey('custom_cards'), JSON.stringify(nextCustom));
+    DATA = DATA.filter(c => c.deckId !== deck.id && c.subj !== deck.name);
+    BYID = {}; DATA.forEach((c,i)=>{ c._i=i; BYID[c.id]=c; });
+    toast(`'${deck.name}' 덱을 삭제했어요`);
+    renderDeckHub();
+    renderHome();
+    if(typeof renderList === 'function') renderList();
+  }
+}
+
+// 덱 정보 수정
+function editDeckInfo(deck){
+  const newName = prompt('새 덱 이름을 입력하세요:', deck.name);
+  if(!newName || !newName.trim()) return;
+  const oldName = deck.name;
+  deck.name = newName.trim();
+  const newDesc = prompt('덱 설명을 입력하세요 (선택):', deck.desc || '');
+  if(newDesc !== null) deck.desc = newDesc.trim();
+  DATA.forEach(c => { if(c.deckId === deck.id || c.subj === oldName) { c.subj = deck.name; c.deckId = deck.id; } });
+  const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
+  custom.forEach(c => { if(c.deckId === deck.id || c.subj === oldName) { c.subj = deck.name; c.deckId = deck.id; } });
+  lsSet(getUserStorageKey('custom_cards'), JSON.stringify(custom));
+  saveUserDecks();
+  toast('덱 정보를 수정했어요');
+  renderDeckHub();
+  renderHome();
+}
+
+// 5. 드롭다운 동기화
+function syncDeckDropdowns(){
+  const selects = ['listDeckFilter', 'importDeckSelect', 'addCardDeckSelect'];
+  selects.forEach(sid => {
+    const el = $(sid);
+    if(!el) return;
+    const curVal = el.value;
+    el.innerHTML = sid === 'listDeckFilter' ? '<option value="">모든 덱 카드 보기</option>' : '';
+    DECKS.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = d.name;
+      el.appendChild(opt);
+    });
+    if(curVal) el.value = curVal;
+  });
+}
+
+// 6. 단일 카드 추가/수정 모달
+function openAddCardModal(targetDeckId){
+  syncDeckDropdowns();
+  if(targetDeckId && $('addCardDeckSelect')) $('addCardDeckSelect').value = targetDeckId;
+  $('addCardQ').value = '';
+  $('addCardA').value = '';
+  $('addCardNote').value = '';
+  $('ovlAddCard').classList.add('show');
+  $('addCardQ').focus();
+}
+
+if($('addCardClose')) $('addCardClose').onclick = () => $('ovlAddCard').classList.remove('show');
+if($('btnOpenAddCardTop')) $('btnOpenAddCardTop').onclick = () => openAddCardModal();
+if($('btnOpenAddCardList')) $('btnOpenAddCardList').onclick = () => openAddCardModal();
+if($('btnDoSaveCard')) $('btnDoSaveCard').onclick = () => {
+  const q = $('addCardQ').value.trim();
+  const a = $('addCardA').value.trim();
+  const note = $('addCardNote').value.trim();
+  const deckId = $('addCardDeckSelect').value || (DECKS[0] && DECKS[0].id) || 'deck_default';
+  const deck = DECKS.find(d => d.id === deckId) || DECKS[0] || { name: '기본 덱', id: 'deck_default' };
+
+  if(!q || !a){ alert('앞면(질문)과 뒷면(정답)을 모두 입력해주세요'); return; }
+
+  const cid = 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+  const newCard = { id: cid, q, a, note, subj: deck.name, unit: deck.name, deckId: deck.id };
+
+  DATA.push(newCard);
+  BYID[cid] = newCard;
+
+  const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
+  custom.push(newCard);
+  lsSet(getUserStorageKey('custom_cards'), JSON.stringify(custom));
+
+  $('ovlAddCard').classList.remove('show');
+  toast('새 카드를 저장했어요');
+  renderDeckHub();
+  renderHome();
   if(typeof renderList === 'function') renderList();
-  if(typeof renderHome === 'function') renderHome();
 };
 
-// 커스텀 카드 복원
-try {
-  const custom = JSON.parse(localStorage.getItem('mc_custom_cards') || '[]');
-  if(custom.length){
-    DATA.push(...custom);
-    custom.forEach(c => { BYID[c.id] = c; if(c.subj && !SUBJECTS.includes(c.subj)) SUBJECTS.push(c.subj); });
+// 7. 범용 덱 업로더 (Universal Importer)
+function initUniversalImporter(){
+  let parsedCardsCache = [];
+
+  $('tabImpFile').onclick = () => {
+    $('tabImpFile').classList.add('on'); $('tabImpText').classList.remove('on');
+    $('secImpFile').style.display = 'block'; $('secImpText').style.display = 'none';
+  };
+  $('tabImpText').onclick = () => {
+    $('tabImpText').classList.add('on'); $('tabImpFile').classList.remove('on');
+    $('secImpText').style.display = 'block'; $('secImpFile').style.display = 'none';
+  };
+
+  $('radNewDeck').onchange = () => {
+    $('wrapNewDeckTitle').style.display = 'block';
+    $('wrapExistingDeckSelect').style.display = 'none';
+  };
+  $('radExistingDeck').onchange = () => {
+    $('wrapNewDeckTitle').style.display = 'none';
+    $('wrapExistingDeckSelect').style.display = 'block';
+    syncDeckDropdowns();
+  };
+
+  const dropZone = $('importDropZone');
+  const fileInput = $('importFileInput');
+  if(dropZone && fileInput){
+    dropZone.onclick = () => fileInput.click();
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+    dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+    dropZone.ondrop = (e) => {
+      e.preventDefault(); dropZone.classList.remove('dragover');
+      if(e.dataTransfer.files && e.dataTransfer.files[0]) handleImportFile(e.dataTransfer.files[0]);
+    };
+    fileInput.onchange = (e) => {
+      if(e.target.files && e.target.files[0]) handleImportFile(e.target.files[0]);
+    };
   }
-} catch(e){}
+
+  function handleImportFile(file){
+    const fnEl = $('importSelectedFileName');
+    if(fnEl){ fnEl.style.display = 'block'; fnEl.textContent = `선택된 파일: ${file.name} (${(file.size/1024).toFixed(1)} KB)`; }
+    const baseName = file.name.replace(/\.[^/.]+$/, "");
+    if(!$('importDeckTitle').value.trim()) $('importDeckTitle').value = baseName;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      $('importCardsText').value = content;
+      parseAndPreview(content);
+    };
+    reader.readAsText(file);
+  }
+
+  $('importCardsText').oninput = (e) => {
+    parseAndPreview(e.target.value);
+  };
+
+  function parseAndPreview(text){
+    parsedCardsCache = parseCardData(text);
+    const pArea = $('importPreviewArea');
+    const badge = $('importParsedCountBadge');
+    const tbody = $('importPreviewTable').querySelector('tbody');
+    if(!pArea || !badge || !tbody) return;
+
+    if(parsedCardsCache.length){
+      pArea.style.display = 'block';
+      badge.textContent = `${parsedCardsCache.length}장 감지`;
+      tbody.innerHTML = '';
+      parsedCardsCache.slice(0, 5).forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${esc(c.q)}</td><td>${esc(c.a)}</td><td style="color:var(--c-sec);">${esc(c.note||'—')}</td>`;
+        tbody.appendChild(tr);
+      });
+    } else {
+      pArea.style.display = 'none';
+      tbody.innerHTML = '';
+    }
+  }
+
+  function parseCardData(text){
+    if(!text || !text.trim()) return [];
+    const trm = text.trim();
+    if(trm.startsWith('{') || trm.startsWith('[')){
+      try {
+        const j = JSON.parse(trm);
+        const list = Array.isArray(j) ? j : (j.cards || []);
+        return list.map(x => ({ q: x.q || x.front || '', a: x.a || x.back || '', note: x.note || '' })).filter(x => x.q && x.a);
+      } catch(e){}
+    }
+    const lines = text.split('\n');
+    const out = [];
+    for(const l of lines){
+      const s = l.trim();
+      if(!s || s.startsWith('#')) continue;
+      let parts = s.split('\t');
+      if(parts.length < 2) parts = s.split(',');
+      if(parts.length < 2) parts = s.split(';');
+      if(parts.length >= 2){
+        out.push({
+          q: parts[0].trim(),
+          a: parts[1].trim(),
+          note: parts[2] ? parts[2].trim() : ''
+        });
+      }
+    }
+    return out;
+  }
+
+  $('btnDoImport').onclick = () => {
+    const rawText = $('importCardsText').value;
+    const cards = parseCardData(rawText);
+    if(!cards.length){
+      alert('등록할 카드 내용이 없습니다. 파일이나 텍스트를 확인해주세요.');
+      return;
+    }
+
+    let deck = null;
+    const isNew = $('radNewDeck').checked;
+    if(isNew){
+      const name = $('importDeckTitle').value.trim() || '가져온 덱';
+      deck = {
+        id: 'deck_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        name: name,
+        desc: `${cards.length}장의 카드가 등록된 덱`,
+        createdAt: Date.now()
+      };
+      DECKS.push(deck);
+      saveUserDecks();
+    } else {
+      const did = $('importDeckSelect').value;
+      deck = DECKS.find(d => d.id === did) || DECKS[0];
+    }
+
+    const newCards = cards.map(c => ({
+      id: 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      q: c.q,
+      a: c.a,
+      note: c.note || '',
+      subj: deck ? deck.name : '기본 덱',
+      unit: deck ? deck.name : '기본 덱',
+      deckId: deck ? deck.id : 'deck_default'
+    }));
+
+    DATA.push(...newCards);
+    newCards.forEach(c => BYID[c.id] = c);
+    if(deck && !SUBJECTS.includes(deck.name)) SUBJECTS.push(deck.name);
+
+    const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
+    custom.push(...newCards);
+    lsSet(getUserStorageKey('custom_cards'), JSON.stringify(custom));
+
+    $('ovlImport').classList.remove('show');
+    toast(`${newCards.length}장의 카드를 '${deck ? deck.name : ''}' 덱에 등록했어요`);
+    renderDeckHub();
+    renderHome();
+    if(typeof renderList === 'function') renderList();
+  };
+
+  if($('btnOpenImportTop')) $('btnOpenImportTop').onclick = () => $('ovlImport').classList.add('show');
+  if($('btnOpenImport')) $('btnOpenImport').onclick = () => $('ovlImport').classList.add('show');
+  if($('importClose')) $('importClose').onclick = () => $('ovlImport').classList.remove('show');
+
+  if($('btnOpenNewDeck')) $('btnOpenNewDeck').onclick = () => {
+    $('newDeckName').value = ''; $('newDeckDesc').value = '';
+    $('ovlNewDeck').classList.add('show');
+    $('newDeckName').focus();
+  };
+  if($('newDeckClose')) $('newDeckClose').onclick = () => $('ovlNewDeck').classList.remove('show');
+  if($('btnCreateDeck')) $('btnCreateDeck').onclick = () => {
+    const name = $('newDeckName').value.trim();
+    if(!name){ alert('덱 이름을 입력해주세요'); return; }
+    const desc = $('newDeckDesc').value.trim();
+    const newDeck = {
+      id: 'deck_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+      name, desc, createdAt: Date.now()
+    };
+    DECKS.push(newDeck);
+    saveUserDecks();
+    $('ovlNewDeck').classList.remove('show');
+    toast(`'${name}' 덱을 만들었어요`);
+    renderDeckHub();
+  };
+}
+
+// 8. 전체 카드 탭 (Card Browser) 검색 및 오답 필터 바인딩
+function initCardBrowserFilters(){
+  const filterRow = $('filterChipsRow');
+  const deckFilter = $('listDeckFilter');
+
+  if(filterRow){
+    filterRow.querySelectorAll('.filter-chip').forEach(btn => {
+      btn.onclick = () => {
+        filterRow.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        applyCardBrowserFilter();
+      };
+    });
+  }
+
+  if(deckFilter){
+    deckFilter.onchange = () => applyCardBrowserFilter();
+  }
+
+  function applyCardBrowserFilter(){
+    const activeChip = filterRow ? filterRow.querySelector('.filter-chip.on') : null;
+    const fType = activeChip ? activeChip.dataset.filter : 'all';
+    const did = deckFilter ? deckFilter.value : '';
+    const qEl = $('qSearch');
+
+    let cond = [];
+    if(did){
+      const d = DECKS.find(x => x.id === did);
+      if(d) cond.push(`subj:"${d.name}"`);
+    }
+
+    if(fType === 'today_again'){
+      const trM = todayRatings();
+      const againIds = Object.keys(trM).filter(id => trM[id] === 1);
+      if(againIds.length){
+        cond.push(`rated:1:1`);
+      } else {
+        cond.push(`is:again_none`);
+      }
+    } else if(fType === 'weak'){
+      cond.push('is:weak');
+    } else if(fType === 'due'){
+      cond.push('is:due');
+    } else if(fType === 'new'){
+      cond.push('is:new');
+    }
+
+    if(qEl){
+      qEl.value = cond.join(' ');
+      if(typeof renderList === 'function') renderList();
+    }
+  }
+}
+
+// 9. 사용자 인증 (Supabase Auth & Multi-User)
+async function initAuthSystem(){
+  if(!sbClient) return;
+
+  try {
+    const { data: { session } } = await sbClient.auth.getSession();
+    updateUserAuthUI(session ? session.user : null);
+    sbClient.auth.onAuthStateChange((_event, session) => {
+      updateUserAuthUI(session ? session.user : null);
+    });
+  } catch(e){}
+
+  if($('btnUserAccount')) $('btnUserAccount').onclick = () => $('ovlAuth').classList.add('show');
+  if($('authModalClose')) $('authModalClose').onclick = () => $('ovlAuth').classList.remove('show');
+
+  if($('btnGoogleAuth')) $('btnGoogleAuth').onclick = async () => {
+    await sbClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + window.location.pathname }
+    });
+  };
+
+  if($('btnEmailSignIn')) $('btnEmailSignIn').onclick = async () => {
+    const email = $('authEmail').value.trim();
+    const password = $('authPassword').value;
+    if(!email || !password){ showAuthErr('이메일과 비밀번호를 입력해주세요'); return; }
+    try {
+      const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+      if(error) showAuthErr(error.message);
+      else { $('ovlAuth').classList.remove('show'); toast('로그인되었습니다'); }
+    } catch(e){ showAuthErr(e.message); }
+  };
+
+  if($('btnEmailSignUp')) $('btnEmailSignUp').onclick = async () => {
+    const email = $('authEmail').value.trim();
+    const password = $('authPassword').value;
+    if(!email || password.length < 6){ showAuthErr('6자리 이상의 비밀번호를 입력해주세요'); return; }
+    try {
+      const { data, error } = await sbClient.auth.signUp({ email, password });
+      if(error) showAuthErr(error.message);
+      else { toast('회원가입 확인 메일을 보냈어요. 메일함을 확인해주세요.'); }
+    } catch(e){ showAuthErr(e.message); }
+  };
+
+  if($('btnAuthSignOut')) $('btnAuthSignOut').onclick = async () => {
+    await sbClient.auth.signOut();
+    toast('로그아웃되었습니다');
+    $('ovlAuth').classList.remove('show');
+  };
+
+  if($('btnManualSync')) $('btnManualSync').onclick = async () => {
+    await syncFromSupabase();
+    toast('클라우드 동기화가 완료되었습니다');
+  };
+
+  function showAuthErr(msg){
+    const el = $('authErrorMsg');
+    if(el){ el.style.display = 'block'; el.textContent = msg; }
+  }
+}
+
+function updateUserAuthUI(user){
+  sbUser = user;
+  const badgeLabel = $('accountBadgeLabel');
+  const loggedInView = $('authLoggedInView');
+  const loggedOutView = $('authLoggedOutView');
+  const loggedEmail = $('authLoggedEmail');
+
+  if(user){
+    const emailName = user.email.split('@')[0];
+    if(badgeLabel) badgeLabel.textContent = emailName;
+    if(loggedInView) loggedInView.style.display = 'block';
+    if(loggedOutView) loggedOutView.style.display = 'none';
+    if(loggedEmail) loggedEmail.textContent = user.email;
+  } else {
+    if(badgeLabel) badgeLabel.textContent = '게스트';
+    if(loggedInView) loggedInView.style.display = 'none';
+    if(loggedOutView) loggedOutView.style.display = 'block';
+  }
+
+  loadUserDecks();
+  restoreUserCards();
+  renderDeckHub();
+  renderTodayAgainSection();
+  if(typeof renderHome === 'function') renderHome();
+}
+
+function restoreUserCards(){
+  try {
+    const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
+    if(custom.length){
+      custom.forEach(c => {
+        if(!BYID[c.id]){
+          DATA.push(c);
+          BYID[c.id] = c;
+        }
+        if(c.subj && !SUBJECTS.includes(c.subj)) SUBJECTS.push(c.subj);
+      });
+    }
+  } catch(e){}
+}
 
 async function syncFromSupabase(){
   if(!sbUser || !sbClient) return;
@@ -15913,10 +16706,33 @@ async function syncFromSupabase(){
   } catch(e){}
 }
 
+// renderHome 확장: 덱 허브와 오늘 오답 섹션을 항상 함께 갱신
+{
+  const _rh = renderHome;
+  renderHome = function(){
+    const r = _rh.apply(this, arguments);
+    try {
+      renderDeckHub();
+      renderTodayAgainSection();
+    } catch(e){}
+    return r;
+  };
+}
+
+// 초기화
 window.addEventListener('DOMContentLoaded', () => {
-  initSupabaseAuth();
-  if($('hsDeckNav')) $('hsDeckNav').onclick = () => ymEnter();
-  if($('tabYm')) $('tabYm').onclick = () => ymEnter();
+  loadUserDecks();
+  restoreUserCards();
+  initAuthSystem();
+  initUniversalImporter();
+  initCardBrowserFilters();
+  renderDeckHub();
+  renderTodayAgainSection();
+
+  // 탭바 바인딩
+  if($('tabCards')) $('tabCards').onclick = () => go('scrList');
+  if($('tabStats')) $('tabStats').onclick = () => go('scrStats');
+  if($('tabSetup')) $('tabSetup').onclick = () => $('ovlAuth').classList.add('show');
 });
 
 </script>
