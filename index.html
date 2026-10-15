@@ -5691,10 +5691,23 @@ function muOf(s){ return s.mu!==undefined ? (s.mu||'') : (s.u||''); }
 function fuOf(s){ return s.fu!==undefined ? (s.fu||'') : (s.u||''); }
 function touch(s){ if(s.fu===undefined) s.fu=s.u||''; s.u=s.mu=new Date().toISOString(); markDirty('marks'); }   // 로그로 복원 안 되는 조작 = 바로 올린다
 function touchFb(s){ if(s.mu===undefined) s.mu=s.u||''; s.u=s.fu=new Date().toISOString(); markDirty('fb'); }
-function isDue(c){ const s=state.cards[c.id];
+function normalizeCard(c){
+  if(!c) return c;
+  if(!c.front && c.q) c.front = c.q;
+  if(!c.back && c.a) c.back = c.a;
+  if(!c.q && c.front) c.q = c.front;
+  if(!c.a && c.back) c.a = c.back;
+  if(c.front == null) c.front = '';
+  if(c.back == null) c.back = '';
+  if(!c.typ) c.typ = '단답';
+  if(!c.subj) c.subj = '기본 덱';
+  if(!c.unit) c.unit = c.subj || '기본 덱';
+  return c;
+}
+function isDue(c){ if(!c) return false; normalizeCard(c); const s=state.cards[c.id];
   if(!(s && s.fsrs && !s.retired)) return false;
   return effDueKey(dayKey(new Date(s.fsrs.due)), c.id) <= todayKey(); }   // 휴식일 분산 반영
-function isNew(c){ const s=state.cards[c.id]; return !s || (!s.fsrs && !s.retired); }
+function isNew(c){ if(!c) return false; normalizeCard(c); const s=state.cards[c.id]; return !s || (!s.fsrs && !s.retired); }
 function isWeak(c){ const s=state.cards[c.id]; if(!s||s.retired) return false;
   return (s.fsrs && s.fsrs.reps>=2 && s.fsrs.stability<7) || s.miss>=2; }
 function retired(c){ const s=state.cards[c.id]; return !!(s && s.retired); }
@@ -9081,8 +9094,9 @@ function showCard(){
   if(skipped) syncSessQueue();
   const c=cur();
   if(!c){ showSummaryOrNew(); return; }
+  normalizeCard(c);
   revealed=false; itemMarks=(c.items||[]).map(()=>false); shownAt=Date.now(); pausedMs=0; guardAt=shownAt;
-  hintUsed=new Set(); renderHintBox(c);
+  try{ hintUsed=new Set(); renderHintBox(c); }catch(e){}
   $('summary').style.display='none'; $('cardZone').style.display='flex';
   const reN=c._re||0;
   $('gradeBar').classList.toggle('re', reN>0);
@@ -9092,24 +9106,25 @@ function showCard(){
     const kcA=$('gAgain').querySelector('.keycap'); if(kcA) kcA.textContent = 'Z';
   }
   $('revealHint').textContent = (c.typ==='도식' ? '다 그렸으면 카드를 눌러요' : '카드를 누르면 정답이 보여요') + (reN>0?' · 재출':'');
-  const m=c.front.match(/^〔([^〕]*)〕\s*(.*)$/s);
-  $('cScope').innerHTML=scopeHtml(c); $('cFront').textContent=m?m[2]:c.front;
-  $('cFront').classList.toggle('is-long', (m?m[2]:c.front).length>200);   // 긴 문면 = 질문 20(폰 16) · 디자인 §4
+  const fText = String(c.front || c.q || '');
+  const m = fText.match(/^〔([^〕]*)〕\s*(.*)$/s);
+  $('cScope').innerHTML=scopeHtml(c); $('cFront').textContent=m?m[2]:fText;
+  $('cFront').classList.toggle('is-long', (m?m[2]:fText).length>200);   // 긴 문면 = 질문 20(폰 16) · 디자인 §4
   $('card').classList.toggle('tbl', !!c.table);                           // 표 카드는 표가 곧 답 칸 — 가림 면 없음
   $('cBackWrap').classList.remove('on');
   $('gradeBar').classList.remove('on');
-  renderTable(c,false);
-  showDiag(c,false);
-  renderImgs($('cImgF'), c, 'f'); renderImgs($('cImgB'), c, 'b');   // 앞면 그림은 바로 · 뒷면 그림은 #cBackWrap 안이라 공개 전엔 부모가 숨긴다
+  try{ renderTable(c,false); }catch(e){}
+  try{ showDiag(c,false); }catch(e){}
+  try{ renderImgs($('cImgF'), c, 'f'); renderImgs($('cImgB'), c, 'b'); }catch(e){}
   phase = isNew(c) ? 'new' : 'review';   // 신규 묶음을 다 풀고 잔량으로 넘어가면 라벨도 따라간다
-  $('phaseLine').textContent = whyNow(c);   // 이 카드가 왜 지금 나왔는지 (동하 2026-08-21)
-  $('ohWhy').textContent = whyNow(c);       // 아이폰 = 한 손 막대 가운데(디자인 §7.1)
-  fillBack(c);                              // 답면을 미리 깔아 둔다(가려진 채) — 공개해도 선·버튼이 안 움직인다
+  try{ $('phaseLine').textContent = whyNow(c); }catch(e){ $('phaseLine').textContent = ''; }
+  try{ $('ohWhy').textContent = whyNow(c); }catch(e){ $('ohWhy').textContent = ''; }
+  try{ fillBack(c); }catch(e){}                              // 답면을 미리 깔아 둔다(가려진 채) — 공개해도 선·버튼이 안 움직인다
   requestAnimationFrame(coverFit);
   syncRail(); counts();
   try{ scRenderSolveBadge(); }catch(e){}
-  renderLastActionChip();
-  renderLineDots();
+  try{ renderLastActionChip(); }catch(e){}
+  try{ renderLineDots(); }catch(e){}
   $('cardScroll').scrollTop=0;
   saveResume();                  // 회독본 갔다 돌아올 자리 (앞면 상태)
 }
@@ -9157,7 +9172,7 @@ function fillBackText(c, hide){
   const el=$('cBack'); el.classList.remove('short','ans-s','ans-m','ans-l','ans-struct');
   if(hide){ el.textContent=''; el.style.display='none'; $('cAnsLab').style.display='none'; return; }
   el.style.display='block'; $('cAnsLab').style.display='';
-  const b=String(c.back||''), rows=backParts(b);
+  const b=String((c && (c.back || c.a)) || ''), rows=backParts(b);
   if(rows){ el.classList.add('ans-struct');
     el.innerHTML=rows.map(([k,v])=>`<div class="as-row"><div class="as-k">${esc(k)}</div><div class="as-v">${esc(v)}</div></div>`).join(''); return; }
   el.textContent=b;
@@ -9171,6 +9186,7 @@ function coverFit(){ const cv=$('cCover'), lo=$('cLower'); if(!cv||!lo) return; 
   if(ext>0) cv.style.marginBottom=(-ext)+'px'; }
 window.addEventListener('resize',()=>requestAnimationFrame(coverFit));
 function fillBack(c){   // 앞면에서 답면을 미리 깐다 — 보이는 건 가림 면뿐(#cBackWrap visibility:hidden)
+  if(!c) return; normalizeCard(c);
   const hasItems=Array.isArray(c.items)&&c.items.length>=2, isDiag=c.typ==='도식', isTbl=!!c.table;
   fillBackText(c, hasItems||isDiag||isTbl);
   const box=$('cItems'); box.innerHTML=''; box.classList.toggle('on',hasItems);
@@ -9178,13 +9194,15 @@ function fillBack(c){   // 앞면에서 답면을 미리 깐다 — 보이는 �
     box.innerHTML=c.items.map((it,i)=>`<div class="it-row">${ordered?`<span class="it-ord">${i+1}</span>`:''}<span class="xm">✕</span><span>${esc(it)}</span></div>`).join(''); }
   const n=$('cNote'); n.classList.toggle('on',!!c.note); n.innerHTML=c.note?'<b>보충</b>'+noteHtml(c.note):'';
   const sc=$('cSrc'); sc.classList.toggle('on',!!c.src); sc.textContent=c.src?'출처 '+c.src:'';
-  $('cTyp').textContent=c.typ||'';
+  $('cTyp').textContent=c.typ||'단답';
   $('cDir').style.display = isRev(c)?'inline-block':'none';
+  const backStr = String(c.back || c.a || '');
   $('cHint').textContent = isTbl ? '표 답 — 위 표를 채워 보고 대조해요'
     : isDiag ? '그림 답 — 회독본과 대조해 스스로 채점'
-    : TERM_TYPES.has(c.typ)||((c.back||'').length<=14&&!String(c.back||'').includes('·'))
+    : TERM_TYPES.has(c.typ)||(backStr.length<=14&&!backStr.includes('·'))
     ? '용어 답 — 표기까지 정확히' : '서술 답 — 요지 재현이면 정답';
-  showHoedokLink(c); renderCardTags(c);
+  try{ showHoedokLink(c); }catch(e){}
+  try{ renderCardTags(c); }catch(e){}
 }
 function scopeHtml(c){   // 경로 = 과목 › 갈래 › 주제 (과목 번호 접두는 뗀다 · 아이폰은 과목 › 마지막 갈래 둘만 — CSS)
   const parts=String(scopeOf(c)||'').split(/\s+·\s+/).filter(Boolean);
@@ -9194,6 +9212,7 @@ function scopeHtml(c){   // 경로 = 과목 › 갈래 › 주제 (과목 번호
 }
 function reveal(){
   const c=cur(); if(!c||revealed)return;
+  normalizeCard(c);
   revealed=true; revealAt=Date.now();
   /* 힌트 칩은 가림 면 안이라 답면에선 가림 면과 함께 visibility로 숨는다 — 여기서 치우면(display) 칸 높이가 바뀌어 선이 움직였다(09-24 실측 5px) */
   const hasItems=Array.isArray(c.items)&&c.items.length>=2;
@@ -9202,7 +9221,8 @@ function reveal(){
      같은 답을 두 번 말하거나 "(표)" 같은 자리표시가 그대로 노출된다. 그래서 숨긴다 —
      생성기 쪽에 back을 안 쓰는 것으로 약속돼 있고, 혹 채워 오더라도 화면은 안 흔들린다. */
   const isTbl=!!c.table;
-  fillBackText(c, hasItems||isDiag||isTbl); $('card').classList.add('rev');
+  try{ fillBackText(c, hasItems||isDiag||isTbl); }catch(e){}
+  $('card').classList.add('rev');
   const box=$('cItems'); box.innerHTML=''; box.classList.toggle('on',hasItems);
   if(hasItems){
     const ordered = c.typ==='단계'||c.typ==='연쇄';
@@ -9220,21 +9240,23 @@ function reveal(){
   if(c.note)n.innerHTML='<b>보충</b>'+noteHtml(c.note);
   const sc=$('cSrc'); sc.classList.toggle('on',!!c.src);      // 출처 (v2.38 `src`)
   sc.textContent = c.src ? '출처 '+c.src : '';
-  $('cTyp').textContent=c.typ;
+  $('cTyp').textContent=c.typ||'단답';
   $('cDir').style.display = isRev(c)?'inline-block':'none';   // 전방은 기본이라 무표시
-  renderTable(c,true);
-  showDiag(c,true);
-  showHoedokLink(c);
+  try{ renderTable(c,true); }catch(e){}
+  try{ showDiag(c,true); }catch(e){}
+  try{ showHoedokLink(c); }catch(e){}
+  const backStr = String(c.back || c.a || '');
   $('cHint').textContent = isTbl ? '표 답 — 위 표를 채워 보고 대조해요'
     : c.typ==='도식' ? '그림 답 — 회독본과 대조해 스스로 채점'
-    : TERM_TYPES.has(c.typ)||((c.back||'').length<=14&&!c.back.includes('·'))
+    : TERM_TYPES.has(c.typ)||(backStr.length<=14&&!backStr.includes('·'))
     ? '용어 답 — 표기까지 정확히' : '서술 답 — 요지 재현이면 정답';
   $('cBackWrap').classList.add('on');
   $('gradeBar').classList.add('on');
   $('cMeta').classList.add('on');
   saveResume();                  // 답면까지 봤다는 표시 — 돌아오면 여기로 복귀한다
-  renderCardTags(c);
-  intervalsPreview(c); syncGradeButtons();
+  try{ renderCardTags(c); }catch(e){}
+  try{ intervalsPreview(c); }catch(e){}
+  try{ syncGradeButtons(); }catch(e){}
   // 긴 앞면이면 방금 펼친 답면이 화면 밖이라 공개된 줄도 모른다 — 뷰포트 아래쪽(80% 밑)에
   // 있을 때만 살짝 끌어올린다. 짧은 카드는 nearest라 아무 일도 없다 (감사 U4). 스크롤 컨테이너=#cardScroll.
   const bw=$('cBackWrap'), scr=$('cardScroll').getBoundingClientRect();
@@ -16567,7 +16589,18 @@ if($('btnDoSaveCard')) $('btnDoSaveCard').onclick = () => {
   if(!q || !a){ alert('앞면(질문)과 뒷면(정답)을 모두 입력해주세요'); return; }
 
   const cid = 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-  const newCard = { id: cid, q, a, note, subj: deck.name, unit: deck.name, deckId: deck.id };
+  const newCard = {
+    id: cid,
+    q,
+    a,
+    front: q,
+    back: a,
+    typ: '단답',
+    note,
+    subj: deck.name,
+    unit: deck.name,
+    deckId: deck.id
+  };
 
   DATA.push(newCard);
   BYID[cid] = newCard;
@@ -16720,6 +16753,9 @@ function initUniversalImporter(){
       id: 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
       q: c.q,
       a: c.a,
+      front: c.q,
+      back: c.a,
+      typ: '단답',
       note: c.note || '',
       subj: deck ? deck.name : '기본 덱',
       unit: deck ? deck.name : '기본 덱',
@@ -16910,17 +16946,26 @@ function updateUserAuthUI(user){
 
 function restoreUserCards(){
   try {
-    const custom = JSON.parse(lsGet(getUserStorageKey('custom_cards')) || '[]');
-    if(custom.length){
+    const raw = lsGet(getUserStorageKey('custom_cards')) || '[]';
+    const custom = JSON.parse(raw);
+    if(Array.isArray(custom) && custom.length){
       custom.forEach(c => {
+        normalizeCard(c);
         if(!BYID[c.id]){
           DATA.push(c);
           BYID[c.id] = c;
+        } else {
+          normalizeCard(BYID[c.id]);
         }
         if(c.subj && !SUBJECTS.includes(c.subj)) SUBJECTS.push(c.subj);
       });
+      // 저장소의 카드들도 front/back이 채워진 온전한 형태로 자동 마이그레이션 저장
+      lsSet(getUserStorageKey('custom_cards'), JSON.stringify(custom));
     }
   } catch(e){}
+  if(Array.isArray(DATA)){
+    DATA.forEach(c => normalizeCard(c));
+  }
 }
 
 async function syncFromSupabase(){
