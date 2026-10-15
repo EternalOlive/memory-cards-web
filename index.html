@@ -972,10 +972,10 @@ details.hp[open]>summary{border-bottom:1px solid var(--line);}
 /* 잔디판(10-04) — 칸 --hc · 사이 4 · 반경 4 · 진하기 = 시스템 초록 22/40/60/80% 섞음 4단 */
 #statsBody{--hc:14px;}
 @media (min-width:700px){ #statsBody{--hc:20px;} }
-.hm-stats{display:flex;flex-wrap:wrap;gap:6px 20px;margin:10px 0 12px;}
-.hm-stats>div{display:flex;flex-direction:column;}
-.hm-stats b{font-size:22px;line-height:28px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--c-label);}
-.hm-stats small{font-size:12px;line-height:16px;color:var(--c-sec);font-weight:600;}
+.hm-stats{display:flex;flex-wrap:wrap;gap:8px 20px;margin:10px 0 12px;}
+.hm-stats>div{display:flex;flex-direction:column;min-width:fit-content;}
+.hm-stats b{font-size:22px;line-height:28px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--c-label);white-space:nowrap;}
+.hm-stats small{font-size:12px;line-height:16px;color:var(--c-sec);font-weight:600;white-space:nowrap;word-break:keep-all;}
 .hm{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
 .hm-days{display:grid;grid-template-rows:14px repeat(7,var(--hc));gap:4px;font-size:11px;line-height:var(--hc);font-weight:600;color:var(--c-sec);flex:0 0 auto;}
 .hm-body{display:flex;flex-direction:column;gap:4px;}
@@ -1019,7 +1019,7 @@ details.hp[open]>summary{border-bottom:1px solid var(--line);}
 .kpi span.on{background:var(--accent-dim);}
 .kpi b{font-size:19px;font-weight:800;letter-spacing:-.3px;color:var(--ink2);}
 .kpi span.on b{color:var(--accent);}
-.kpi small{font-size:11.5px;font-weight:700;color:var(--faint);}
+.kpi small{font-size:11.5px;font-weight:700;color:var(--faint);white-space:nowrap;word-break:keep-all;}
 .spark-val{display:flex;gap:3px;margin-bottom:2px;}
 .spark-val span{flex:1;min-width:0;text-align:center;font-size:12px;font-weight:800;color:var(--ink2);font-variant-numeric:tabular-nums;}
 .heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px;}
@@ -17805,9 +17805,9 @@ function initUniversalImporter(){
       }
 
       const zip = await JSZip.loadAsync(file);
-      const dbFile = zip.file('collection.anki2') || zip.file('collection.anki21') || zip.file('collection.anki21b');
+      const dbFile = zip.file('collection.anki21') || zip.file('collection.anki21b') || zip.file('collection.anki2');
       if(!dbFile){
-        alert('Anki 데이터베이스(collection.anki2)를 패키지에서 찾을 수 없습니다.');
+        alert('Anki 데이터베이스(collection.anki21 / collection.anki2)를 패키지에서 찾을 수 없습니다.');
         return;
       }
 
@@ -17821,9 +17821,19 @@ function initUniversalImporter(){
       const colRes = db.exec("SELECT crt, models, decks FROM col");
       let crt = Math.floor(Date.now() / 1000);
       let ankiDecks = {};
+      let ankiModels = {};
       if(colRes.length && colRes[0].values.length){
         crt = colRes[0].values[0][0] || crt;
+        try { ankiModels = JSON.parse(colRes[0].values[0][1]); } catch(e){}
         try { ankiDecks = JSON.parse(colRes[0].values[0][2]); } catch(e){}
+      }
+      if(!Object.keys(ankiDecks).length){
+        try {
+          const dtRes = db.exec("SELECT id, name FROM decks");
+          if(dtRes.length && dtRes[0].values.length){
+            dtRes[0].values.forEach(r => { ankiDecks[String(r[0])] = { id: r[0], name: r[1] }; });
+          }
+        } catch(e){}
       }
       ankiDecksCache = ankiDecks;
 
@@ -17846,8 +17856,8 @@ function initUniversalImporter(){
 
       // 3. cards + notes 조인 쿼리
       const cardsRes = db.exec(`
-        SELECT c.id as cid, c.nid, c.did, c.type, c.queue, c.due, c.ivl, c.factor, c.reps, c.lapses, c.data,
-               n.flds, n.tags
+        SELECT c.id as cid, c.nid, c.did, c.ord, c.type, c.queue, c.due, c.ivl, c.factor, c.reps, c.lapses, c.data,
+               n.mid, n.flds, n.tags
         FROM cards c
         JOIN notes n ON c.nid = n.id
       `);
@@ -17866,10 +17876,67 @@ function initUniversalImporter(){
           const item = {};
           cols.forEach((c, idx) => item[c] = row[idx]);
 
-          const flds = (item.flds || '').split('\x1f');
-          const q = flds[0] || '';
-          const a = flds[1] || '';
-          const note = flds.slice(2).join(' / ');
+          const model = ankiModels[String(item.mid)] || {};
+          const fldDefs = model.flds || [];
+          const fldVals = (item.flds || '').split('\x1f');
+          const fldMap = {};
+          fldDefs.forEach((fd, i) => {
+            fldMap[fd.name] = fldVals[i] || '';
+          });
+
+          const cleanHtml = (txt) => {
+            if(!txt) return '';
+            return txt.replace(/{{FrontSide}}/gi, '')
+                      .replace(/<br\s*\/?>/gi, '\n')
+                      .replace(/<[^>]+>/g, ' ')
+                      .replace(/&nbsp;/gi, ' ')
+                      .replace(/\s+/g, ' ')
+                      .trim();
+          };
+
+          let q = '';
+          let a = '';
+          let note = '';
+
+          if(fldMap['Korean'] && fldMap['English']){
+            q = cleanHtml(fldMap['Korean']);
+            a = cleanHtml(fldMap['English']);
+            const notes = [fldMap['Chunk'], fldMap['Situation'], fldMap['Source']].filter(Boolean);
+            note = notes.map(cleanHtml).join(' · ');
+          } else if(fldMap['Front'] && fldMap['Back']){
+            q = cleanHtml(fldMap['Front']);
+            a = cleanHtml(fldMap['Back']);
+            const notes = [];
+            for(const k in fldMap){
+              if(k !== 'Front' && k !== 'Back' && fldMap[k]) notes.push(fldMap[k]);
+            }
+            note = notes.map(cleanHtml).join(' · ');
+          } else if(model.tmpls && model.tmpls[item.ord || 0]){
+            const tmpl = model.tmpls[item.ord || 0];
+            const fillTmpl = (str) => {
+              let res = str || '';
+              for(const k in fldMap){
+                const re = new RegExp('{{\\s*(?:type:|hint:)?' + k + '\\s*}}', 'gi');
+                res = res.replace(re, fldMap[k]);
+              }
+              return cleanHtml(res.replace(/{{[^}]+}}/g, ''));
+            };
+            q = fillTmpl(tmpl.qfmt);
+            let rawAfmt = tmpl.afmt || '';
+            if(rawAfmt.includes('<hr id="answer">')){
+              rawAfmt = rawAfmt.split('<hr id="answer">')[1] || rawAfmt;
+            } else if(rawAfmt.includes('<hr id=answer>')){
+              rawAfmt = rawAfmt.split('<hr id=answer>')[1] || rawAfmt;
+            }
+            a = fillTmpl(rawAfmt);
+            if(!q && fldVals.length) q = cleanHtml(fldVals[0]);
+            if(!a && fldVals.length > 1) a = cleanHtml(fldVals[1]);
+            note = fldVals.slice(2).map(cleanHtml).filter(Boolean).join(' · ');
+          } else {
+            q = cleanHtml(fldVals[0] || '');
+            a = cleanHtml(fldVals[1] || '');
+            note = fldVals.slice(2).map(cleanHtml).filter(Boolean).join(' · ');
+          }
 
           const deckObj = ankiDecks[String(item.did)] || { name: baseName || 'Anki 덱' };
           const deckName = deckObj.name || (baseName || 'Anki 덱');
