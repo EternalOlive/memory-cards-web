@@ -2289,7 +2289,8 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
     <div class="hs-head"><span class="hs-title">카드</span><span class="hs-dday" id="hDday"></span></div>
     <div class="hs-tiles" id="hTiles"></div>
     <nav class="hs-nav"><div class="hs-grp">메뉴</div>
-      <button class="hs-row" id="hsDeckNav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>덱 탐색 & 오답</button>
+      <button class="hs-row" data-go="scrHome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>홈 (덱 목록)</button>
+      <button class="hs-row" id="hsDeckNav" onclick="ymEnter()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>연문 모드 & 오답</button>
       <button class="hs-row" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>라이브러리 (검색)</button>
       <button class="hs-row" data-go="scrStats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-6"/></svg>학습 통계</button>
       <button class="hs-row" data-go="scrStudy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.8 14.6c2.4-.3 4.3 1.2 4.8 4.4"/></svg>스터디 룸</button>
@@ -2372,7 +2373,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
            아이폰 = 사이드바 대신 본문 위 타일 + 아래 탭 막대(오늘 · 문풀 · 회독본 · 라이브러리). 플래그 타일은 없다(라이브러리 빠른 목록으로). -->
       <div class="home-wrap"><div class="home-inner">
         <div class="home-head">
-          <div class="hh-t"><div class="h-title">오늘</div><div class="h-sub" id="hSub"></div></div>
+          <div class="hh-t"><div class="h-title">홈</div><div class="h-sub" id="hSub"></div></div>
           <div style="display:flex;align-items:center;gap:8px;">
             <button class="account-btn glass-c" id="btnUserAccount" title="계정 및 클라우드 동기화" aria-label="계정">
               <span id="accountBadgeIcon">👤</span>
@@ -2395,7 +2396,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
             </div>
             <div style="display:flex;align-items:center;gap:6px;">
               <button class="deck-act-btn" id="btnOpenNewDeck" title="새 덱 만들기">+ 새 덱</button>
-              <button class="deck-act-btn deck-act-primary" id="btnOpenImportTop" title="덱 가져오기 / 업로드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13" aria-hidden="true"><path d="M12 3v13M7 11l5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>덱 업로드</button>
+              <button class="deck-act-btn deck-act-primary" id="btnOpenImportTop" title="덱 가져오기 / 파일 열기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13" aria-hidden="true"><path d="M12 3v13M7 11l5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>덱 가져오기</button>
             </div>
           </div>
           <div id="deckListArea" style="display:flex;flex-direction:column;gap:10px;"></div>
@@ -2415,7 +2416,7 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
         <div class="today-box" id="todayBox" style="display:none"></div>
       </div></div>
       <nav id="tabBar">
-        <button class="tab on" id="tabToday"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>오늘</span></button>
+        <button class="tab on" id="tabToday"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>홈</span></button>
         <button class="tab" id="tabCards" data-go="scrList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 4v16"/></svg><span>전체 카드</span></button>
         <button class="tab" id="tabStats" data-go="scrStats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-6"/></svg><span>통계</span></button>
         <button class="tab" id="tabSetup" data-go="setup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>설정</span></button>
@@ -10259,7 +10260,7 @@ function renderHomeHead(due, restToday){
   $('hSub').innerHTML=parts.map(x=>'<span style="white-space:nowrap">'+esc(x)+'</span>').join(' · ');   /* 폰에서 줄이 바뀌어도 「오늘 / 신규 0」처럼 한 토막이 갈리지 않게 */
   $('hDday').textContent = dd>0?`D-${dd}`:dd===0?'D-day':''; $('hDday').style.display=dd>=0?'':'none';
   const ym=ymTodayN(), tiles=[
-    {k:'today', n:due, l:'오늘', ic:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', col:'var(--c-acc)', on:true},
+    {k:'today', n:due, l:'오늘 복습', ic:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', col:'var(--c-acc)', on:true},
     {k:'tmr', n:tomorrowCount(null), l:'내일', ic:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/>', col:'var(--c-indigo)'},
     ymTileSpec(ym),
     {k:'solved', n:solvedTodayCount(), l:'푼 카드', ic:'<rect x="4" y="6" width="13" height="15" rx="2.5"/><path d="M8 3h9.5A2.5 2.5 0 0 1 20 5.5V17"/>', col:'var(--c-teal)'},
@@ -10282,7 +10283,26 @@ function heroSess(){   // 이어서 풀기 = 지금 세션(남았으면) → 아
 }
 function renderHero(due){
   const box=$('hHero'); const sx=heroSess();
-  if(!sx){ const ym=ymTodayN();
+  if(!sx){
+    // 덱 중에 학습할 수 있는 카드(신규 또는 복습)가 있는지 확인
+    let pendingDeckCards = 0, firstPendingDeck = null;
+    if(typeof DECKS !== 'undefined' && Array.isArray(DECKS)){
+      for(const d of DECKS){
+        const dCards = getDeckCards(d).filter(c => !retired(c) && !offed(c) && (isDue(c) || isNew(c)));
+        if(dCards.length){
+          pendingDeckCards += dCards.length;
+          if(!firstPendingDeck) firstPendingDeck = d;
+        }
+      }
+    }
+    if(pendingDeckCards > 0 && firstPendingDeck){
+      box.innerHTML = `<section class="hero"><div class="hero-b"><span class="hero-k">학습 대기</span><span class="hero-t">${esc(firstPendingDeck.name)} (${pendingDeckCards}장)</span><span class="hero-s">새 카드와 복습할 카드가 기다리고 있어요</span></div><button class="hero-go" id="heroPlayFirstDeck"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L8.5 3.94A1 1 0 0 0 7 4.8z"/></svg>학습 시작</button></section>`;
+      const btn = $('heroPlayFirstDeck');
+      if(btn) btn.onclick = () => playDeck(firstPendingDeck);
+      return;
+    }
+
+    const ym=ymTodayN();
     const tmrAll=tomorrowCardsForSess(null);
     box.innerHTML=`<section class="hero done"><span class="hero-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
       <div class="hero-b"><span class="hero-t">오늘 할 일을 다 했어요</span><span class="hero-s">내일 ${tomorrowCount(null).toLocaleString()}장${ym?` · 문풀 ${ym}문항 남음`:''}</span></div>
@@ -16266,8 +16286,8 @@ function renderDeckHub(){
     area.innerHTML = `
       <div style="padding:24px 16px;text-align:center;background:var(--c-fill);border-radius:14px;color:var(--c-sec);">
         <div style="font-size:15px;font-weight:600;color:var(--c-label);margin-bottom:4px;">등록된 덱이 없어요</div>
-        <div style="font-size:13px;margin-bottom:12px;">새 덱을 만들거나 파일/텍스트를 업로드해보세요.</div>
-        <button class="deck-act-btn deck-act-primary" onclick="$('ovlImport').classList.add('show')">덱 업로드하기</button>
+        <div style="font-size:13px;margin-bottom:12px;">새 덱을 만들거나 파일/텍스트를 가져와보세요.</div>
+        <button class="deck-act-btn deck-act-primary" onclick="$('ovlImport').classList.add('show')">덱 가져오기</button>
       </div>`;
     return;
   }
@@ -16286,9 +16306,9 @@ function renderDeckHub(){
       </div>
       <div class="deck-right">
         <div class="anki-counts" title="신규(파랑) / 학습중(주황) / 복습대기(초록)">
-          <span class="ac-badge ac-new">${stats.new}</span>
-          <span class="ac-badge ac-learn">${stats.learn}</span>
-          <span class="ac-badge ac-due">${stats.due}</span>
+          <span class="ac-badge ac-new" title="신규 카드: ${stats.new}장">${stats.new}</span>
+          <span class="ac-badge ac-learn" title="학습 중 카드: ${stats.learn}장">${stats.learn}</span>
+          <span class="ac-badge ac-due" title="복습 대기 카드: ${stats.due}장">${stats.due}</span>
         </div>
         <button class="deck-act-btn deck-act-primary btn-study-deck" title="학습 시작">
           <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M7 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L8.5 3.94A1 1 0 0 0 7 4.8z"/></svg>학습
@@ -16368,16 +16388,25 @@ function openDeckOptionsMenu(deck, targetEl){
 // 덱 전용 학습 시작
 function playDeck(deck){
   const cards = getDeckCards(deck);
-  if(!cards.length){
+  if(!cards || !cards.length){
     toast('덱에 카드가 없습니다. 카드를 추가해주세요.');
     return;
   }
-  const sess = newSessObj(deck.name, HOW_TPL[0].how, { subj: [deck.name], deckId: deck.id });
-  sess.temp = true;
-  sessions = sessions.filter(x => !x.temp || x.name !== deck.name || sessRemain(x) > 0);
-  sessions.unshift(sess);
-  normalizeSessions();
-  playSess(sess);
+  const aliveCards = cards.filter(c => !retired(c) && !offed(c));
+  if(!aliveCards.length){
+    toast('덱에 학습할 수 있는 카드가 없습니다.');
+    return;
+  }
+
+  // 1순위: 복습 대기(due) 또는 신규(new) 카드 선발
+  const pending = aliveCards.filter(c => isDue(c) || isNew(c));
+  const toStudy = pending.length ? pending : aliveCards;
+
+  if(!pending.length){
+    toast('오늘 예정된 분량을 마쳤습니다. 전체 카드를 복습합니다.');
+  }
+
+  startAdHoc(toStudy, deck.name, `${deck.name} 학습 (${toStudy.length}장)`, true, false);
 }
 
 // 덱 오답만 모아 풀기
