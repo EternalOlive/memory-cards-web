@@ -14134,7 +14134,7 @@ window.setCumView = function(view){
   if(vCards) vCards.style.display = view === 'cards' ? 'block' : 'none';
   if(vReviews) vReviews.style.display = view === 'reviews' ? 'block' : 'none';
 };
-/* 궤적은 무겁다(시뮬 ≈1.4초) — 통계를 열 때마다 다시 돌리지 않는다.
+/* 궤적은 무겁다(시뮬 ≈1.4초) — 통계를 열 때마다 다시 돌리지 않는다. */
 window.statDeckId = '';
 window.setStatDeck = function(deckId){
   window.statDeckId = deckId || '';
