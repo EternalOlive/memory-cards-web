@@ -5602,6 +5602,7 @@ function logDate(e){ return new Date(logTs(e)); }
 function tomorrowKey(){ return dayKey(new Date(Date.now()+86400000)); }
 
 /* ═══════════════ 전역 상태 ═══════════════ */
+var YM = null;
 let DATA=[], BYID={}, ALLTAGS=[], ALLTYPS=[], TAGMETA={};
 /* 이번 부팅의 DATA가 **원격에서 방금 받은 것**인가 (캐시 폴백이면 false).
    BYID로 「없는 카드」를 판정하는 곳은 이 값을 먼저 봐야 한다 — pruneOrphans 참고. */
@@ -6697,13 +6698,13 @@ document.addEventListener('visibilitychange',()=>{
     hiddenAt=Date.now();
     syncSessQueue(); saveSessionsFlush();
     cacheFlush(); if(dirty){ pushFromHidden=true; push(); }
-    if(typeof YM!=='undefined' && YM.pending && YM.pending.length){ clearTimeout(_ymPushT); ymPush(); }   // 문풀 대기분도(리뷰 09-23 R5)
+    if(typeof YM!=='undefined' && YM && YM.pending && YM.pending.length){ clearTimeout(_ymPushT); ymPush(); }   // 문풀 대기분도(리뷰 09-23 R5)
     return;
   }
   if(!hiddenAt) return;              // 앱을 내려둔 시간은 응답 시간에서 조용히 뺀다 (정지 화면은 안 띄움 —
   const d=Date.now()-hiddenAt; hiddenAt=0;   // 잠깐 창 전환한 것까지 탭을 요구하면 성가시다)
   if(!pauseAt && shownAt && $('scrSolve').classList.contains('on')) pausedMs+=d;
-  if(d>10000){ refreshRemote(); if(typeof ymPull==='function') ymPull(); }       // 10초 넘게 자리 비웠으면 다른 기기 분을 당겨온다(문풀 로그도 · R6 · 10-06 1분→10초 — 폰·패드 번갈아 쓸 때 옛 값이 남았다)
+  if(d>10000){ refreshRemote(); if(typeof ymPull==='function' && typeof YM!=='undefined' && YM) ymPull(); }       // 10초 넘게 자리 비웠으면 다른 기기 분을 당겨온다(문풀 로그도 · R6 · 10-06 1분→10초 — 폰·패드 번갈아 쓸 때 옛 값이 남았다)
 });
 let refreshing=false, pendingRefresh=false, refreshFails=0;   // refreshFails = 연속 실패 횟수(X 목록 밖)
 async function refreshRemote(){     // 포그라운드 복귀 시 원격 상태 당겨오기 (새로고침 없이 기기 전환)
@@ -14630,13 +14631,17 @@ function renderFlags(){
 function openSetup(){
   const curRepo = (cfg&&cfg.owner&&cfg.repo) ? `${cfg.owner}/${cfg.repo}` : (BUILTIN.owner&&BUILTIN.repo ? `${BUILTIN.owner}/${BUILTIN.repo}` : '');
   if($('cfgRepo')) $('cfgRepo').value = curRepo;
-  $('cfgToken').value=(cfg&&cfg.token)||'';
-  $('cfgErr').style.display='none';
-  $('ovlSetup').classList.add('show');
+  if($('cfgToken')) $('cfgToken').value=(cfg&&cfg.token)||'';
+  if($('cfgErr')) $('cfgErr').style.display='none';
+  if($('ovlAuth')) $('ovlAuth').classList.add('show');
+  else if($('ovlSetup')) $('ovlSetup').classList.add('show');
 }
-$('setupClose').onclick=()=>$('ovlSetup').classList.remove('show');
-$('btnConnect').onclick=async()=>{
-  const tok=$('cfgToken').value.trim();
+if($('setupClose')) $('setupClose').onclick=()=>{
+  if($('ovlSetup')) $('ovlSetup').classList.remove('show');
+  if($('ovlAuth')) $('ovlAuth').classList.remove('show');
+};
+if($('btnConnect')) $('btnConnect').onclick=async()=>{
+  const tok=$('cfgToken') ? $('cfgToken').value.trim() : '';
   const repoStr=$('cfgRepo') ? $('cfgRepo').value.trim() : '';
   let o = (cfg&&cfg.owner) || BUILTIN.owner, r = (cfg&&cfg.repo) || BUILTIN.repo;
   if(repoStr && repoStr.includes('/')){
@@ -14645,25 +14650,27 @@ $('btnConnect').onclick=async()=>{
     r = parts[1].trim();
   }
   if(!o || !r){
-    $('cfgErr').textContent='저장소 이름(사용자명/저장소명)을 입력해 주세요';
-    $('cfgErr').style.display='block'; return;
+    if($('cfgErr')){ $('cfgErr').textContent='저장소 이름(사용자명/저장소명)을 입력해 주세요'; $('cfgErr').style.display='block'; }
+    return;
   }
   if(!tok){
-    $('cfgErr').textContent='토큰을 입력해 주세요';
-    $('cfgErr').style.display='block'; return;
+    if($('cfgErr')){ $('cfgErr').textContent='토큰을 입력해 주세요'; $('cfgErr').style.display='block'; }
+    return;
   }
   cfg={owner:o, repo:r, token:tok};
   $('btnConnect').disabled=true;
   try{
     const res=await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`,{headers:ghHeaders(),cache:'no-store'});
     if(!res.ok)throw 0;
-    saveCfg(); $('ovlSetup').classList.remove('show'); hideBanner();
+    saveCfg();
+    if($('ovlSetup')) $('ovlSetup').classList.remove('show');
+    if($('ovlAuth')) $('ovlAuth').classList.remove('show');
+    hideBanner();
     await loadAll(); toast('연결 완료'); if(dirty)push(true);
     for(const sx of sessions){ if(!isFixed(sx)) sx.day=''; }
     saveSessionsFlush(); renderHome();
   }catch(e){
-    $('cfgErr').textContent='연결 실패 — 토큰 권한(Contents RW)과 저장소 이름을 확인해 주세요';
-    $('cfgErr').style.display='block';
+    if($('cfgErr')){ $('cfgErr').textContent='연결 실패 — 토큰 권한(Contents RW)과 저장소 이름을 확인해 주세요'; $('cfgErr').style.display='block'; }
   }finally{ $('btnConnect').disabled=false; }
 };
 
@@ -14886,11 +14893,11 @@ function hdDock(on){
   /* 강조 = 지금 목적지(회독본) — 닫으면 go()와 같은 규칙으로 되돌린다 */
   if(dock){ document.querySelectorAll('#hSide .hs-tile.on, #hSide .hs-row.on, #tabBar .tab.on').forEach(b=>b.classList.remove('on'));
     hdNavHi(); }
-  else { $('hsHd').classList.remove('on'); $('tabHd').classList.remove('on'); $('ctOpen').classList.remove('on');
+  else { $('hsHd')?.classList.remove('on'); $('tabHd')?.classList.remove('on'); $('ctOpen')?.classList.remove('on');
     const id=([...document.querySelectorAll('.scr.on')].map(x=>x.id)[0])||'scrHome';
     document.querySelectorAll('#hSide .hs-nav [data-go]').forEach(b=>b.classList.toggle('on', b.dataset.go===id));
     document.querySelectorAll('#hSide .hs-tile').forEach(t=>t.classList.toggle('on', (t.dataset.tile==='today'&&(id==='scrHome'||id==='scrSession'))||(t.dataset.tile==='ym'&&/^scrYm/.test(id))));
-    $('tabToday').classList.toggle('on', id==='scrHome'); }
+    $('tabToday')?.classList.toggle('on', id==='scrHome'); }
 }
 /* 강조 = 창에 뜬 것 — 내용 체계표면 그 줄, 판이면 회독본 줄·탭(동하 09-30 「내체표 누르면 하이라이트가 회독본으로」) */
 function hdNavHi(){ if(!$('ovlHd')?.classList.contains('dock')) return; const ct=/curric-table/.test(_hdSrc);
@@ -15367,7 +15374,7 @@ async function ymLoadBase(){
 }
 function ymInPop(c){ return (c.tags||[])[0]!=='강사 질문' && (!YM_BASE || YM_BASE.has(c.id)); }
 const YM_MARKS=['✓','△','?','○','-','▽','x'];
-let YM={cat:null, ev:[], ids:new Set(), pending:[], loaded:false, catOK:false, remoteOK:false,
+YM={cat:null, ev:[], ids:new Set(), pending:[], loaded:false, catOK:false, remoteOK:false,
         st:{units:{}, items:{}}, idx:null, pushing:false, lastErr:null};
 /* 🔴 이벤트 id는 **같은 밀리초 안에서도 순서가 보존**돼야 한다 — 탭 순환(✓→△→?)은 한 ms 안에 두 번 올 수 있고,
    정렬이 (t, i)라서 i가 난수면 순서가 뒤집혀 파생값이 틀린다(검증에서 잡았다: ✓ 뒤 △가 ✓로 남았다).
@@ -15579,7 +15586,7 @@ async function ymLoadRemote(){                 // 원격 로그 → 합집합 ·
 /* 🔴 문풀 로그도 복귀 때 당긴다(리뷰 09-23 R6) — 부팅 뒤 첫 진입 한 번만 읽어서 다른 기기 표시가 안 보였고, 409 병합 때 이 기기의 뒤 이벤트가 그걸 덮었다.
    이벤트 id 합집합이라 몇 번 당겨도 안전하다. 카드의 refreshRemote와 같은 자리에서 부르되, 한 번도 안 열었으면(카탈로그 없음) 건너뛴다. */
 async function ymPull(){
-  if(!YM.loaded || !cfg || !cfg.token) return;
+  if(!YM || !YM.loaded || !cfg || !cfg.token) return;
   try{ const got=await ghGet(YM_PATH); YM.remoteOK=true; if(got && Array.isArray(got.ev)){ ymAdd(got.ev); ymDerive(); _ymReady=null; ymTileRefresh(); }
     YM.pulledAt=Date.now(); try{ await idbSet(K_YM_LOG, JSON.stringify(ymFile())); }catch(e){}
     if(typeof ymRenderSoon==='function') ymRenderSoon(); }catch(e){}
@@ -16730,9 +16737,20 @@ window.addEventListener('DOMContentLoaded', () => {
   renderTodayAgainSection();
 
   // 탭바 바인딩
+  if($('tabToday')) $('tabToday').onclick = () => go('scrHome');
   if($('tabCards')) $('tabCards').onclick = () => go('scrList');
   if($('tabStats')) $('tabStats').onclick = () => go('scrStats');
   if($('tabSetup')) $('tabSetup').onclick = () => $('ovlAuth').classList.add('show');
+
+  // 로딩 화면 안전 자동 해제 가드
+  setTimeout(() => {
+    const ld = $('loading');
+    if(ld && ld.style.display !== 'none'){
+      ld.style.display = 'none';
+      if(typeof go === 'function') go('scrHome');
+      if(typeof renderHome === 'function') try { renderHome(); } catch(e){}
+    }
+  }, 1200);
 });
 
 </script>
