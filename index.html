@@ -9,7 +9,49 @@
 <meta name="apple-mobile-web-app-title" content="카드">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="theme-color" content="#13151A">
-<title>카드</title>
+<script>
+/* ── 글로벌 에러 수집 및 부트 모니터링 (첫 스크립트 실행 전 등록) ── */
+window.__bootErrors = [];
+window.__bootStart = Date.now();
+window.__reportBootError = function(type, detail) {
+  var d = detail || {};
+  var msg = d.message || d.msg || String(detail);
+  var loc = d.line ? (' (' + (d.url || 'index.html').split('/').pop() + ':' + d.line + (d.col ? ':' + d.col : '') + ')') : '';
+  var stack = d.stack || (d.error && d.error.stack) || '';
+  
+  console.error('%c[부트/로딩 오류] ' + type, 'color:#ff3b30;font-weight:bold;font-size:13px;', '\n내용:', msg + loc, stack ? '\n스택:\n' + stack : '');
+  window.__bootErrors.push({ type: type, msg: msg, loc: loc, stack: stack, time: Date.now() - window.__bootStart });
+  
+  try {
+    var box = document.getElementById('loadingErrorBox');
+    if (box) {
+      box.style.display = 'block';
+      box.innerHTML = '<div style="color:#ff3b30;font-weight:700;font-size:14px;margin-bottom:6px;">⚠️ 로딩 중 오류가 발생했습니다</div>'
+        + '<div style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;background:rgba(255,59,48,0.12);color:var(--c-label,#1c1c1e);padding:10px;border-radius:8px;text-align:left;max-height:160px;overflow:auto;word-break:break-all;white-space:pre-wrap;">'
+        + '<b>' + (msg ? msg.replace(/</g,'&lt;') : '알 수 없는 오류') + '</b>' + loc
+        + (stack ? '<div style="opacity:0.75;margin-top:6px;font-size:10px;">' + stack.replace(/</g,'&lt;') + '</div>' : '')
+        + '</div>'
+        + '<div style="display:flex;gap:8px;margin-top:10px;justify-content:center;flex-wrap:wrap;">'
+        + '<button onclick="document.getElementById(\'loading\').style.display=\'none\';if(typeof go===\'function\')go(\'scrHome\');" style="padding:7px 14px;background:#007aff;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">오류 무시하고 계속하기</button>'
+        + '<button onclick="try{localStorage.clear();}catch(e){}location.reload();" style="padding:7px 14px;background:rgba(120,120,128,0.2);color:inherit;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">캐시 초기화 후 새로고침</button>'
+        + '</div>';
+    }
+  } catch(e) {}
+};
+
+window.onerror = function(msg, url, line, col, err) {
+  window.__reportBootError('Script Error', { msg: msg, url: url, line: line, col: col, error: err, stack: err && err.stack ? err.stack : '' });
+  return false;
+};
+
+window.addEventListener('unhandledrejection', function(e) {
+  var reason = e.reason;
+  window.__reportBootError('Promise Rejection', {
+    msg: reason && reason.message ? reason.message : String(reason),
+    stack: reason && reason.stack ? reason.stack : ''
+  });
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>/* 테마 — 첫 페인트 전에 적는다(깜빡임 방지). 옛 값 b → dark · c → paper (09-24) */
 try{var _t=localStorage.getItem('cards_theme_v1');_t=_t==='b'?'dark':_t==='c'?'paper':_t;if(_t&&_t!=='auto')document.documentElement.dataset.theme=_t;var _l=localStorage.getItem('cards_light_v1');if(_l)document.documentElement.dataset.light=_l;}catch(e){}</script>
@@ -2319,17 +2361,50 @@ details.gr-fold[open]>summary .s2-chev{transform:rotate(90deg);}
 </style>
 </head>
 <body>
-<div id="loading" onclick="this.style.display='none'"><img class="ld-ic" src="icon-180.png" alt=""><div class="ld-t">카드</div><div class="ld-bar"><i></i></div><div class="ld-s">여는 중…</div><div style="font-size:12px;opacity:0.65;margin-top:8px;cursor:pointer;">화면이 멈춘 경우 터치하여 즉시 시작</div></div>
+<div id="loading" onclick="if(event.target.tagName!=='BUTTON'&&event.target.tagName!=='A')this.style.display='none'">
+  <img class="ld-ic" src="icon-180.png" alt="">
+  <div class="ld-t">카드</div>
+  <div class="ld-bar"><i></i></div>
+  <div class="ld-s" id="loadingStatusText">여는 중…</div>
+  <div id="loadingErrorBox" style="display:none;width:90%;max-width:440px;margin-top:8px;"></div>
+  <div style="font-size:12px;opacity:0.65;margin-top:8px;cursor:pointer;">화면이 멈춘 경우 터치하여 즉시 시작</div>
+</div>
 <script>
-// 전역 비상 안전 가드 (2초 초과 시 로딩 강제 해제)
+// 로딩 모니터링 & 비상 안전 가드
 setTimeout(function(){
   var ld = document.getElementById('loading');
   if(ld && ld.style.display !== 'none'){
-    ld.style.display = 'none';
-    if(typeof go === 'function') try { go('scrHome'); } catch(e){}
-    if(typeof renderHome === 'function') try { renderHome(); } catch(e){}
+    console.warn('%c[로딩 상태 점검 (1.5초 경과)]', 'color:#ff9500;font-weight:bold;', {
+      경과시간: (Date.now() - (window.__bootStart || 0)) + 'ms',
+      발생오류: window.__bootErrors || [],
+      go정의: typeof go === 'function',
+      renderHome정의: typeof renderHome === 'function',
+      FSRS정의: typeof FSRS !== 'undefined',
+      DECKS정의: typeof DECKS !== 'undefined'
+    });
+    var st = document.getElementById('loadingStatusText');
+    if(st) st.textContent = '데이터 및 환경을 점검하고 있습니다…';
+    if(window.__bootErrors && window.__bootErrors.length > 0 && typeof window.__reportBootError === 'function'){
+      window.__reportBootError('로딩 지연 (오류 감지)', window.__bootErrors[0]);
+    }
   }
-}, 2000);
+}, 1500);
+
+setTimeout(function(){
+  var ld = document.getElementById('loading');
+  if(ld && ld.style.display !== 'none'){
+    if(window.__bootErrors && window.__bootErrors.length > 0){
+      console.error('%c[로딩 중단] 스크립트 실행 중 에러가 발생하여 정상 시작되지 못했습니다. 화면의 진단 창을 확인하세요.', 'color:#ff3b30;font-weight:bold;', window.__bootErrors);
+      var box = document.getElementById('loadingErrorBox');
+      if(box) box.style.display = 'block';
+      return;
+    }
+    console.warn('[로딩 타임아웃] 3초가 경과하여 로딩 화면을 해제하고 홈으로 이동합니다.');
+    ld.style.display = 'none';
+    if(typeof go === 'function') try { go('scrHome'); } catch(e){ console.error('[go(scrHome) 실패]', e); }
+    if(typeof renderHome === 'function') try { renderHome(); } catch(e){ console.error('[renderHome 실패]', e); }
+  }
+}, 3000);
 </script>
 <div id="app">
   <aside id="hSide">
@@ -2352,7 +2427,7 @@ setTimeout(function(){
     </div>
 
     <!-- 풀이 -->
-    <div class="scr on" id="scrSolve">
+    <div class="scr" id="scrSolve">
       <div id="cardZone">
         <!-- 스와이프 피드백은 이 마당의 배경(::before)이 전부다 — CSS 「스와이프 채점 피드백」 절. 왼쪽 = 알맞음, 오른쪽 = 다시. -->
         <!-- 🔴 디자인 이식 09-24: 카드 = 위아래 반반. 답면 내용은 **앞면에서도 미리 채워 visibility:hidden**으로 깔고 가림 면으로 덮는다 →
@@ -2405,7 +2480,7 @@ setTimeout(function(){
 
 
     <!-- 홈 -->
-    <div class="scr" id="scrHome">
+    <div class="scr on" id="scrHome">
       <!-- 🔴 디자인 이식 C (09-24 · 디자인_언어 §7 · 캔버스 「톤 · 페이퍼」 확정 홈): 가로 = 사이드바(타일 넷 · 보기 · 설정) + 본문(오늘 · 이어서 풀기 · 세션).
            아이폰 = 사이드바 대신 본문 위 타일 + 아래 탭 막대(오늘 · 문풀 · 회독본 · 라이브러리). 플래그 타일은 없다(라이브러리 빠른 목록으로). -->
       <div class="home-wrap"><div class="home-inner">
@@ -2930,7 +3005,7 @@ setTimeout(function(){
   </div>
 
   <!-- 사이드바 -->
-  <div id="rail">
+  <div id="rail" style="display:none">
     <div class="rail-grp">피드백</div>
     <button class="rbtn" id="rFlag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 21V6h11l-2 4 2 4h-11"/></svg>플래그<span class="st">●</span></button>
     <div id="flagTypes"></div>
@@ -5806,7 +5881,7 @@ function setFlag(c,v){ const s=st(c.id); s.flag=v; if(v==null)s.ft=[]; touchFb(s
    것은 다른 결과**라 요청이 계속 다른 일로 소비됐다.
    ⚠ 첫 이름은 `단서 추가`였고 같은 날 동하가 `사례 추가`로 고쳤다(「엄, 단서 추가라고 했네 내가」).
    🔴 **그래서 「추가」 계열의 `ann:["사례"]`와 이름이 겹친다** — 뜻은 정반대다(이쪽은 **구조를 바꿔라**,
-   저쪽은 **줄을 더해라**). 도움말 `hp6`에 갈림을 적어 뒀다. **둘 중 하나를 또 고칠 때 같이 봐라.**
+   저쪽은 **줄을 더해라**). 도움말 `hp6`에 갈림을 적어 뒀다. **둘 중 하나를 또 고칠 때 같이 봐라.** */
 const FLAG_TYPES=['🚩 중요','⭐ 핵심','⚠️ 재확인','💡 보충'];
 function flagTypes(s){ return (s&&Array.isArray(s.ft))?s.ft:[]; }
 function toggleFlagType(c,name){
@@ -17352,10 +17427,14 @@ function safeHideLoading(){
     const ld = document.getElementById('loading');
     if(ld && ld.style.display !== 'none'){
       ld.style.display = 'none';
-      if(typeof go === 'function') try { go('scrHome'); } catch(e){}
-      if(typeof renderHome === 'function') try { renderHome(); } catch(e){}
+      const elapsed = Date.now() - (window.__bootStart || 0);
+      console.log('%c[앱 시작 완료] 성공적으로 초기화되었습니다 (' + elapsed + 'ms)', 'color:#34c759;font-weight:bold;');
+      if(typeof go === 'function') try { go('scrHome'); } catch(e){ console.error('[go(scrHome) 실패]', e); }
+      if(typeof renderHome === 'function') try { renderHome(); } catch(e){ console.error('[renderHome 실패]', e); }
     }
-  } catch(e){}
+  } catch(e){
+    console.error('[safeHideLoading 오류]', e);
+  }
 }
 
 function initApp(){
